@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowUp, Check, ImagePlus, Loader2, Mic, Palette, Sparkles, Square, X } from "lucide-react";
+import { ArrowUp, Check, ImagePlus, Loader2, Mic, Palette, PenLine, Square, X } from "lucide-react";
 import { fileToDataUrl } from "@/lib/image";
 import { useSpeech } from "@/lib/useSpeech";
 import { STYLE_PRESETS } from "@/lib/styles";
@@ -100,7 +100,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
       const d = await r.json();
       if (d.prompt) {
         setText(d.prompt);
-        toast.success("Sorğu təkmilləşdirildi ✨");
+        toast.success("Sorğu təkmilləşdirildi");
       } else toast.error(d.error ?? "Təkmilləşdirmək alınmadı");
     } catch {
       toast.error("Təkmilləşdirmək alınmadı");
@@ -122,26 +122,10 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
 
   return (
     <div className="relative">
-      {/* animated gradient ring */}
-      <div
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute -inset-px rounded-[22px] opacity-0 transition-opacity duration-500",
-          (focused || speech.listening) && "opacity-100"
-        )}
-        style={{
-          background: "conic-gradient(from var(--angle, 0deg), #ff3b5c, #ff7a45, #ffc24b, #c13ccf, #ff3b5c)",
-          animation: "spin-angle 4s linear infinite",
-          mask: "linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)",
-          WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-          WebkitMaskComposite: "xor",
-          padding: 1,
-        }}
-      />
       <div
         className={cn(
-          "relative rounded-[21px] border border-white/10 bg-ink-900/85 shadow-[var(--shadow-panel)] backdrop-blur-xl transition-colors",
-          focused && "border-transparent"
+          "relative rounded-[4px] border-[1.5px] border-ink-100/80 bg-ink-1000 transition-[box-shadow,border-color] duration-200",
+          focused ? "border-ink-100 shadow-[4px_4px_0_var(--color-nar)]" : "shadow-[4px_4px_0_var(--color-ink-700)]"
         )}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
@@ -155,11 +139,11 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               {images.map((src, i) => (
                 <motion.div key={src.slice(-40) + i} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="Əlavə edilmiş şəkil" className="size-16 rounded-xl object-cover ring-1 ring-white/10" />
+                  <img src={src} alt="Əlavə edilmiş şəkil" className="size-16 rounded-[3px] object-cover ring-1 ring-ink-100/15" />
                   <button
                     aria-label="Şəkli sil"
                     onClick={() => setImages(images.filter((_, j) => j !== i))}
-                    className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-ink-600 text-ink-100 transition hover:bg-nar-500"
+                    className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-[2px] bg-ink text-wool transition hover:bg-nar"
                   >
                     <X className="size-3" />
                   </button>
@@ -197,14 +181,14 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
             rows={lg ? 3 : 2}
             aria-label="Sayt təsviri"
             className={cn(
-              "block w-full resize-none bg-transparent px-5 pt-4 text-ink-100 outline-none placeholder:text-ink-400 scroll-thin",
+              "block w-full resize-none bg-transparent px-5 pt-4 text-ink-100 outline-none placeholder:text-ink-500 scroll-thin",
               lg ? "min-h-[112px] text-[16px] leading-relaxed" : "min-h-[64px] text-[14px]"
             )}
           />
           {typewriter && !text && (
             <div className={cn("pointer-events-none absolute left-5 right-5 top-4 text-ink-400", lg ? "text-[16px] leading-relaxed" : "text-[14px]")}>
               {typed}
-              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[3px] animate-blink bg-nar-400" />
+              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[3px] animate-blink bg-nar" />
             </div>
           )}
         </div>
@@ -217,7 +201,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
           {speech.supported && (
             <ToolButton label={speech.listening ? "Dinləməni dayandır" : "Səslə yaz (Azərbaycan dili)"} onClick={speech.toggle} active={speech.listening}>
               <span className="relative grid place-items-center">
-                {speech.listening && <span className="absolute size-6 animate-pulse-ring rounded-full bg-nar-500/50" />}
+                {speech.listening && <span className="absolute size-6 animate-pulse-ring rounded-full bg-nar/40" />}
                 <Mic className="relative size-4" />
               </span>
             </ToolButton>
@@ -226,12 +210,12 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
             <button
               type="button"
               onClick={() => setStyleOpen((o) => !o)}
-              className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs text-ink-300 transition hover:bg-white/5 hover:text-ink-100"
+              className="flex h-8 items-center gap-1.5 rounded-[3px] px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-ink-100"
               aria-label="Dizayn üslubu"
             >
               <span className="flex -space-x-1">
                 {style.swatch.map((c, i) => (
-                  <span key={i} className="size-3 rounded-full ring-2 ring-ink-900" style={{ background: c }} />
+                  <span key={i} className="size-3 rounded-[1px] ring-1 ring-ink-100/20" style={{ background: c }} />
                 ))}
               </span>
               <span className="hidden sm:inline">{style.name}</span>
@@ -246,9 +230,9 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.97 }}
                     transition={{ duration: 0.2 }}
-                    className="glass absolute bottom-10 left-0 z-50 w-64 rounded-2xl border border-white/10 p-1.5 shadow-[var(--shadow-panel)]"
+                    className="absolute bottom-10 left-0 z-50 w-64 rounded-[4px] border-[1.5px] border-ink-100 bg-ink-1000 p-1.5 shadow-[4px_4px_0_var(--color-ink-700)]"
                   >
-                    <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-wider text-ink-400">Dizayn üslubu</div>
+                    <div className="px-2.5 pb-1.5 pt-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-400">Dizayn üslubu</div>
                     {STYLE_PRESETS.map((s) => (
                       <button
                         key={s.id}
@@ -256,18 +240,18 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                           setStyleId(s.id);
                           setStyleOpen(false);
                         }}
-                        className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-white/5"
+                        className="flex w-full items-center gap-3 rounded-[3px] px-2.5 py-2 text-left transition hover:bg-ink-100/6"
                       >
                         <span className="flex -space-x-1">
                           {s.swatch.map((c, i) => (
-                            <span key={i} className="size-3.5 rounded-full ring-2 ring-ink-850" style={{ background: c }} />
+                            <span key={i} className="size-3.5 rounded-[1px] ring-1 ring-ink-100/20" style={{ background: c }} />
                           ))}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block text-[13px] text-ink-100">{s.name}</span>
                           <span className="block truncate text-[11px] text-ink-400">{s.hint}</span>
                         </span>
-                        {s.id === styleId && <Check className="size-4 text-nar-400" />}
+                        {s.id === styleId && <Check className="size-4 text-nar" />}
                       </button>
                     ))}
                   </motion.div>
@@ -281,14 +265,14 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               type="button"
               onClick={enhance}
               disabled={!text.trim() || enhancing}
-              className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs text-ink-300 transition hover:bg-white/5 hover:text-gold-400 disabled:opacity-40"
+              className="flex h-8 items-center gap-1.5 rounded-[3px] px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-nar disabled:opacity-40"
               title="Sorğunu AI ilə təkmilləşdir"
             >
-              {enhancing ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+              {enhancing ? <Loader2 className="size-3.5 animate-spin" /> : <PenLine className="size-3.5" />}
               <span className="hidden sm:inline">Təkmilləşdir</span>
             </button>
             {busy ? (
-              <button onClick={onStop} aria-label="Dayandır" className="grid size-9 place-items-center rounded-full bg-ink-700 text-ink-100 transition hover:bg-ink-600">
+              <button onClick={onStop} aria-label="Dayandır" className="grid size-9 place-items-center rounded-[3px] bg-ink text-wool transition hover:bg-nar">
                 <Square className="size-3.5 fill-current" />
               </button>
             ) : (
@@ -297,7 +281,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                 onClick={submit}
                 aria-label="Göndər"
                 disabled={!text.trim() && images.length === 0}
-                className="grid size-9 place-items-center rounded-full bg-nar-gradient text-white shadow-[0_6px_20px_-6px_rgb(255_59_92/0.8)] transition hover:scale-105 disabled:bg-none disabled:bg-ink-700 disabled:text-ink-400 disabled:shadow-none"
+                className="grid size-9 place-items-center rounded-[3px] bg-nar text-wool transition-colors hover:bg-ink disabled:bg-ink-800 disabled:text-ink-500"
               >
                 <ArrowUp className="size-4" />
               </motion.button>
@@ -305,8 +289,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
           </div>
         </div>
       </div>
-      <style>{`@property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; } @keyframes spin-angle { to { --angle: 360deg; } }`}</style>
-    </div>
+          </div>
   );
 }
 
@@ -317,7 +300,7 @@ function ToolButton({ label, onClick, active, children }: { label: string; onCli
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={cn("grid size-8 place-items-center rounded-full transition", active ? "bg-nar-500/15 text-nar-300" : "text-ink-300 hover:bg-white/5 hover:text-ink-100")}
+      className={cn("grid size-8 place-items-center rounded-[3px] transition", active ? "bg-nar/12 text-nar" : "text-ink-300 hover:bg-ink-100/5 hover:text-ink-100")}
     >
       {children}
     </button>

@@ -10,13 +10,13 @@
 - 🧑‍💻 Kod redaktoru, fayl ağacı, interaktiv terminal, cihaz ölçüləri (desktop/tablet/mobil), ZIP yükləmə
 - 🤖 AI: [build.nvidia.com](https://build.nvidia.com) (GLM, Kimi, DeepSeek, Qwen… — model siyahısı canlı gəlir)
 
-## Dizayn sistemi — "Nar 2.0"
-Nar Azərbaycanda bolluğun simvoludur: bir platforma — min sayt. Canlı sənəd: **`/dizayn`** səhifəsi.
+## Dizayn sistemi — "Xalça"
+Xalça düyün-düyün toxunur, sayt piksel-piksel. Canlı sənəd: **`/dizayn`** səhifəsi.
 
-- **Rənglər:** dərin "ink" neytrallar + nar → zəfəran → qızıl qradiyenti (`bg-nar-gradient`, `text-nar-gradient`)
-- **Şriftlər:** Unbounded (başlıqlar), Onest (mətn), JetBrains Mono (kod) — hamısı ə, ğ, ı, ş, ç, ö, ü hərflərini tam dəstəkləyir
-- **Hərəkət:** `motion` + `ease-out-expo`; `Reveal`, `Stagger`, `SpotlightCard`, `Tilt`, `Magnetic`, `CountUp` (`src/components/ui/motion.tsx`)
-- **Komponentlər:** `src/components/ui/` (Button, Badge, Eyebrow, Kbd, Toast)
+- **Rənglər:** təbii boyalar — yun `#f1e9da`, mürəkkəb `#1c1f2e`, nar `#a82a2d`, indiqo `#24386b`, zəfəran `#d29a2e`, qoz `#4e5b36`. Yalnız düz rəng: qradiyent, parıltı, şüşə effekti yoxdur.
+- **Şriftlər:** Fraunces (başlıqlar), Onest (mətn), JetBrains Mono (etiketlər, kod) — hamısı Azərbaycan əlifbasını tam dəstəkləyir.
+- **Naxışlar:** `src/components/carpet/` — göl medalyonu, haşiyə zolağı, loqo və 7×7 motivlər koddan generasiya olunur; `<Knots weave>` onları sıra-sıra "toxuyur".
+- **Düzülüş:** jurnal üslubu — nömrələnmiş bölmələr (№ 01…), nazik xətlər, sola düzülmüş mətn, şəkilaltı yazılar.
 
 ## Studio imkanları
 - Səslə yazma (az-AZ), şəkil/eskiz, 7 dizayn üslubu, ✨ sorğunu təkmilləşdirmə

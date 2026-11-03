@@ -4,16 +4,16 @@ import { listProjects } from "@/lib/store/projects";
 import type { Project } from "@/lib/types";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
+import { Border } from "@/components/landing/Border";
 import { Projects } from "@/components/landing/Projects";
-import { IndustryMarquee, Stats } from "@/components/landing/Marquee";
-import { Features } from "@/components/landing/Features";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { StudioShowcase } from "@/components/landing/StudioShowcase";
+import { Capabilities } from "@/components/landing/Capabilities";
 import { Templates } from "@/components/landing/Templates";
 import { Compare } from "@/components/landing/Compare";
-import { Personas } from "@/components/landing/Personas";
 import { Pricing } from "@/components/landing/Pricing";
 import { Faq } from "@/components/landing/Faq";
-import { FinalCta } from "@/components/landing/FinalCta";
+import { Closing } from "@/components/landing/Closing";
 import { Footer } from "@/components/landing/Footer";
 
 export default function Home() {
@@ -23,21 +23,20 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative overflow-x-clip">
+    <div className="grain relative">
       <Navbar hasProjects={projects.length > 0} />
       <main>
         <Hero />
         <Projects projects={projects} onChange={setProjects} />
-        <IndustryMarquee />
-        <Stats />
-        <Features />
+        <Border />
         <HowItWorks />
+        <StudioShowcase />
+        <Capabilities />
         <Templates />
         <Compare />
-        <Personas />
         <Pricing />
         <Faq />
-        <FinalCta />
+        <Closing />
       </main>
       <Footer />
     </div>

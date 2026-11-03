@@ -11,12 +11,12 @@ export const TYPEWRITER = [
 ];
 
 export const EXAMPLES = [
-  { emoji: "☕", label: "Kofe şop", prompt: "Bakıda 'Dəmlə' adlı kofe şopu üçün sayt: menyu kateqoriyaları, qiymətlər manatla, masa rezervasiyası və əlaqə bölməsi. İsti, premium dizayn." },
-  { emoji: "🛍️", label: "Onlayn mağaza", prompt: "Əl işi keramika satan 'Gil' mağazası: kataloq, filtr, səbət, sifariş forması və admin panel." },
-  { emoji: "🦷", label: "Klinika", prompt: "Stomatologiya klinikası üçün sayt: xidmətlər, həkimlər, onlayn randevu (tarix və saat seçimi) və rəylər." },
-  { emoji: "🚀", label: "Startap", prompt: "Kiçik bizneslər üçün mühasibat tətbiqi 'Hesabla' üçün landing: hero, imkanlar, qiymət planları, FAQ və müraciət forması." },
-  { emoji: "📸", label: "Portfolio", prompt: "Toy fotoqrafı Aysel Məmmədova üçün minimal, zərif portfolio: qalereya, paketlər, rəylər, əlaqə." },
-  { emoji: "📊", label: "CRM panel", prompt: "Kiçik satış komandası üçün CRM: giriş/qeydiyyat, müştərilər cədvəli, sövdələşmə mərhələləri və statistika paneli." },
+  { label: "Kofe şop", prompt: "Bakıda 'Dəmlə' adlı kofe şopu üçün sayt: menyu kateqoriyaları, qiymətlər manatla, masa rezervasiyası və əlaqə bölməsi. İsti, premium dizayn." },
+  { label: "Onlayn mağaza", prompt: "Əl işi keramika satan 'Gil' mağazası: kataloq, filtr, səbət, sifariş forması və admin panel." },
+  { label: "Klinika", prompt: "Stomatologiya klinikası üçün sayt: xidmətlər, həkimlər, onlayn randevu (tarix və saat seçimi) və rəylər." },
+  { label: "Startap", prompt: "Kiçik bizneslər üçün mühasibat tətbiqi 'Hesabla' üçün landing: hero, imkanlar, qiymət planları, FAQ və müraciət forması." },
+  { label: "Portfolio", prompt: "Toy fotoqrafı Aysel Məmmədova üçün minimal, zərif portfolio: qalereya, paketlər, rəylər, əlaqə." },
+  { label: "CRM panel", prompt: "Kiçik satış komandası üçün CRM: giriş/qeydiyyat, müştərilər cədvəli, sövdələşmə mərhələləri və statistika paneli." },
 ];
 
 export const INDUSTRIES = [

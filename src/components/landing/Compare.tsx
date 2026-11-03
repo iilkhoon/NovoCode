@@ -1,71 +1,64 @@
-"use client";
-import { Check, Minus } from "lucide-react";
-import { motion } from "motion/react";
-import { Reveal, EASE } from "@/components/ui/motion";
-import { LogoMark } from "@/components/Logo";
-import { SectionHeading } from "./SectionHeading";
+import { Reveal } from "@/components/ui/motion";
+import { Container, SectionHead } from "./Section";
 import { COMPARISON } from "./data";
 import { cn } from "@/lib/cn";
 
-function Cell({ v, highlight }: { v: string | boolean; highlight?: boolean }) {
-  if (v === true) return <Check className={cn("mx-auto size-5", highlight ? "text-success" : "text-ink-300")} />;
-  if (v === false) return <Minus className="mx-auto size-5 text-ink-500" />;
-  return <span className={cn(highlight && "font-medium text-ink-100")}>{v}</span>;
+function Cell({ v }: { v: string | boolean }) {
+  if (v === true) return <span className="font-mono">Bəli</span>;
+  if (v === false) return <span className="font-mono text-ink-500">Xeyr</span>;
+  return <>{v}</>;
 }
 
 export function Compare() {
   return (
-    <section className="relative mx-auto max-w-5xl px-5 py-28">
-      <SectionHeading eyebrow="Müqayisə" title={<>Həftələr yox, dəqiqələr.<br /><span className="text-ink-400">Minlər yox, manatlar.</span></>} />
-      <Reveal className="mt-14 hidden md:block">
-        <table className="w-full border-separate border-spacing-0 text-center text-[14px]">
-          <thead>
-            <tr>
-              <th className="w-[34%]" />
-              {COMPARISON.columns.map((c, i) => (
-                <th key={c} className={cn("px-4 pb-5 pt-6 font-medium", i === 2 ? "rounded-t-2xl bg-nar-500/[0.07] text-ink-100" : "text-ink-300")}>
-                  {i === 2 ? (
-                    <span className="inline-flex items-center gap-2">
-                      <LogoMark className="size-5" /> {c}
-                    </span>
-                  ) : (
-                    c
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {COMPARISON.rows.map((r, ri) => (
-              <motion.tr key={r.label} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: ri * 0.06, ease: EASE, duration: 0.6 }}>
-                <td className="border-t border-white/6 py-4 pr-4 text-left text-ink-300">{r.label}</td>
-                {r.values.map((v, i) => (
-                  <td key={i} className={cn("border-t border-white/6 px-4 py-4 text-ink-400", i === 2 && "bg-nar-500/[0.07]", i === 2 && ri === COMPARISON.rows.length - 1 && "rounded-b-2xl")}>
-                    <Cell v={v} highlight={i === 2} />
-                  </td>
+    <section className="py-24">
+      <Container>
+        <SectionHead no="06" label="Müqayisə" title={<>Həftələr yox, dəqiqələr. <em className="text-nar">Minlər yox, manatlar.</em></>} />
+        <Reveal className="mt-14">
+          <div className="hidden md:block">
+            <table className="w-full border-collapse text-left text-[15px]">
+              <thead>
+                <tr className="border-b-[1.5px] border-ink">
+                  <th className="py-4 pr-4 font-normal" />
+                  {COMPARISON.columns.map((c, i) => (
+                    <th key={c} className={cn("px-5 py-4 font-mono text-[11.5px] font-normal uppercase tracking-[0.14em]", i === 2 ? "bg-nar text-wool" : "text-ink-400")}>
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON.rows.map((r) => (
+                  <tr key={r.label} className="border-b border-ink-100/15">
+                    <td className="py-4 pr-4 text-ink-300">{r.label}</td>
+                    {r.values.map((v, i) => (
+                      <td key={i} className={cn("px-5 py-4", i === 2 ? "bg-nar/[0.07] font-medium text-ink" : "text-ink-400")}>
+                        <Cell v={v} />
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </motion.tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="space-y-6 md:hidden">
+            {COMPARISON.rows.map((r) => (
+              <div key={r.label} className="border-t border-ink-100/15 pt-4">
+                <div className="font-medium">{r.label}</div>
+                <dl className="mt-2 grid grid-cols-3 gap-2 text-[13px]">
+                  {r.values.map((v, i) => (
+                    <div key={i} className={cn("px-2 py-2", i === 2 ? "bg-nar text-wool" : "bg-ink-900 text-ink-300")}>
+                      <dt className={cn("font-mono text-[9.5px] uppercase tracking-wider", i === 2 ? "text-wool/75" : "text-ink-500")}>{COMPARISON.columns[i]}</dt>
+                      <dd className="mt-1"><Cell v={v} /></dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </Reveal>
-      {/* mobile: one card per row */}
-      <div className="mt-12 space-y-3 md:hidden">
-        {COMPARISON.rows.map((r) => (
-          <Reveal key={r.label} className="rounded-2xl border border-white/8 bg-ink-900/60 p-4">
-            <div className="mb-3 text-[14px] font-medium">{r.label}</div>
-            <div className="grid grid-cols-3 gap-2 text-center text-[12px]">
-              {r.values.map((v, i) => (
-                <div key={i} className={cn("rounded-xl px-1.5 py-2", i === 2 ? "bg-nar-500/10 ring-1 ring-nar-500/30" : "bg-white/[0.03] text-ink-400")}>
-                  <div className={cn("mb-1 text-[10px] uppercase tracking-wider", i === 2 ? "text-nar-300" : "text-ink-500")}>{COMPARISON.columns[i]}</div>
-                  <Cell v={v} highlight={i === 2} />
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        ))}
-      </div>
-      <p className="mt-4 text-center text-xs text-ink-500">Agentlik və freelancer qiymətləri Bakı bazarı üzrə təxmini aralıqlardır.</p>
+          </div>
+          <p className="mt-4 font-mono text-[11px] text-ink-500">* Agentlik və freelancer qiymətləri Bakı bazarı üzrə təxmini aralıqlardır.</p>
+        </Reveal>
+      </Container>
     </section>
   );
 }

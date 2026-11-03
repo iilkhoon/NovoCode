@@ -293,15 +293,14 @@ export default function Studio({ id }: { id: string }) {
   return (
     <div className="flex h-dvh flex-col bg-ink-950">
       {/* top bar */}
-      <header className="relative flex h-14 shrink-0 items-center gap-2 border-b border-white/6 px-3">
-        <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-nar-500/40 to-transparent" />
-        <a href="/" aria-label="Ana səhifə" className="group grid size-9 place-items-center rounded-xl transition hover:bg-white/5">
+      <header className="relative flex h-14 shrink-0 items-center gap-2 border-b-[1.5px] border-ink px-3">
+        <a href="/" aria-label="Ana səhifə" className="group grid size-9 place-items-center rounded-xl transition hover:bg-ink-100/5">
           <LogoMark className="size-7 transition-transform duration-500 group-hover:-rotate-12" />
         </a>
         <span className="text-ink-600">/</span>
         <ProjectName name={project?.name ?? ""} onRename={rename} />
         {versionCount > 0 && (
-          <span className="hidden rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-ink-400 lg:inline">v{versionCount}</span>
+          <span className="hidden rounded-full bg-ink-100/5 px-2 py-0.5 text-[11px] text-ink-400 lg:inline">v{versionCount}</span>
         )}
         <div className="ml-auto flex items-center gap-1.5">
           <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />
@@ -315,10 +314,10 @@ export default function Studio({ id }: { id: string }) {
       </header>
 
       {/* mobile switcher */}
-      <div className="flex gap-1 border-b border-white/6 p-1.5 md:hidden">
+      <div className="flex gap-1 border-b border-ink-100/12 p-1.5 md:hidden">
         {(["chat", "work"] as const).map((v) => (
           <button key={v} onClick={() => setMobileView(v)} className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs transition ${mobileView === v ? "text-ink-100" : "text-ink-400"}`}>
-            {mobileView === v && <motion.span layoutId="mob-pill" className="absolute inset-0 rounded-lg bg-white/8" />}
+            {mobileView === v && <motion.span layoutId="mob-pill" className="absolute inset-0 rounded-lg bg-ink-100/8" />}
             <span className="relative flex items-center gap-1.5">
               {v === "chat" ? <MessageSquare className="size-3.5" /> : <Eye className="size-3.5" />}
               {v === "chat" ? "Söhbət" : "Sayt"}
@@ -328,7 +327,7 @@ export default function Studio({ id }: { id: string }) {
       </div>
 
       <div className="flex min-h-0 flex-1">
-        <aside className={`min-h-0 w-full shrink-0 border-r border-white/6 bg-ink-900/40 md:block md:w-[400px] lg:w-[440px] ${mobileView === "chat" ? "block" : "hidden"} ${fullscreen ? "md:hidden" : ""}`}>
+        <aside className={`min-h-0 w-full shrink-0 border-r border-ink-100/12 bg-ink-900/40 md:block md:w-[400px] lg:w-[440px] ${mobileView === "chat" ? "block" : "hidden"} ${fullscreen ? "md:hidden" : ""}`}>
           <ChatPanel
             messages={messages}
             busy={busy}
@@ -345,7 +344,7 @@ export default function Studio({ id }: { id: string }) {
           />
         </aside>
         <section className={`min-h-0 min-w-0 flex-1 flex-col md:flex ${mobileView === "work" ? "flex" : "hidden"}`}>
-          <div className="flex items-center gap-1 border-b border-white/6 px-2 py-1.5">
+          <div className="flex items-center gap-1 border-b border-ink-100/12 px-2 py-1.5">
             {TABS.map(({ t, icon: Icon, label, key }) => (
               <button
                 key={t}
@@ -353,7 +352,7 @@ export default function Studio({ id }: { id: string }) {
                 title={`${label} (Ctrl+${key})`}
                 className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === t ? "text-ink-100" : "text-ink-400 hover:text-ink-100"}`}
               >
-                {tab === t && <motion.span layoutId="tab-pill" className="absolute inset-0 rounded-lg bg-white/8" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
+                {tab === t && <motion.span layoutId="tab-pill" className="absolute inset-x-2 -bottom-[7px] h-[2px] bg-nar" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
                 <Icon className="relative size-3.5" />
                 <span className="relative">{label}</span>
               </button>
@@ -410,11 +409,11 @@ function ProjectName({ name, onRename }: { name: string; onRename: (n: string) =
             setEditing(false);
           }
         }}
-        className="h-8 w-48 rounded-lg bg-white/5 px-2 text-sm outline-none ring-1 ring-nar-500/40"
+        className="h-8 w-48 rounded-lg bg-ink-100/5 px-2 text-sm outline-none ring-1 ring-nar-500/40"
       />
     );
   return (
-    <button onClick={() => setEditing(true)} title="Adı dəyiş" className="group flex h-8 max-w-[180px] items-center gap-1.5 rounded-lg px-2 text-sm text-ink-200 transition hover:bg-white/5 sm:max-w-[260px]">
+    <button onClick={() => setEditing(true)} title="Adı dəyiş" className="group flex h-8 max-w-[180px] items-center gap-1.5 rounded-lg px-2 text-sm text-ink-200 transition hover:bg-ink-100/5 sm:max-w-[260px]">
       <span className="truncate">{name}</span>
       <Pencil className="size-3 shrink-0 text-ink-500 opacity-0 transition group-hover:opacity-100" />
     </button>
@@ -429,7 +428,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
       <button
         onClick={() => setOpen((o) => !o)}
         title={error ?? "AI modeli"}
-        className={`flex h-8 items-center gap-2 rounded-full px-3 text-xs ring-1 ring-inset transition ${error ? "text-danger ring-danger/30" : "text-ink-300 ring-white/10 hover:ring-white/20"}`}
+        className={`flex h-8 items-center gap-2 rounded-[3px] px-3 text-xs ring-1 ring-inset transition ${error ? "text-danger ring-danger/30" : "text-ink-300 ring-ink-100/10 hover:ring-ink-100/20"}`}
       >
         <Cpu className="size-3.5" />
         <span className="max-w-[140px] truncate">{error ? "API əlçatan deyil" : current?.label ?? "Modellər…"}</span>
@@ -444,7 +443,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.18 }}
-              className="glass absolute right-0 top-10 z-50 max-h-80 w-72 overflow-y-auto rounded-2xl border border-white/10 p-1.5 shadow-[var(--shadow-panel)] scroll-thin"
+              className="absolute right-0 top-10 bg-ink-1000 z-50 max-h-80 w-72 overflow-y-auto rounded-2xl border border-ink-100/10 p-1.5 shadow-[var(--shadow-panel)] scroll-thin"
             >
               <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium text-ink-400">AI modeli · <span lang="en">build.nvidia.com</span></div>
               {error && <div className="px-2.5 py-2 text-xs text-danger">{error}</div>}
@@ -455,7 +454,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
                     onChange(m.id);
                     setOpen(false);
                   }}
-                  className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] transition hover:bg-white/5"
+                  className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] transition hover:bg-ink-100/5"
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-ink-100">{m.label}</span>

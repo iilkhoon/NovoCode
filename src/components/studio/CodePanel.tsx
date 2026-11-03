@@ -4,7 +4,6 @@ import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
-import { oneDark } from "@codemirror/theme-one-dark";
 import { ChevronRight, FileCode2, Folder, FolderOpen } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 
@@ -55,14 +54,14 @@ export function CodePanel({
 
   return (
     <div className="flex h-full min-h-0">
-      <div className="hidden w-60 shrink-0 overflow-y-auto border-r border-white/6 bg-ink-950/40 py-2 text-[13px] scroll-thin md:block">
+      <div className="hidden w-60 shrink-0 overflow-y-auto border-r border-ink-100/12 bg-ink-950/40 py-2 text-[13px] scroll-thin md:block">
         <div className="px-4 pb-2 pt-1 text-[11px] font-medium uppercase tracking-wider text-ink-500">Fayllar</div>
         {tree.map((n) => (
           <TreeNode key={n.path} node={n} depth={0} active={active} onSelect={onSelect} />
         ))}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-2 border-b border-white/6 px-3 py-2 font-mono text-xs text-ink-300">
+        <div className="flex items-center gap-2 border-b border-ink-100/12 px-3 py-2 font-mono text-xs text-ink-300">
           <select className="max-w-full bg-transparent outline-none md:hidden" value={active ?? ""} onChange={(e) => onSelect(e.target.value)}>
             {Object.keys(files).sort().map((p) => (
               <option key={p} value={p} className="bg-ink-900">{p}</option>
@@ -72,7 +71,7 @@ export function CodePanel({
           {isStreaming && <span className="ml-auto text-shimmer">AI yazır…</span>}
           {!isStreaming && active && (
             <button
-              className="ml-auto rounded-md px-2 py-0.5 text-[11px] text-ink-400 transition hover:bg-white/5 hover:text-ink-100"
+              className="ml-auto rounded-md px-2 py-0.5 text-[11px] text-ink-400 transition hover:bg-ink-100/5 hover:text-ink-100"
               onClick={() => navigator.clipboard.writeText(value).then(() => toast.success("Kopyalandı"))}
             >
               Kopyala
@@ -83,7 +82,7 @@ export function CodePanel({
           {active ? (
             <CodeMirror
               value={value}
-              theme={oneDark}
+              theme="light"
               extensions={langFor(active)}
               editable={!isStreaming}
               onChange={(v) => onChange(active, v)}

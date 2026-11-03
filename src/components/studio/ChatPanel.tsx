@@ -70,7 +70,7 @@ export function ChatPanel({ messages, busy, thinking, onSend, onStop, onOpenFile
               <button
                 key={s}
                 onClick={() => onSend(s.replace(/^\S+\s/, ""), [])}
-                className="rounded-full border border-white/8 bg-white/[0.02] px-3 py-1.5 text-xs text-ink-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-ink-100"
+                className="rounded-[3px] border border-ink-100/8 bg-ink-100/[0.02] px-3 py-1.5 text-xs text-ink-300 transition hover:-translate-y-0.5 hover:border-ink-100/20 hover:text-ink-100"
               >
                 {s}
               </button>
@@ -78,7 +78,7 @@ export function ChatPanel({ messages, busy, thinking, onSend, onStop, onOpenFile
           </motion.div>
         )}
       </div>
-      <div className="border-t border-white/6 bg-ink-950/40 p-3">
+      <div className="border-t border-ink-100/12 bg-ink-950/40 p-3">
         <PromptBox busy={busy} onSubmit={({ text, images, styleId }) => onSend(applyStyle(text, styleId), images)} onStop={onStop} placeholder="Dəyişiklik istəyin… (Enter — göndər, Shift+Enter — yeni sətir)" />
       </div>
     </div>
@@ -93,12 +93,12 @@ function UserBubble({ m }: { m: ChatMessage }) {
         <div className="flex gap-2">
           {m.images.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} src={src} alt="" className="h-24 rounded-xl object-cover ring-1 ring-white/10" />
+            <img key={i} src={src} alt="" className="h-24 rounded-xl object-cover ring-1 ring-ink-100/10" />
           ))}
         </div>
       ) : null}
-      <div className="max-w-[88%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-ink-750 px-4 py-2.5 text-[14px] leading-relaxed ring-1 ring-inset ring-white/5">{text}</div>
-      {style && <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-[11px] text-ink-400">🎨 {style.split("]")[0]}</span>}
+      <div className="max-w-[88%] whitespace-pre-wrap rounded-[3px] border border-ink-100/15 bg-ink-1000 px-4 py-2.5 text-[14px] leading-relaxed">{text}</div>
+      {style && <span className="rounded-full bg-ink-100/5 px-2.5 py-0.5 text-[11px] text-ink-400">Üslub: {style.split("]")[0]}</span>}
     </div>
   );
 }
@@ -107,7 +107,7 @@ function AutoFixNote({ m }: { m: ChatMessage }) {
   const [open, setOpen] = useState(false);
   const err = m.content.match(/```\n([\s\S]*?)\n```/)?.[1] ?? m.content;
   return (
-    <div className="rounded-2xl border border-gold-500/20 bg-gold-500/[0.06] px-3.5 py-2.5 text-xs text-gold-400">
+    <div className="rounded-[3px] border border-saffron bg-saffron/10 px-3.5 py-2.5 text-xs text-gold-400">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-2">
         <Wrench className="size-3.5" />
         <span className="flex-1 text-left font-medium">Xəta tapıldı — avtomatik düzəldirəm</span>
@@ -172,14 +172,14 @@ function AssistantMessage({
         )}
         {groups.map((g, gi) =>
           Array.isArray(g) ? (
-            <div key={gi} className="overflow-hidden rounded-2xl border border-white/8 bg-ink-900/80">
-              <div className="flex items-center justify-between border-b border-white/5 px-3 py-1.5 text-[11px] text-ink-400">
+            <div key={gi} className="overflow-hidden rounded-2xl border border-ink-100/8 bg-ink-900/80">
+              <div className="flex items-center justify-between border-b border-ink-100/5 px-3 py-1.5 text-[11px] text-ink-400">
                 <span>{g.length} əməliyyat</span>
                 {m.pending && <Loader2 className="size-3 animate-spin" />}
               </div>
               {g.map((p, i) =>
                 p.kind === "shell" ? (
-                  <div key={i} className="flex items-center gap-2 border-b border-white/5 px-3 py-2 font-mono text-[12px] text-ink-300 last:border-0">
+                  <div key={i} className="flex items-center gap-2 border-b border-ink-100/5 px-3 py-2 font-mono text-[12px] text-ink-300 last:border-0">
                     <Terminal className="size-3.5 text-gold-400" />
                     {p.command}
                   </div>
@@ -189,7 +189,7 @@ function AssistantMessage({
                     initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
                     onClick={() => p.status !== "deleted" && onOpenFile(p.path)}
-                    className="flex w-full items-center gap-2 border-b border-white/5 px-3 py-2 text-left font-mono text-[12px] text-ink-300 transition last:border-0 hover:bg-white/[0.03] hover:text-ink-100"
+                    className="flex w-full items-center gap-2 border-b border-ink-100/5 px-3 py-2 text-left font-mono text-[12px] text-ink-300 transition last:border-0 hover:bg-ink-100/[0.03] hover:text-ink-100"
                   >
                     {p.status === "writing" ? (
                       <Loader2 className="size-3.5 animate-spin text-nar-400" />
@@ -205,8 +205,8 @@ function AssistantMessage({
               )}
             </div>
           ) : g.kind === "plan" ? (
-            <div key={gi} className="rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.03] to-transparent px-4 py-3 text-[13px] text-ink-300">
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-nar-300">Plan</div>
+            <div key={gi} className="rounded-2xl border border-ink-100/8 bg-ink-1000 px-4 py-3 text-[13px] text-ink-300">
+              <div className="mb-1.5 flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em] text-nar">Plan</div>
               <div className="whitespace-pre-wrap">{g.text}</div>
             </div>
           ) : g.kind === "text" ? (
@@ -222,7 +222,7 @@ function AssistantMessage({
         {!m.pending && (m.model || version) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-500">
             {version && (
-              <span className={cn("rounded-full px-2 py-0.5 font-medium", isCurrent ? "bg-nar-500/15 text-nar-300" : "bg-white/5 text-ink-400")}>
+              <span className={cn("rounded-[3px] px-2 py-0.5 font-medium", isCurrent ? "bg-nar text-wool" : "bg-ink-100/5 text-ink-400")}>
                 v{version}
                 {isCurrent && " · cari"}
               </span>

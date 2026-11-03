@@ -1,33 +1,32 @@
 import Link from "next/link";
 import { LogoMark, Wordmark } from "@/components/Logo";
+import { Border } from "./Border";
 
 const COLS = [
-  { t: "Məhsul", l: [["İmkanlar", "#imkanlar"], ["Şablonlar", "#şablonlar"], ["Qiymətlər", "#qiymətlər"], ["Dizayn sistemi", "/dizayn"]] },
-  { t: "Resurslar", l: [["Necə işləyir", "#necə-işləyir"], ["Suallar", "#suallar"], ["Yol xəritəsi", "#"], ["Bloq (tezliklə)", "#"]] },
-  { t: "Şirkət", l: [["Haqqımızda", "#"], ["Əlaqə", "mailto:salam@novocode.az"], ["Məxfilik siyasəti", "#"], ["İstifadə şərtləri", "#"]] },
+  { t: "Məhsul", l: [["Necə işləyir", "#necə-işləyir"], ["Studio", "#studio"], ["Nümunələr", "#nümunələr"], ["Qiymətlər", "#qiymətlər"]] },
+  { t: "Resurslar", l: [["Suallar", "#suallar"], ["Dizayn sistemi", "/dizayn"]] },
+  { t: "Əlaqə", l: [["salam@novocode.az", "mailto:salam@novocode.az"]] },
 ];
 
 export function Footer() {
   return (
-    <footer className="relative mt-10 border-t border-white/6">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div>
-          <div className="flex items-center gap-2">
+    <footer className="mt-0">
+      <Border weave={false} />
+      <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-16 sm:px-8 md:grid-cols-12">
+        <div className="md:col-span-5">
+          <div className="flex items-center gap-2.5">
             <LogoMark className="size-8" />
             <Wordmark />
           </div>
-          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink-400">Azərbaycanın AI sayt qurucusu. Danışın — saytınız qurulsun.</p>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/8 px-3 py-1.5 text-xs text-ink-400">
-            🇦🇿 Bakı, Azərbaycan
-          </div>
+          <p className="mt-4 max-w-xs text-[14.5px] leading-relaxed text-ink-400">Azərbaycan dilində AI sayt qurucusu. Sözlə deyin, saytınız toxunsun.</p>
         </div>
         {COLS.map((c) => (
-          <div key={c.t}>
-            <div className="mb-4 text-[13px] font-medium text-ink-200">{c.t}</div>
-            <ul className="space-y-2.5">
+          <div key={c.t} className="md:col-span-2">
+            <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-400">{c.t}</div>
+            <ul className="space-y-2">
               {c.l.map(([label, href]) => (
                 <li key={label}>
-                  <Link href={href} className="text-[14px] text-ink-400 transition hover:text-ink-100">
+                  <Link href={href} className="text-[14.5px] text-ink-200 underline-offset-4 hover:text-nar hover:underline">
                     {label}
                   </Link>
                 </li>
@@ -36,13 +35,10 @@ export function Footer() {
           </div>
         ))}
       </div>
-      <div className="relative overflow-hidden">
-        <div className="pointer-events-none select-none text-center font-display text-[22vw] font-bold leading-[0.8] tracking-[-0.06em] text-white/[0.025]">novo</div>
-      </div>
-      <div className="border-t border-white/6">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-5 py-6 text-xs text-ink-500 sm:flex-row">
-          <span>© {new Date().getFullYear()} Novo Code. Bakıda ❤️ ilə hazırlanıb.</span>
-          <span>Azərbaycan dili · ₼ AZN</span>
+      <div className="border-t border-ink-100/15">
+        <div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-2 px-5 py-6 font-mono text-[11px] text-ink-500 sm:flex-row sm:px-8">
+          <span>© {new Date().getFullYear()} Novo Code · Bakı</span>
+          <span>Azərbaycan dili · AZN</span>
         </div>
       </div>
     </footer>

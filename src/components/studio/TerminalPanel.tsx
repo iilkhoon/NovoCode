@@ -18,7 +18,7 @@ export function TerminalPanel({ runtime, ready, visible }: { runtime: ProjectRun
       fontFamily: "'JetBrains Mono Variable', ui-monospace, monospace",
       fontSize: 12.5,
       cursorBlink: true,
-      theme: { background: "#0d0c13", foreground: "#f4f2f7", cursor: "#ff3b5c", selectionBackground: "#ff3b5c55", black: "#18171f", red: "#ff5470", green: "#3ddc97", yellow: "#ffc24b", blue: "#6ea8ff", magenta: "#c13ccf" },
+      theme: { background: "#f8f3ea", foreground: "#1c1f2e", cursor: "#a82a2d", cursorAccent: "#f8f3ea", selectionBackground: "#a82a2d33", black: "#1c1f2e", red: "#a82a2d", green: "#3e6b3f", yellow: "#9a6a10", blue: "#24386b", magenta: "#7a2a6b", cyan: "#2a6b6b", white: "#4d483e", brightBlack: "#6c6455" },
     });
     const f = new FitAddon();
     t.loadAddon(f);
@@ -53,5 +53,5 @@ export function TerminalPanel({ runtime, ready, visible }: { runtime: ProjectRun
     }).catch(() => {});
   }, [ready, runtime]);
 
-  return <div ref={host} className="h-full w-full bg-ink-900" />;
+  return <div ref={host} className="h-full w-full bg-ink-1000" />;
 }

@@ -75,21 +75,20 @@ export function PublishModal({
   return (
     <AnimatePresence>
       {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80] grid place-items-center bg-ink-1000/70 p-4 backdrop-blur-sm" onClick={onClose}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80] grid place-items-center bg-ink/40 p-4" onClick={onClose}>
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-ink-900 shadow-[var(--shadow-panel)]"
+            className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-ink-100/10 bg-ink-900 shadow-[var(--shadow-panel)]"
           >
-            <div aria-hidden className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(60%_100%_at_50%_0%,rgb(255_59_92/0.25),transparent)]" />
-            <button onClick={onClose} aria-label="Bağla" className="absolute right-4 top-4 z-10 grid size-8 place-items-center rounded-full text-ink-400 transition hover:bg-white/5 hover:text-ink-100">
+            <button onClick={onClose} aria-label="Bağla" className="absolute right-4 top-4 z-10 grid size-8 place-items-center rounded-full text-ink-400 transition hover:bg-ink-100/5 hover:text-ink-100">
               <X className="size-4" />
             </button>
             <div className="relative p-7">
-              <div className="grid size-12 place-items-center rounded-2xl bg-nar-gradient shadow-[var(--shadow-glow)]">
+              <div className="grid size-12 place-items-center rounded-[3px] bg-nar">
                 <Rocket className="size-5 text-white" />
               </div>
               <h2 className="mt-5 font-display text-2xl font-semibold tracking-tight">Saytı yayımla</h2>
@@ -97,13 +96,13 @@ export function PublishModal({
 
               <div className="mt-6 space-y-3">
                 {/* subdomain — coming soon */}
-                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4 opacity-80">
+                <div className="rounded-2xl border border-ink-100/8 bg-ink-100/[0.02] p-4 opacity-80">
                   <div className="flex items-center gap-2">
                     <Globe className="size-4 text-nar-300" />
                     <span className="font-medium">Bir kliklə yayım</span>
                     <Badge tone="gold" className="ml-auto">Tezliklə</Badge>
                   </div>
-                  <div className="mt-3 flex items-center overflow-hidden rounded-xl bg-ink-950 text-sm ring-1 ring-white/8">
+                  <div className="mt-3 flex items-center overflow-hidden rounded-xl bg-ink-950 text-sm ring-1 ring-ink-100/8">
                     <span className="px-3 py-2.5 text-ink-200">{slug}</span>
                     <span className="py-2.5 pr-3 text-ink-500">.novocode.az</span>
                   </div>
@@ -111,7 +110,7 @@ export function PublishModal({
                 </div>
 
                 {/* static build */}
-                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="rounded-2xl border border-ink-100/8 bg-ink-100/[0.02] p-4">
                   <div className="flex items-center gap-2">
                     <PackageCheck className="size-4 text-success" />
                     <span className="font-medium">Hazır sayt faylları</span>
@@ -119,7 +118,7 @@ export function PublishModal({
                   </div>
                   <p className="mt-2 text-[13px] leading-relaxed text-ink-400">
                     Optimallaşdırılmış statik saytı yükləyin və{" "}
-                    <a href="https://app.netlify.com/drop" target="_blank" rel="noreferrer" className="text-ink-200 underline decoration-white/20 underline-offset-2 hover:decoration-white/60">
+                    <a href="https://app.netlify.com/drop" target="_blank" rel="noreferrer" className="text-ink-200 underline decoration-ink-100/20 underline-offset-2 hover:decoration-ink-100/60">
                       Netlify Drop
                     </a>
                     -a sürüşdürün — saniyələr içində canlıdır. İstənilən hostinqdə də işləyir.
@@ -131,7 +130,7 @@ export function PublishModal({
                 </div>
 
                 {/* source */}
-                <div className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-ink-100/8 bg-ink-100/[0.02] p-4">
                   <Code2 className="size-4 text-info" />
                   <div className="min-w-0 flex-1">
                     <div className="font-medium">Mənbə kodu</div>

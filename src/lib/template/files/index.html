@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="az">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novo Sayt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+    <script>
+      // Novo Code: runtime xətalarını studioya ötürür ki, AI özü düzəltsin.
+      (function () {
+        function send(message, stack) {
+          try { parent.postMessage({ source: "novo-preview", type: "error", message: String(message), stack: String(stack || "") }, "*"); } catch (e) {}
+        }
+        window.addEventListener("error", function (e) { send(e.message, e.error && e.error.stack); });
+        window.addEventListener("unhandledrejection", function (e) { send(e.reason && e.reason.message || e.reason, e.reason && e.reason.stack); });
+        var ce = console.error;
+        console.error = function () { send(Array.prototype.join.call(arguments, " ")); ce.apply(console, arguments); };
+        window.addEventListener("load", function () { parent.postMessage({ source: "novo-preview", type: "ready" }, "*"); });
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

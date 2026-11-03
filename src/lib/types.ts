@@ -23,6 +23,8 @@ export interface ChatMessage {
   model?: string;
   skills?: string[];
   pending?: boolean;
+  /** project files right after this assistant step (for version restore) */
+  snapshot?: Record<string, string>;
   createdAt: number;
 }
 

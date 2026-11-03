@@ -158,6 +158,28 @@ export class ProjectRuntime {
     return p.exit;
   }
 
+  /** Runs a production build and returns the static files from dist/. */
+  async buildStatic(): Promise<Record<string, Uint8Array>> {
+    await this.mounted;
+    if (!this.wc) throw new Error("Runtime hazır deyil");
+    this.emit("\r\n\x1b[2m$ npm run build\x1b[0m\r\n");
+    const p = await this.wc.spawn("npm", ["run", "build"]);
+    this.pipe(p);
+    const code = await p.exit;
+    if (code !== 0) throw new Error("Build alınmadı — Terminal bölməsinə baxın");
+    const out: Record<string, Uint8Array> = {};
+    const walk = async (dir: string) => {
+      const entries = await this.wc!.fs.readdir(dir, { withFileTypes: true });
+      for (const e of entries) {
+        const full = `${dir}/${e.name}`;
+        if (e.isDirectory()) await walk(full);
+        else out[full.replace(/^dist\//, "")] = await this.wc!.fs.readFile(full);
+      }
+    };
+    await walk("dist");
+    return out;
+  }
+
   /** Interactive shell for the terminal tab. */
   async shell(cols: number, rows: number) {
     if (!this.wc) throw new Error("runtime not started");

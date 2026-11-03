@@ -15,10 +15,10 @@ export function TerminalPanel({ runtime, ready, visible }: { runtime: ProjectRun
   useEffect(() => {
     const t = new Terminal({
       convertEol: true,
-      fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
+      fontFamily: "'JetBrains Mono Variable', ui-monospace, monospace",
       fontSize: 12.5,
       cursorBlink: true,
-      theme: { background: "#0e0e12", foreground: "#ececf1", cursor: "#ff4d5e", selectionBackground: "#ff4d5e55", black: "#18181f", red: "#ff6b78", green: "#4ade9b", yellow: "#ffb547" },
+      theme: { background: "#0d0c13", foreground: "#f4f2f7", cursor: "#ff3b5c", selectionBackground: "#ff3b5c55", black: "#18171f", red: "#ff5470", green: "#3ddc97", yellow: "#ffc24b", blue: "#6ea8ff", magenta: "#c13ccf" },
     });
     const f = new FitAddon();
     t.loadAddon(f);

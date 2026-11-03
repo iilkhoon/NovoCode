@@ -6,6 +6,7 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ChevronRight, FileCode2, Folder, FolderOpen } from "lucide-react";
+import { toast } from "@/components/ui/toast";
 
 type Node = { name: string; path: string; children?: Node[] };
 
@@ -54,13 +55,14 @@ export function CodePanel({
 
   return (
     <div className="flex h-full min-h-0">
-      <div className="hidden w-56 shrink-0 overflow-y-auto border-r border-ink-800 py-2 text-[13px] scroll-thin md:block">
+      <div className="hidden w-60 shrink-0 overflow-y-auto border-r border-white/6 bg-ink-950/40 py-2 text-[13px] scroll-thin md:block">
+        <div className="px-4 pb-2 pt-1 text-[11px] font-medium uppercase tracking-wider text-ink-500">Fayllar</div>
         {tree.map((n) => (
           <TreeNode key={n.path} node={n} depth={0} active={active} onSelect={onSelect} />
         ))}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-2 border-b border-ink-800 px-3 py-2 font-mono text-xs text-ink-300">
+        <div className="flex items-center gap-2 border-b border-white/6 px-3 py-2 font-mono text-xs text-ink-300">
           <select className="max-w-full bg-transparent outline-none md:hidden" value={active ?? ""} onChange={(e) => onSelect(e.target.value)}>
             {Object.keys(files).sort().map((p) => (
               <option key={p} value={p} className="bg-ink-900">{p}</option>
@@ -68,6 +70,14 @@ export function CodePanel({
           </select>
           <span className="hidden md:inline">{active}</span>
           {isStreaming && <span className="ml-auto text-shimmer">AI yazır…</span>}
+          {!isStreaming && active && (
+            <button
+              className="ml-auto rounded-md px-2 py-0.5 text-[11px] text-ink-400 transition hover:bg-white/5 hover:text-ink-100"
+              onClick={() => navigator.clipboard.writeText(value).then(() => toast.success("Kopyalandı"))}
+            >
+              Kopyala
+            </button>
+          )}
         </div>
         <div className="min-h-0 flex-1 overflow-hidden">
           {active ? (
@@ -97,7 +107,7 @@ function TreeNode({ node, depth, active, onSelect }: { node: Node; depth: number
       <div>
         <button style={pad} onClick={() => setOpen(!open)} className="flex w-full items-center gap-1.5 py-1 pr-2 text-ink-300 hover:text-ink-100">
           <ChevronRight className={`size-3 transition ${open ? "rotate-90" : ""}`} />
-          {open ? <FolderOpen className="size-3.5 text-saffron/80" /> : <Folder className="size-3.5 text-saffron/80" />}
+          {open ? <FolderOpen className="size-3.5 text-gold-400/80" /> : <Folder className="size-3.5 text-gold-400/80" />}
           {node.name}
         </button>
         {open && node.children.map((c) => <TreeNode key={c.path} node={c} depth={depth + 1} active={active} onSelect={onSelect} />)}
@@ -108,7 +118,7 @@ function TreeNode({ node, depth, active, onSelect }: { node: Node; depth: number
     <button
       style={{ paddingLeft: 10 + depth * 12 + 16 }}
       onClick={() => onSelect(node.path)}
-      className={`flex w-full items-center gap-1.5 py-1 pr-2 text-left ${active === node.path ? "bg-ink-800 text-ink-100" : "text-ink-300 hover:text-ink-100"}`}
+      className={`flex w-full items-center gap-1.5 py-1 pr-2 text-left ${active === node.path ? "bg-nar-500/10 text-ink-100 shadow-[inset_2px_0_0_var(--color-nar-500)]" : "text-ink-300 hover:text-ink-100"}`}
     >
       <FileCode2 className="size-3.5 shrink-0 text-ink-400" />
       <span className="truncate">{node.name}</span>

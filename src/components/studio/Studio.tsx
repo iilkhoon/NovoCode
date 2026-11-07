@@ -293,7 +293,7 @@ export default function Studio({ id }: { id: string }) {
   return (
     <div className="flex h-dvh flex-col bg-ink-950">
       {/* top bar */}
-      <header className="relative flex h-14 shrink-0 items-center gap-2 border-b-[1.5px] border-ink px-3">
+      <header className="relative flex h-14 shrink-0 items-center gap-2 border-b border-ink-100/10 px-3">
         <a href="/" aria-label="Ana səhifə" className="group grid size-9 place-items-center rounded-xl transition hover:bg-ink-100/5">
           <LogoMark className="size-7 transition-transform duration-500 group-hover:-rotate-12" />
         </a>

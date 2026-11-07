@@ -1,28 +1,18 @@
 import Link from "next/link";
-import { LOGO, KNOT_COLORS } from "./carpet/patterns";
 
-/** Novo mark — a 9×9 woven göl with a nar seed in the centre. Pure knots, no gradients. */
+/** Novo mark — a bronze disc with an N, circled by a thin orbit. */
 export function LogoMark({ className = "size-7" }: { className?: string; animated?: boolean }) {
-  const rects: React.ReactNode[] = [];
-  LOGO.forEach((row, y) =>
-    row.split("").forEach((k, x) => {
-      if (k === ".") return;
-      rects.push(<rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={KNOT_COLORS[k as keyof typeof KNOT_COLORS]} />);
-    })
-  );
   return (
-    <svg viewBox="0 0 9 9" className={className} shapeRendering="crispEdges" aria-hidden>
-      {rects}
+    <svg viewBox="0 0 32 32" className={className} aria-hidden fill="none">
+      <circle cx="16" cy="16" r="9.5" fill="#c98a52" />
+      <path d="M12.4 20.5v-9l7.2 9v-9" stroke="#050505" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      <ellipse cx="16" cy="16" rx="15" ry="5.2" transform="rotate(-24 16 16)" stroke="#fff6ed" strokeOpacity=".55" strokeWidth=".9" />
     </svg>
   );
 }
 
 export function Wordmark({ className = "" }: { className?: string }) {
-  return (
-    <span className={`font-display text-[21px] font-semibold leading-none tracking-[-0.02em] [font-variation-settings:'SOFT'_100,'WONK'_1] ${className}`}>
-      novo<span className="font-normal italic text-nar">code</span>
-    </span>
-  );
+  return <span className={`text-[13px] font-semibold uppercase tracking-[0.32em] ${className}`}>Novo&nbsp;Code</span>;
 }
 
 export function Logo({ href = "/" }: { href?: string }) {

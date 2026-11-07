@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import { listProjects } from "@/lib/store/projects";
 import type { Project } from "@/lib/types";
+import { Stage } from "@/components/landing/Stage";
+import { Overlay } from "@/components/landing/Overlay";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { Border } from "@/components/landing/Border";
 import { Projects } from "@/components/landing/Projects";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { StudioShowcase } from "@/components/landing/StudioShowcase";
@@ -20,15 +21,18 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {});
+    document.documentElement.classList.add("landing");
+    return () => document.documentElement.classList.remove("landing");
   }, []);
 
   return (
-    <div className="grain relative">
+    <>
+      <Stage />
+      <Overlay />
       <Navbar hasProjects={projects.length > 0} />
-      <main>
+      <main className="relative z-10">
         <Hero />
         <Projects projects={projects} onChange={setProjects} />
-        <Border />
         <HowItWorks />
         <StudioShowcase />
         <Capabilities />
@@ -38,7 +42,9 @@ export default function Home() {
         <Faq />
         <Closing />
       </main>
-      <Footer />
-    </div>
+      <div className="relative z-10">
+        <Footer />
+      </div>
+    </>
   );
 }

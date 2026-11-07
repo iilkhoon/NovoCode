@@ -12,7 +12,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     id: "auto",
     name: "Avtomatik",
     hint: "AI biznesə uyğun seçsin",
-    swatch: ["#a82a2d", "#24386b", "#d29a2e"],
+    swatch: ["#c98a52", "#fff6ed", "#2c4a78"],
     instruction: "",
   },
   {

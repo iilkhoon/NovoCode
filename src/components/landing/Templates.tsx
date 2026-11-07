@@ -6,7 +6,6 @@ import { Container, SectionHead } from "./Section";
 import { TemplatePreview } from "./TemplatePreview";
 import { TEMPLATES, TEMPLATE_CATEGORIES, type TemplateCategory } from "./data";
 import { useStartProject } from "./useStart";
-import { EASE } from "@/components/ui/motion";
 import { cn } from "@/lib/cn";
 
 export function Templates() {
@@ -15,45 +14,44 @@ export function Templates() {
   const list = TEMPLATES.filter((t) => cat === "Hamısı" || t.category === cat);
 
   return (
-    <section id="nümunələr" className="scroll-mt-20 py-24">
+    <section data-stage="far" id="nümunələr" className="relative scroll-mt-20 py-36">
       <Container>
-        <SectionHead no="05" label="Nümunələr" title={<>Bir ideya seçin, <em className="text-nar">Novo uyğunlaşdırsın.</em></>} text="Hər nümunə real, işlək funksiyalarla qurulur. Kliklə başlayın, sonra öz biznesinizə görə dəyişin." />
-        <div className="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-b border-ink-100/15 pb-3">
+        <div className="lg:ml-auto lg:w-[58%]">
+          <SectionHead no="05" label="Nümunələr" lines={["Bir ideya seçin,", "*Novo uyğunlaşdırsın.*"]} text="Hər nümunə real, işlək funksiyalarla qurulur. Kliklə başlayın, sonra öz biznesinizə görə dəyişin." />
+        </div>
+        <div className="glass mt-14 flex w-fit max-w-full gap-1 overflow-x-auto rounded-full border border-ink-100/10 p-1 lg:ml-auto">
           {TEMPLATE_CATEGORIES.map((c) => (
-            <button key={c} onClick={() => setCat(c)} className={cn("relative pb-3 text-[14.5px] transition", cat === c ? "text-ink" : "text-ink-400 hover:text-ink")}>
-              {c}
-              {cat === c && <motion.span layoutId="tpl-line" className="absolute -bottom-[13px] left-0 right-0 h-[2px] bg-nar" />}
+            <button key={c} onClick={() => setCat(c)} className={cn("relative whitespace-nowrap rounded-full px-4 py-1.5 text-[12.5px] transition-colors duration-200", cat === c ? "text-ink-1000" : "text-ink-300 hover:text-ink")}>
+              {cat === c && <motion.span layoutId="tpl-pill" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", duration: 0.45, bounce: 0.15 }} />}
+              <span className="relative">{c}</span>
             </button>
           ))}
         </div>
-        <motion.div layout className="mt-10 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div layout className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {list.map((t, i) => (
+            {list.map((t) => (
               <motion.button
                 layout
                 key={t.name}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.45, ease: EASE }}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
                 disabled={starting}
                 onClick={() => start(t.prompt)}
-                className="group text-left"
+                className="glass group rounded-2xl border border-ink-100/10 p-2 text-left transition-[border-color] duration-300 hover:border-nar/40"
               >
-                <div className="aspect-[4/3] border-[1.5px] border-ink bg-ink-1000 p-2 transition-[transform,box-shadow] duration-200 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_var(--color-nar)]">
-                  <div className="h-full overflow-hidden border border-ink-100/10">
+                <div className="aspect-[4/3] overflow-hidden rounded-xl">
+                  <div className="h-full transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]">
                     <TemplatePreview t={t} />
                   </div>
                 </div>
-                <div className="mt-4 flex items-start justify-between gap-3">
+                <div className="flex items-center justify-between px-3 pb-2 pt-4">
                   <div>
-                    <div className="font-mono text-[11px] text-ink-400">
-                      <span className="text-nar">Şək. 3.{i + 1}</span> · {t.category}
-                    </div>
-                    <div className="mt-1 font-display text-[1.3rem] font-medium">{t.name}</div>
-                    <div className="text-[14px] text-ink-400">{t.tagline}</div>
+                    <div className="text-[15px] font-medium">{t.name}</div>
+                    <div className="text-[12.5px] text-ink-400">{t.tagline}</div>
                   </div>
-                  <ArrowUpRight className="mt-5 size-5 text-ink-400 transition group-hover:text-nar" />
+                  <ArrowUpRight className="size-4 text-ink-400 transition-[color,transform] duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-nar-300" />
                 </div>
               </motion.button>
             ))}

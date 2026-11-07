@@ -1,90 +1,59 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { PromptBox } from "@/components/PromptBox";
-import { Knots } from "@/components/carpet/Knots";
-import { medallion } from "@/components/carpet/patterns";
-import { EASE } from "@/components/ui/motion";
 import { Container } from "./Section";
+import { SplitTitle } from "./SplitTitle";
 import { EXAMPLES, TYPEWRITER } from "./data";
 import { useStartProject } from "./useStart";
+
+const EASE = [0.23, 1, 0.32, 1] as const;
 
 export function Hero() {
   const { start, starting } = useStartProject();
   const [value, setValue] = useState("");
-  const med = useMemo(() => medallion(25), []);
 
   return (
-    <section id="başla" className="relative scroll-mt-20 pb-16 pt-10 sm:pt-14">
-      <Container>
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-ink-100/15 pb-3 font-mono text-[11.5px] uppercase tracking-[0.14em] text-ink-400">
-          <span>
-            <span className="text-nar">№ 01</span> — Azərbaycan dilində AI sayt qurucusu
-          </span>
-          <span className="hidden sm:inline">Bakı · 2026</span>
-        </div>
+    <section data-stage="hero" id="başla" className="relative flex min-h-svh scroll-mt-0 flex-col justify-end pb-14 pt-28">
+      <Container className="w-full">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.1 }} className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
+          <span className="text-nar-300">01</span> — Azərbaycan dilində AI sayt qurucusu
+        </motion.div>
 
-        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-7">
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE }}
-              className="font-display text-[3.1rem] font-medium leading-[0.98] tracking-[-0.03em] text-balance sm:text-[4.6rem] lg:text-[5.4rem] [font-variation-settings:'SOFT'_50,'opsz'_144]"
-            >
-              Sözlə deyin,
-              <br />
-              saytınız <em className="font-normal text-nar [font-variation-settings:'SOFT'_100,'WONK'_1]">toxunsun.</em>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.12 }}
-              className="mt-7 max-w-xl text-[17.5px] leading-relaxed text-ink-300"
-            >
-              Xalça düyün-düyün toxunur, sayt isə sətir-sətir. Nə istədiyinizi Azərbaycan dilində yazın və ya deyin — Novo dizaynı, kodu və məlumat bazasını qurur, xətaları özü tapıb düzəldir.
-            </motion.p>
+        <SplitTitle
+          as="h1"
+          immediate
+          lines={["Sözlə de,", "sayt *doğulsun.*"]}
+          className="mt-6 text-[clamp(3.4rem,10vw,9rem)] leading-[0.9] tracking-[-0.015em] text-ink [text-shadow:0_2px_60px_rgb(0_0_0/0.6)]"
+        />
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: EASE, delay: 0.22 }} className="mt-9 max-w-[620px]">
-              <PromptBox
-                size="lg"
-                typewriter={TYPEWRITER}
-                value={value}
-                onValueChange={setValue}
-                busy={starting}
-                onSubmit={({ text, images, styleId }) => start(text, images, styleId)}
-              />
-              <div className="mt-5 flex flex-wrap items-baseline gap-x-1 gap-y-1.5 text-[14px] text-ink-400">
-                <span className="mr-1 font-mono text-[11px] uppercase tracking-[0.14em]">Məsələn:</span>
-                {EXAMPLES.map((ex, i) => (
-                  <span key={ex.label}>
-                    <button onClick={() => setValue(ex.prompt)} className="text-ink-200 underline decoration-ink-100/25 underline-offset-4 transition hover:text-nar hover:decoration-nar">
-                      {ex.label}
-                    </button>
-                    {i < EXAMPLES.length - 1 && <span className="ml-1 text-ink-600">/</span>}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-
-          <motion.figure initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }} className="lg:col-span-5">
-            <div className="relative border-[1.5px] border-ink bg-ink-1000 p-4 shadow-[6px_6px_0_var(--color-ink-700)] sm:p-6">
-              <div className="border border-ink-100/15 bg-wool p-3 sm:p-5">
-                <Knots pattern={med} weave speed={70} className="mx-auto block w-full max-w-[420px]" title="Toxunan göl naxışı" />
-              </div>
-              {/* loom fringe */}
-              <div aria-hidden className="mt-3 flex justify-between px-1">
-                {Array.from({ length: 26 }).map((_, i) => (
-                  <span key={i} className="h-3 w-px bg-ink-500" />
-                ))}
-              </div>
+        <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-end">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: EASE, delay: 0.7 }} className="lg:col-span-6">
+            <PromptBox size="lg" typewriter={TYPEWRITER} value={value} onValueChange={setValue} busy={starting} onSubmit={({ text, images, styleId }) => start(text, images, styleId)} />
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[12.5px]">
+              {EXAMPLES.map((ex) => (
+                <button key={ex.label} onClick={() => setValue(ex.prompt)} className="text-ink-300 underline decoration-ink-100/20 underline-offset-4 transition-colors duration-200 hover:text-ink hover:decoration-nar-300">
+                  {ex.label}
+                </button>
+              ))}
             </div>
-            <figcaption className="mt-4 flex gap-3 font-mono text-[11.5px] leading-relaxed text-ink-400">
-              <span className="whitespace-nowrap text-nar">Şək. 1</span>
-              <span>Göl naxışı, 25×25 düyün. Xalçada hər düyün bir rəngdir — ekranda isə bir piksel. Novo saytınızı da belə toxuyur.</span>
-            </figcaption>
-          </motion.figure>
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: EASE, delay: 0.85 }}
+            className="text-[15.5px] leading-[1.75] text-ink-200/85 [text-shadow:0_1px_24px_rgb(0_0_0/0.8)] lg:col-span-3 lg:col-start-8"
+          >
+            Fikrinizi Azərbaycan dilində yazın və ya deyin. Novo dizaynı, kodu və məlumat bazasını qurur — xətaları özü tapıb düzəldir.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: EASE, delay: 1 }}
+            className="hidden text-[15.5px] leading-[1.75] text-ink-200/85 [text-shadow:0_1px_24px_rgb(0_0_0/0.8)] lg:col-span-2 lg:block"
+          >
+            Agentlik yox, həftələr yox. Bir söhbət — və tam işlək sayt.
+          </motion.p>
         </div>
       </Container>
     </section>

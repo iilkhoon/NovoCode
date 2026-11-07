@@ -82,7 +82,7 @@ export function CodePanel({
           {active ? (
             <CodeMirror
               value={value}
-              theme="light"
+              theme="dark"
               extensions={langFor(active)}
               editable={!isStreaming}
               onChange={(v) => onChange(active, v)}

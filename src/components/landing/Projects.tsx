@@ -1,9 +1,9 @@
 "use client";
-import { Trash2 } from "lucide-react";
+import { ArrowUpRight, Trash2 } from "lucide-react";
 import { deleteProject } from "@/lib/store/projects";
 import type { Project } from "@/lib/types";
 import { toast } from "@/components/ui/toast";
-import { Container } from "./Section";
+import { Container, Glass } from "./Section";
 
 function timeAgo(ts: number) {
   const s = (Date.now() - ts) / 1000;
@@ -16,19 +16,19 @@ function timeAgo(ts: number) {
 export function Projects({ projects, onChange }: { projects: Project[]; onChange: (p: Project[]) => void }) {
   if (!projects.length) return null;
   return (
-    <section id="layihələrim" className="scroll-mt-20 pb-16">
+    <section data-stage="right" id="layihələrim" className="relative scroll-mt-24 py-16">
       <Container>
-        <div className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3">
-          <h2 className="font-display text-2xl font-medium">Layihələrim</h2>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-400">{projects.length} layihə · bu brauzerdə</span>
+        <div className="mb-5 flex items-baseline justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
+          <span>Layihələrim</span>
+          <span>{projects.length} · bu brauzerdə</span>
         </div>
-        <ul>
-          {projects.slice(0, 8).map((p, i) => (
-            <li key={p.id} className="group flex items-center gap-4 border-b border-ink-100/15">
-              <a href={`/studio/${p.id}`} className="flex flex-1 items-baseline gap-5 py-4">
-                <span className="font-mono text-[12px] text-nar">{String(i + 1).padStart(2, "0")}</span>
-                <span className="flex-1 truncate text-[16px] group-hover:text-nar">{p.name}</span>
-                <span className="font-mono text-[11.5px] text-ink-400">{timeAgo(p.updatedAt)}</span>
+        <Glass className="divide-y divide-ink-100/[0.07]">
+          {projects.slice(0, 6).map((p) => (
+            <div key={p.id} className="group flex items-center gap-4 px-5">
+              <a href={`/studio/${p.id}`} className="flex flex-1 items-center gap-4 py-4">
+                <span className="flex-1 truncate text-[15px] transition-colors duration-200 group-hover:text-nar-300">{p.name}</span>
+                <span className="font-mono text-[11px] text-ink-500">{timeAgo(p.updatedAt)}</span>
+                <ArrowUpRight className="size-4 text-ink-500" />
               </a>
               <button
                 aria-label="Layihəni sil"
@@ -38,13 +38,13 @@ export function Projects({ projects, onChange }: { projects: Project[]; onChange
                   onChange(projects.filter((x) => x.id !== p.id));
                   toast.success("Layihə silindi");
                 }}
-                className="p-2 text-ink-500 opacity-0 transition hover:text-danger group-hover:opacity-100"
+                className="p-2 text-ink-500 opacity-0 transition-opacity duration-200 hover:text-danger group-hover:opacity-100 focus-visible:opacity-100"
               >
                 <Trash2 className="size-4" />
               </button>
-            </li>
+            </div>
           ))}
-        </ul>
+        </Glass>
       </Container>
     </section>
   );

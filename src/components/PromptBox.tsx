@@ -124,8 +124,8 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
     <div className="relative">
       <div
         className={cn(
-          "relative rounded-[4px] border-[1.5px] border-ink-100/80 bg-ink-1000 transition-[box-shadow,border-color] duration-200",
-          focused ? "border-ink-100 shadow-[4px_4px_0_var(--color-nar)]" : "shadow-[4px_4px_0_var(--color-ink-700)]"
+          "glass relative rounded-[22px] border shadow-[var(--shadow-panel)] transition-[border-color] duration-200",
+          focused ? "border-nar/60" : "border-ink-100/15"
         )}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
@@ -139,11 +139,11 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               {images.map((src, i) => (
                 <motion.div key={src.slice(-40) + i} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="Əlavə edilmiş şəkil" className="size-16 rounded-[3px] object-cover ring-1 ring-ink-100/15" />
+                  <img src={src} alt="Əlavə edilmiş şəkil" className="size-16 rounded-full object-cover ring-1 ring-ink-100/15" />
                   <button
                     aria-label="Şəkli sil"
                     onClick={() => setImages(images.filter((_, j) => j !== i))}
-                    className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-[2px] bg-ink text-wool transition hover:bg-nar"
+                    className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-ink text-ink-1000 transition hover:bg-nar"
                   >
                     <X className="size-3" />
                   </button>
@@ -188,7 +188,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
           {typewriter && !text && (
             <div className={cn("pointer-events-none absolute left-5 right-5 top-4 text-ink-400", lg ? "text-[16px] leading-relaxed" : "text-[14px]")}>
               {typed}
-              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[3px] animate-blink bg-nar" />
+              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[3px] animate-blink bg-nar-300" />
             </div>
           )}
         </div>
@@ -210,12 +210,12 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
             <button
               type="button"
               onClick={() => setStyleOpen((o) => !o)}
-              className="flex h-8 items-center gap-1.5 rounded-[3px] px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-ink-100"
+              className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-ink-100"
               aria-label="Dizayn üslubu"
             >
               <span className="flex -space-x-1">
                 {style.swatch.map((c, i) => (
-                  <span key={i} className="size-3 rounded-[1px] ring-1 ring-ink-100/20" style={{ background: c }} />
+                  <span key={i} className="size-3 rounded-full ring-1 ring-ink-100/20" style={{ background: c }} />
                 ))}
               </span>
               <span className="hidden sm:inline">{style.name}</span>
@@ -230,7 +230,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.97 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute bottom-10 left-0 z-50 w-64 rounded-[4px] border-[1.5px] border-ink-100 bg-ink-1000 p-1.5 shadow-[4px_4px_0_var(--color-ink-700)]"
+                    className="absolute bottom-10 left-0 z-50 w-64 origin-bottom-left rounded-2xl border border-ink-100/12 bg-ink-850 p-1.5 shadow-[var(--shadow-panel)]"
                   >
                     <div className="px-2.5 pb-1.5 pt-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-400">Dizayn üslubu</div>
                     {STYLE_PRESETS.map((s) => (
@@ -240,18 +240,18 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                           setStyleId(s.id);
                           setStyleOpen(false);
                         }}
-                        className="flex w-full items-center gap-3 rounded-[3px] px-2.5 py-2 text-left transition hover:bg-ink-100/6"
+                        className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-ink-100/6"
                       >
                         <span className="flex -space-x-1">
                           {s.swatch.map((c, i) => (
-                            <span key={i} className="size-3.5 rounded-[1px] ring-1 ring-ink-100/20" style={{ background: c }} />
+                            <span key={i} className="size-3.5 rounded-full ring-1 ring-ink-100/20" style={{ background: c }} />
                           ))}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block text-[13px] text-ink-100">{s.name}</span>
                           <span className="block truncate text-[11px] text-ink-400">{s.hint}</span>
                         </span>
-                        {s.id === styleId && <Check className="size-4 text-nar" />}
+                        {s.id === styleId && <Check className="size-4 text-nar-300" />}
                       </button>
                     ))}
                   </motion.div>
@@ -265,14 +265,14 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               type="button"
               onClick={enhance}
               disabled={!text.trim() || enhancing}
-              className="flex h-8 items-center gap-1.5 rounded-[3px] px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-nar disabled:opacity-40"
+              className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-nar-300 disabled:opacity-40"
               title="Sorğunu AI ilə təkmilləşdir"
             >
               {enhancing ? <Loader2 className="size-3.5 animate-spin" /> : <PenLine className="size-3.5" />}
               <span className="hidden sm:inline">Təkmilləşdir</span>
             </button>
             {busy ? (
-              <button onClick={onStop} aria-label="Dayandır" className="grid size-9 place-items-center rounded-[3px] bg-ink text-wool transition hover:bg-nar">
+              <button onClick={onStop} aria-label="Dayandır" className="grid size-9 place-items-center rounded-full bg-ink-700 text-ink transition hover:bg-ink-600">
                 <Square className="size-3.5 fill-current" />
               </button>
             ) : (
@@ -281,7 +281,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                 onClick={submit}
                 aria-label="Göndər"
                 disabled={!text.trim() && images.length === 0}
-                className="grid size-9 place-items-center rounded-[3px] bg-nar text-wool transition-colors hover:bg-ink disabled:bg-ink-800 disabled:text-ink-500"
+                className="grid size-9 place-items-center rounded-full bg-ink text-ink-1000 transition-[transform,background-color] duration-150 hover:bg-nar-300 active:scale-[0.95] disabled:bg-ink-700 disabled:text-ink-500"
               >
                 <ArrowUp className="size-4" />
               </motion.button>
@@ -300,7 +300,7 @@ function ToolButton({ label, onClick, active, children }: { label: string; onCli
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={cn("grid size-8 place-items-center rounded-[3px] transition", active ? "bg-nar/12 text-nar" : "text-ink-300 hover:bg-ink-100/5 hover:text-ink-100")}
+      className={cn("grid size-8 place-items-center rounded-full transition", active ? "bg-nar/15 text-nar-300" : "text-ink-300 hover:bg-ink-100/5 hover:text-ink-100")}
     >
       {children}
     </button>

@@ -1,32 +1,29 @@
-"use client";
-import { useMemo } from "react";
-import { Knots } from "@/components/carpet/Knots";
-import { medallion } from "@/components/carpet/patterns";
+import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
+import { Reveal } from "@/components/ui/motion";
 import { Container } from "./Section";
+import { SplitTitle } from "./SplitTitle";
 
+/** Finale: the form settles centre-stage, the call to action sits beneath it. */
 export function Closing() {
-  const med = useMemo(() => medallion(25), []);
   return (
-    <section className="bg-indigo py-24 text-wool">
-      <Container className="grid items-center gap-12 lg:grid-cols-12">
-        <div className="lg:col-span-7">
-          <div className="font-mono text-[11.5px] uppercase tracking-[0.14em] text-wool/60">
-            <span className="text-saffron">№ 09</span> — Başlayın
-          </div>
-          <h2 className="mt-6 font-display text-[2.8rem] font-medium leading-[1] tracking-[-0.03em] sm:text-[4.4rem] [font-variation-settings:'SOFT'_50,'opsz'_144]">
-            Növbəti saytınız bir cümlə <em className="text-saffron">uzaqlığındadır.</em>
-          </h2>
-          <p className="mt-6 max-w-md text-[17px] leading-relaxed text-wool/75">Pulsuz başlayın, kart tələb olunmur. İlk versiya çayınız soyumadan hazır olacaq.</p>
-          <ButtonLink href="#başla" size="lg" className="mt-9 !bg-saffron !text-ink hover:!bg-wool">
-            İndi qurmağa başla
+    <section data-stage="center" className="relative flex min-h-[150svh] flex-col justify-end pb-32">
+      <Container className="text-center">
+        <Reveal className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
+          <span className="text-nar-300">09</span> — Başlayın
+        </Reveal>
+        <SplitTitle
+          lines={["Növbəti saytınız", "*bir cümlə uzaqlığındadır.*"]}
+          className="mx-auto mt-6 text-[clamp(2.8rem,7.5vw,7rem)] leading-[0.95] text-ink [text-shadow:0_2px_60px_rgb(0_0_0/0.7)]"
+        />
+        <Reveal delay={0.3} className="mx-auto mt-6 max-w-md text-[16px] leading-relaxed text-ink-200/85">
+          Pulsuz başlayın, kart tələb olunmur. İlk versiya çayınız soyumadan hazır olacaq.
+        </Reveal>
+        <Reveal delay={0.45} className="mt-10 flex justify-center">
+          <ButtonLink href="#başla" size="lg" variant="white">
+            İndi qurmağa başla <ArrowRight className="size-4 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
           </ButtonLink>
-        </div>
-        <div className="lg:col-span-4 lg:col-start-9">
-          <div className="border-[1.5px] border-wool/40 bg-wool p-5">
-            <Knots pattern={med} weave speed={50} className="block w-full" />
-          </div>
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

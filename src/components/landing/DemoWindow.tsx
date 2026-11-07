@@ -6,9 +6,9 @@ import { LogoMark } from "@/components/Logo";
 
 const PROMPT = "Dəmlə adlı kofe şopu üçün sayt qur: menyu, qiymətlər və masa rezervasiyası olsun.";
 const FILES = ["src/index.css", "src/components/Header.jsx", "src/components/Hero.jsx", "src/components/Menu.jsx", "src/components/Reservation.jsx", "src/App.jsx"];
-const ROWS = 14; // the preview is "woven" in 14 rows
+const ROWS = 14; // the preview is revealed in 14 steps
 
-/** Scripted, looping product demo — the preview is revealed row by row like a loom. */
+/** Scripted, looping product demo — the preview builds from the bottom up as files land. */
 export function DemoWindow() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: "-120px" });
@@ -54,18 +54,18 @@ export function DemoWindow() {
   const fixed = t >= 18;
 
   return (
-    <div ref={ref} className="border-[1.5px] border-ink bg-ink-1000 shadow-[8px_8px_0_var(--color-ink-700)]">
-      <div className="flex h-10 items-center gap-3 border-b-[1.5px] border-ink px-4 font-mono text-[11px] text-ink-400">
+    <div ref={ref} className="glass overflow-hidden rounded-[22px] border border-ink-100/12 shadow-[var(--shadow-panel)]">
+      <div className="flex h-10 items-center gap-3 border-b border-ink-100/10 px-4 font-mono text-[11px] text-ink-400">
         <LogoMark className="size-4" />
         <span className="text-ink-200">novocode.az/studio</span>
         <span className="ml-auto hidden sm:inline">Önizləmə · Kod · Terminal</span>
       </div>
       <div className="grid md:grid-cols-[320px_1fr]">
-        <div className="hidden border-r-[1.5px] border-ink p-4 text-[13px] md:block">
+        <div className="hidden border-r border-ink-100/10 p-4 text-[13px] md:block">
           {typed && (
-            <div className="ml-6 border border-ink-100/15 bg-wool px-3 py-2.5 leading-relaxed">
+            <div className="ml-6 rounded-xl rounded-br-sm bg-ink-100/[0.07] px-3 py-2.5 leading-relaxed">
               {typed}
-              {t === 0 && <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-blink bg-nar" />}
+              {t === 0 && <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-blink bg-nar-300" />}
             </div>
           )}
           {t >= 1 && (
@@ -74,10 +74,10 @@ export function DemoWindow() {
               <div className="min-w-0 flex-1">
                 <p className="text-ink-200">Əla fikir. İsti, premium kofe üslubunda qururam.</p>
                 {filesShown > 0 && (
-                  <div className="mt-3 border border-ink-100/15">
+                  <div className="mt-3 overflow-hidden rounded-xl border border-ink-100/10">
                     {FILES.slice(0, filesShown).map((f, i) => (
                       <div key={f} className="flex items-center gap-2 border-b border-ink-100/10 px-2.5 py-1.5 font-mono text-[11px] text-ink-300 last:border-0">
-                        {i < filesDone ? <Check className="size-3 text-success" /> : <Loader2 className="size-3 animate-spin text-nar" />}
+                        {i < filesDone ? <Check className="size-3 text-success" /> : <Loader2 className="size-3 animate-spin text-nar-300" />}
                         {f}
                       </div>
                     ))}
@@ -85,7 +85,7 @@ export function DemoWindow() {
                 )}
                 <AnimatePresence>
                   {t >= 15 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`mt-3 flex items-center gap-2 border px-2.5 py-2 text-[12px] ${fixed ? "border-success/40 text-success" : "border-saffron text-gold-400"}`}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`mt-3 flex items-center gap-2 rounded-xl border px-2.5 py-2 text-[12px] ${fixed ? "border-success/40 text-success" : "border-saffron/50 text-saffron"}`}>
                       {fixed ? <Check className="size-3.5" /> : <Wrench className="size-3.5" />}
                       {fixed ? "Xəta avtomatik düzəldildi" : "Xəta tapıldı — düzəldirəm…"}
                     </motion.div>
@@ -96,8 +96,8 @@ export function DemoWindow() {
           )}
         </div>
 
-        <div className="relative h-[400px] overflow-hidden bg-wool p-3 sm:h-[460px]">
-          <div className="relative h-full overflow-hidden border border-ink-100/15 bg-[#f6eee4] text-[#2b1d14]">
+        <div className="relative h-[400px] overflow-hidden p-3 sm:h-[460px]">
+          <div className="relative h-full overflow-hidden rounded-xl bg-[#f6eee4] text-[#2b1d14]">
             {/* the site, woven from the bottom up */}
             <div className="h-full transition-[clip-path] duration-300 ease-out" style={{ clipPath: `inset(${100 - (woven / ROWS) * 100}% 0 0 0)` }}>
               <div className="flex items-center justify-between px-5 py-3 text-[10px]">
@@ -130,22 +130,22 @@ export function DemoWindow() {
             </div>
             {/* the "shuttle" line */}
             {woven > 0 && woven < ROWS && (
-              <div className="absolute inset-x-0 h-[2px] bg-nar transition-[top] duration-300" style={{ top: `${100 - (woven / ROWS) * 100}%` }} />
+              <div className="absolute inset-x-0 h-[2px] bg-[#b4532a] transition-[top] duration-300" style={{ top: `${100 - (woven / ROWS) * 100}%` }} />
             )}
             {woven === 0 && (
-              <div className="absolute inset-0 grid place-items-center font-mono text-[11px] text-[#8c7464]">{t >= 1 ? "toxunur…" : "fikrinizi gözləyir"}</div>
+              <div className="absolute inset-0 grid place-items-center font-mono text-[11px] text-[#8c7464]">{t >= 1 ? "qurulur…" : "fikrinizi gözləyir"}</div>
             )}
             <AnimatePresence>
               {showError && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-x-6 bottom-6 border-[1.5px] border-danger bg-ink-1000 p-3 font-mono text-[10.5px] text-danger">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-x-6 bottom-6 rounded-lg border border-danger/60 bg-[#1a0d0c] p-3 font-mono text-[10.5px] text-danger">
                   [vite] Failed to resolve import &quot;./Reservation&quot; from &quot;src/App.jsx&quot;
                 </motion.div>
               )}
             </AnimatePresence>
             <AnimatePresence>
               {t >= 23 && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap bg-ink px-3.5 py-2 text-[11px] text-wool">
-                  <Check className="size-3.5 text-saffron" /> Sayt hazırdır
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-[#2b1d14] px-3.5 py-2 text-[11px] text-[#f6eee4]">
+                  <Check className="size-3.5 text-[#e2b06a]" /> Sayt hazırdır
                 </motion.div>
               )}
             </AnimatePresence>

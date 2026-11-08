@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/toast";
 import { PromptBox } from "@/components/PromptBox";
 import { Container, Glass, SectionHead } from "@/components/landing/Section";
 import { SplitTitle } from "@/components/landing/SplitTitle";
+import { AstryxShowcase } from "./AstryxShowcase";
 
 const COLORS = [
   { name: "Səhnə", token: "ink-1000 / ink-950", hex: "#000000", note: "Qara səhnə — WebGL fonu" },
@@ -133,6 +134,16 @@ export function DesignSystem() {
               </div>
             ))}
           </Glass>
+        </section>
+
+        <section>
+          <SectionHead
+            no="06"
+            label="Astryx"
+            lines={["Meta-nın sistemi,", "*bizim bürünc.*"]}
+            text="Studiyanın əmr paleti, dialoqları və tooltip-ləri Astryx (Meta, MIT) üzərində qurulub. Bürünc mövzusu eyni tokenlərdən yığılıb: src/themes/burunc."
+          />
+          <AstryxShowcase />
         </section>
       </Container>
     </div>

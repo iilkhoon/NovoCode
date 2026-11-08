@@ -27,10 +27,11 @@ export default function Home() {
 
   return (
     <>
+      <a href="#main" className="skip-link">Məzmuna keç</a>
       <Stage />
       <Overlay />
       <Navbar hasProjects={projects.length > 0} />
-      <main className="relative z-10">
+      <main id="main" tabIndex={-1} className="relative z-10 outline-none">
         <Hero />
         <Projects projects={projects} onChange={setProjects} />
         <HowItWorks />

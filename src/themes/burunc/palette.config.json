@@ -1,0 +1,8 @@
+{"families": [
+  {"id": "bronze", "seed": "#c98a52"},
+  {"id": "neutral", "seed": "#8a7e74"},
+  {"id": "sapphire", "seed": "#2c4a78"},
+  {"id": "green", "seed": "#3f9a6b"},
+  {"id": "red", "seed": "#d0564a"},
+  {"id": "yellow", "seed": "#e2b06a"}
+]}

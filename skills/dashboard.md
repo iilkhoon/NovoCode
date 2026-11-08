@@ -10,3 +10,4 @@ always: false
 - Charts: build simple bar/line charts with inline SVG or CSS (no chart library unless asked; if needed `npm install recharts`).
 - Tables: sortable headers, search filter, pagination of 10, status badges, row actions.
 - Use a neutral, calm palette with one accent; dense but readable (`text-sm`).
+- If the `astryx-ui` playbook is also loaded, build the shell, tables, forms and dialogs with Astryx components instead of by hand.

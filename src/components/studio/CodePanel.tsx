@@ -62,7 +62,7 @@ export function CodePanel({
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-2 border-b border-ink-100/12 px-3 py-2 font-mono text-xs text-ink-300">
-          <select className="max-w-full bg-transparent outline-none md:hidden" value={active ?? ""} onChange={(e) => onSelect(e.target.value)}>
+          <select aria-label="Fayl seçin" className="max-w-full bg-ink-900 text-ink-200 md:hidden" value={active ?? ""} onChange={(e) => onSelect(e.target.value)}>
             {Object.keys(files).sort().map((p) => (
               <option key={p} value={p} className="bg-ink-900">{p}</option>
             ))}

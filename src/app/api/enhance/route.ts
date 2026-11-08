@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { listModels, streamChat } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
+import { assertSameOrigin, errorResponse, rateLimit, readJson } from "@/lib/api/guard";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -10,8 +11,15 @@ Reply ONLY with the improved brief in natural Azerbaijani (Latin script), 60–1
 Include: business name (invent a fitting Azerbaijani one if missing), audience, 5–7 concrete sections/pages, key working features (forms, booking, cart, login…), visual style (palette, mood, typography) and tone. Keep every fact the user gave.`;
 
 export async function POST(req: Request) {
-  const { prompt } = (await req.json()) as { prompt?: string };
-  if (!prompt?.trim()) return NextResponse.json({ error: "Boş sorğu" }, { status: 400 });
+  let prompt: unknown;
+  try {
+    assertSameOrigin(req);
+    rateLimit(req, "enhance", 20, 10 * 60_000);
+    ({ prompt } = await readJson<{ prompt?: unknown }>(req, 16_000));
+  } catch (e) {
+    return errorResponse(e);
+  }
+  if (typeof prompt !== "string" || !prompt.trim()) return NextResponse.json({ error: "Boş sorğu" }, { status: 400 });
   try {
     const models = await listModels();
     const fast = models.find((m) => /flash/i.test(m.id))?.id ?? pickDefault(models)!;

@@ -1,3 +1,7 @@
+/* Layer order: Tailwind preflight wins over the Astryx reset, Tailwind
+   utilities win over Astryx component + theme styles. */
+@layer theme, reset, base, astryx-base, astryx-theme, components, utilities;
+
 @import "tailwindcss";
 
 /* ==========================================================================
@@ -92,6 +96,9 @@
 }
 
 :root { color-scheme: dark; }
+a, button, [role="button"], input, select, textarea, label { touch-action: manipulation; }
+.skip-link { position: fixed; left: 16px; top: -60px; z-index: 200; padding: 10px 16px; border-radius: 999px; background: var(--color-ink); color: #000; font-size: 14px; transition: top 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
+.skip-link:focus-visible { top: 16px; }
 html { -webkit-text-size-adjust: 100%; }
 html, body { background: #000; color: var(--color-ink); }
 body { -webkit-font-smoothing: antialiased; }

@@ -58,6 +58,15 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
     body: JSON.stringify({ messages: req.messages, files: req.files, model: req.model }),
     signal: req.signal,
   });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    let msg = text;
+    try {
+      const j = JSON.parse(text.split("\n")[0]);
+      msg = j.error ?? j.v ?? text;
+    } catch {}
+    throw new Error(msg || `Server cavab vermədi (${res.status})`);
+  }
   if (!res.body) throw new Error(`Server cavab vermədi (${res.status})`);
   const parser = new ActionParser();
   let raw = "";

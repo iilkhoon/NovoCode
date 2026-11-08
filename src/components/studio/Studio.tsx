@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { PublishModal } from "./PublishModal";
+import { CommandMenu, type Command } from "./CommandMenu";
+import { AstryxTheme } from "@/components/AstryxTheme";
+import { Kbd } from "@/components/ui/badge";
 import { LogoMark } from "@/components/Logo";
 import { ChatPanel } from "./ChatPanel";
 import { PreviewPanel } from "./PreviewPanel";
@@ -43,6 +46,7 @@ export default function Studio({ id }: { id: string }) {
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
 
   const filesRef = useRef<Record<string, string>>({});
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -265,11 +269,22 @@ export default function Studio({ id }: { id: string }) {
     await persist();
   }
 
+  // warn before leaving while Novo is still writing files
+  useEffect(() => {
+    if (!busy) return;
+    const onLeave = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", onLeave);
+    return () => window.removeEventListener("beforeunload", onLeave);
+  }, [busy]);
+
   // ---------- keyboard shortcuts ----------
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
-      if (mod && ["1", "2", "3"].includes(e.key)) {
+      if (mod && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCmdOpen((o) => !o);
+      } else if (mod && ["1", "2", "3"].includes(e.key)) {
         e.preventDefault();
         setTab((["preview", "code", "terminal"] as Tab[])[+e.key - 1]);
       } else if (mod && e.key.toLowerCase() === "s") {
@@ -290,7 +305,24 @@ export default function Studio({ id }: { id: string }) {
     { t: "terminal", icon: SquareTerminal, label: "Terminal", key: "3" },
   ];
 
+  const lastSnapshot = [...messages].reverse().find((m) => m.snapshot && m.id !== currentVersion);
+  const commands: Command[] = [
+    { id: "tab-preview", group: "Görünüş", label: "Önizləməni aç", hint: "Ctrl 1", keywords: ["preview", "sayt"], run: () => { setTab("preview"); setMobileView("work"); } },
+    { id: "tab-code", group: "Görünüş", label: "Kodu aç", hint: "Ctrl 2", keywords: ["code", "fayl"], run: () => { setTab("code"); setMobileView("work"); } },
+    { id: "tab-terminal", group: "Görünüş", label: "Terminalı aç", hint: "Ctrl 3", keywords: ["terminal", "konsol"], run: () => { setTab("terminal"); setMobileView("work"); } },
+    { id: "fullscreen", group: "Görünüş", label: fullscreen ? "Tam ekrandan çıx" : "Önizləməni tam ekran et", keywords: ["fullscreen"], run: () => { setTab("preview"); setFullscreen((f) => !f); } },
+    { id: "save", group: "Layihə", label: "Yadda saxla", hint: "Ctrl S", keywords: ["save"], run: () => void persist().then(() => toast.success("Yadda saxlanıldı")) },
+    { id: "publish", group: "Layihə", label: "Yayımla / yüklə", keywords: ["publish", "zip", "deploy", "download"], run: () => setPublishOpen(true) },
+    ...(lastSnapshot ? [{ id: "restore", group: "Layihə", label: "Əvvəlki versiyanı bərpa et", keywords: ["undo", "geri"], run: () => void restore(lastSnapshot.id) }] : []),
+    { id: "new", group: "Layihə", label: "Yeni layihə", keywords: ["new", "home"], run: () => location.assign("/") },
+    ...Object.keys(files)
+      .sort()
+      .slice(0, 40)
+      .map((f) => ({ id: `file:${f}`, group: "Fayllar", label: f, keywords: [f.split("/").pop() ?? f], run: () => { setActive(f); setTab("code"); setMobileView("work"); } })),
+  ];
+
   return (
+    <AstryxTheme className="contents">
     <div className="flex h-dvh flex-col bg-ink-950">
       {/* top bar */}
       <header className="relative flex h-14 shrink-0 items-center gap-2 border-b border-ink-100/10 px-3">
@@ -303,6 +335,13 @@ export default function Studio({ id }: { id: string }) {
           <span className="hidden rounded-full bg-ink-100/5 px-2 py-0.5 text-[11px] text-ink-400 lg:inline">v{versionCount}</span>
         )}
         <div className="ml-auto flex items-center gap-1.5">
+          <button
+            onClick={() => setCmdOpen(true)}
+            aria-label="Əmrlər (Ctrl+K)"
+            className="hidden h-8 items-center gap-2 rounded-full border border-ink-100/10 px-3 text-xs text-ink-400 transition-colors hover:border-ink-100/25 hover:text-ink-100 lg:flex"
+          >
+            Əmrlər <Kbd>Ctrl K</Kbd>
+          </button>
           <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />
           <Button variant="ghost" size="sm" onClick={() => setPublishOpen(true)} className="hidden sm:inline-flex" title="Kodu yüklə">
             <Download className="size-3.5" /> Kod
@@ -384,7 +423,9 @@ export default function Studio({ id }: { id: string }) {
       </div>
 
       <PublishModal open={publishOpen} onClose={() => setPublishOpen(false)} projectName={project?.name ?? "layihe"} runtime={runtime} files={files} />
+      <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} commands={commands} />
     </div>
+    </AstryxTheme>
   );
 }
 
@@ -437,7 +478,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
       <AnimatePresence>
         {open && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <div aria-hidden="true" className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
             <motion.div
               initial={{ opacity: 0, y: -6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

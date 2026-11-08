@@ -27,7 +27,7 @@ export function Toaster() {
   const icons = { success: CheckCircle2, error: XCircle, info: Info };
   const colors = { success: "text-nar-300", error: "text-danger", info: "text-info" };
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-[100] flex flex-col items-center gap-2 px-4">
+    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-5 z-[100] flex flex-col items-center gap-2 px-4">
       <AnimatePresence>
         {items.map((t) => {
           const Icon = icons[t.tone];

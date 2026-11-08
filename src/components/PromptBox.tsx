@@ -224,7 +224,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
             <AnimatePresence>
               {styleOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
+                  <div aria-hidden="true" className="fixed inset-0 z-40" onClick={() => setStyleOpen(false)} />
                   <motion.div
                     initial={{ opacity: 0, y: 8, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}

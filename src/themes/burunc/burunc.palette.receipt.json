@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "recipe": "astryx-oklch-v1",
+  "generatorVersion": "palette-generator-v1",
+  "candidateFormatVersion": "palette-typescript-v1",
+  "candidateSha256": "a2ce3fe49e4782f4fab0939b03fb36131478c416eced753326d717699da44c17",
+  "request": {
+    "recipe": "astryx-oklch-v1",
+    "vibrancy": 50,
+    "neutralProfile": "neutral-v1",
+    "modeStrategy": "light-and-dark",
+    "stops": [
+      0,
+      5,
+      10,
+      15,
+      20,
+      25,
+      30,
+      35,
+      40,
+      45,
+      50,
+      55,
+      60,
+      65,
+      70,
+      75,
+      80,
+      85,
+      90,
+      95,
+      100
+    ],
+    "families": [
+      {
+        "id": "bronze",
+        "name": "bronze",
+        "seed": "#c98a52",
+        "kind": "chromatic",
+        "anchors": []
+      },
+      {
+        "id": "neutral",
+        "name": "neutral",
+        "seed": "#8a7e74",
+        "kind": "chromatic",
+        "anchors": []
+      },
+      {
+        "id": "sapphire",
+        "name": "sapphire",
+        "seed": "#2c4a78",
+        "kind": "chromatic",
+        "anchors": []
+      },
+      {
+        "id": "green",
+        "name": "green",
+        "seed": "#3f9a6b",
+        "kind": "chromatic",
+        "anchors": []
+      },
+      {
+        "id": "red",
+        "name": "red",
+        "seed": "#d0564a",
+        "kind": "chromatic",
+        "anchors": []
+      },
+      {
+        "id": "yellow",
+        "name": "yellow",
+        "seed": "#e2b06a",
+        "kind": "chromatic",
+        "anchors": []
+      }
+    ]
+  },
+  "diagnostics": {
+    "families": {
+      "bronze": {
+        "light": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.157160987771066,
+          "maximumAdjacentDeltaE": 18.515313094421213,
+          "maximumHueDrift": 18.19918192180677,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            45,
+            50,
+            55,
+            80,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        },
+        "dark": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.150397518115344,
+          "maximumAdjacentDeltaE": 18.515313094421213,
+          "maximumHueDrift": 18.599711665143104,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            45,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        }
+      },
+      "neutral": {
+        "light": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.168362818176692,
+          "maximumAdjacentDeltaE": 18.515313094421213,
+          "maximumHueDrift": 19.542279151097375,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        },
+        "dark": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.062592054229416,
+          "maximumAdjacentDeltaE": 18.443980345845176,
+          "maximumHueDrift": 16.95694954729538,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            10,
+            15,
+            20,
+            25,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        }
+      },
+      "sapphire": {
+        "light": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.1828314248181355,
+          "maximumAdjacentDeltaE": 19.169920867209647,
+          "maximumHueDrift": 3.064873390920866,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            70,
+            75,
+            80,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        },
+        "dark": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.183116289706335,
+          "maximumAdjacentDeltaE": 18.775539177959303,
+          "maximumHueDrift": 3.2229073809189686,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            80,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        }
+      },
+      "green": {
+        "light": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.131998312051353,
+          "maximumAdjacentDeltaE": 18.517469393664733,
+          "maximumHueDrift": 3.481969593934764,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            100
+          ],
+          "anchors": []
+        },
+        "dark": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.1507338199633805,
+          "maximumAdjacentDeltaE": 18.517469393664733,
+          "maximumHueDrift": 3.6158641764435515,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            100
+          ],
+          "anchors": []
+        }
+      },
+      "red": {
+        "light": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.2167531301357455,
+          "maximumAdjacentDeltaE": 19.896679473359143,
+          "maximumHueDrift": 1.1709832915896072,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            70,
+            75,
+            80,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        },
+        "dark": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.183985101972152,
+          "maximumAdjacentDeltaE": 19.346124422908343,
+          "maximumHueDrift": 1.039981958624935,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            75,
+            80,
+            85,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        }
+      },
+      "yellow": {
+        "light": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.23407949894391,
+          "maximumAdjacentDeltaE": 18.33048574289141,
+          "maximumHueDrift": 9.332016294733364,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            45,
+            50,
+            55,
+            60,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        },
+        "dark": {
+          "monotonic": true,
+          "minimumAdjacentDeltaE": 4.159223858897273,
+          "maximumAdjacentDeltaE": 18.33048574289141,
+          "maximumHueDrift": 9.332016294733364,
+          "hueIdentityRisk": null,
+          "gamutMappedStops": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            45,
+            50,
+            90,
+            95,
+            100
+          ],
+          "anchors": []
+        }
+      }
+    },
+    "coordination": [
+      {
+        "mode": "light",
+        "stop": 50,
+        "closestFamilies": [
+          "bronze",
+          "neutral"
+        ],
+        "minimumFamilyDeltaE": 0.8488645143857755,
+        "strongestFamily": "red",
+        "weakestFamily": "yellow",
+        "chromaRatio": 1.4295951188827445
+      },
+      {
+        "mode": "dark",
+        "stop": 50,
+        "closestFamilies": [
+          "bronze",
+          "neutral"
+        ],
+        "minimumFamilyDeltaE": 2.5417282742812817,
+        "strongestFamily": "red",
+        "weakestFamily": "green",
+        "chromaRatio": 1.4218161845833812
+      }
+    ]
+  }
+}

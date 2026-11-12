@@ -1,0 +1,84 @@
+# Novo Code — 1 aylıq plan
+
+Başlanğıc: 2026-11-12 · Hədəf: investor turuna tam hazır məhsul (~4 həftə, hər gün iş)
+
+Məqsəd: kod bilməyən hər kəs **Bolt qədər rahat** sayt (sonra mobil tətbiq) qursun; developer üçün ayrıca güclü rejim olsun; görünüş dünya standartında və bazardan fərqli olsun; xərclər bizi heç vaxt ziyana salmasın.
+
+---
+
+## 1. Dizayn istiqaməti — "ASCII + isti işıq"
+
+Bazarda hamı eyni görünür: tünd fon, bənövşəyi qradiyent, şüşə kartlar. Biz başqa yolla gedirik.
+
+- **ASCII səhnə.** Ana ekranın fonu simvollardan (`. : * # @`) qurulmuş canlı, axan şəkildir. Kursor və ya barmaq yaxınlaşanda simvollar dalğalanır. İstifadəçi yazmağa başlayanda simvollar yazdığı sözə doğru "axır" — AI-ın düşündüyünü vizual göstərir.
+- **İsti qradiyentlər.** Anthropic/Claude stilindən **ilham** (kopya yox): krem/kağız fon, terrakota-narıncı, şaftalı və qum tonları, yavaş hərəkət edən yumşaq işıqlar. Rənglər və adlar öz brendimizdir — başqa brendə bənzəyən kimlik qlobal bazarda problem yaradar.
+- **Tipoqrafiya.** Başlıqlar: Geist Pixel (nöqtəli, ASCII ilə uyğun). Mətn: Inter.
+- **İki tema.** Gündüz (krem fonda ASCII) və gecə (qara fonda isti işıqlı ASCII).
+- **Video fon** ASCII səhnə ilə əvəz olunur — daha unikal, dəfələrlə yüngül, pulsuz.
+
+## 2. İki rejim
+
+### Sadə rejim (standart, hamı üçün)
+- Yalnız **söhbət + canlı sayt**. "Terminal", "fayl", "kod" sözləri ekranda yoxdur.
+- Xəta olanda texniki mesaj yox: *"Kiçik problem tapdım, düzəldirəm…"* (animasiyalı).
+- Saytda istənilən yerə **klikləyib "bunu dəyiş"** demək.
+- Böyük **"Yayımla"** düyməsi — basanda link hazırdır.
+
+### Developer rejimi (bir düymə ilə açılır)
+- Kod redaktoru, fayl ağacı, terminal, model seçimi, ZIP yükləmə.
+- Sadə istifadəçi bu rejimə təsadüfən düşmür.
+
+## 3. Axıcılıq — ölçülən hədəflər
+
+| Hədəf | Dəyər |
+| --- | --- |
+| Ana ekranın açılması | ≤ 1.5 s, Lighthouse 95+ |
+| Animasiyalar | həmişə 60 fps, zəif telefonda da |
+| ASCII səhnə | canvas; zəif cihazda simvol sıxlığı avtomatik azalır |
+| Hərəkət | 150–400 ms, yumşaq, mənalı; heç nə istifadəçini gözlətmir; "azaldılmış hərəkət" dəstəklənir |
+| Studiyanın ilk açılışı | 20–40 s → 5–10 s (paketlər əvvəlcədən hazır) |
+
+## 4. Ucuz və ziyansız iş modeli
+
+Ən böyük xərc AI-dır; server xərci demək olar sıfırdır.
+
+| Xərc | Necə ucuz saxlayırıq |
+| --- | --- |
+| AI | Ucuz, güclü modellər (NVIDIA: DeepSeek, Qwen…); kiçik düzəlişlərə daha ucuz model; cavab ölçüsü və kontekst limiti |
+| Kvota | Hər planın gündəlik/aylıq mesaj limiti — pulsuz istifadəçi heç vaxt ziyana salmır |
+| Önizləmə | İstifadəçinin brauzerində işləyir — bizə xərc yoxdur |
+| Yayım | Statik hostinq (məs. Cloudflare), sayt başına qəpiklər |
+| Nəzarət | Hər istifadəçinin xərci ölçülür; plan qiyməti xərcdən 3–5× yuxarı |
+
+Dəqiq rəqəmlər real sınaqdan sonra ölçülür: bir sayt orta neçə mesaj və neçə tokenə başa gəlir.
+
+## 5. Həftəlik plan
+
+| Həftə | İş | Status |
+| --- | --- | --- |
+| 1 | Real sınaq problemləri · yeni dizayn sistemi (rəng, tema, tipoqrafiya) · ASCII səhnə | ⏳ |
+| 2 | Sadə / Developer rejimləri · insan dilində xəta bildirişləri · studiyanın sürətləndirilməsi | ⏳ |
+| 3 | Saytda kliklə dəyişmək · bir kliklə yayım (`ad.novocode.az`) · Google ilə giriş | ⏳ |
+| 4 | Xərc ölçümü və kvotalar · iPhone/Safari dəstəyi · son cilalama · investor üçün demo video | ⏳ |
+
+Sonra: mobil tətbiq yaratma (Expo, telefonda QR ilə açılır).
+
+## 6. Bizdən asılı olmayanlar
+
+- **StackBlitz (WebContainers) lisenziyası** — kommersiya istifadəsi üçün. Alternativ: öz yüngül brauzer önizləməmiz (esbuild-wasm; lisenziyasız, Safari/iPhone-da işləyir) və ya öz server sandbox-umuz (Docker).
+- **Server hesabları** — AI API, domen, verilənlər bazası, hostinq.
+- **Ödəniş sistemi** — yerli provayder/bankla müqavilə.
+
+## 7. Açıq qərarlar (sahibkar)
+
+1. ASCII səhnədə nə olsun: mücərrəd dalğalar, dönən obyekt, yoxsa Novo loqosu?
+2. Əsas tema: açıq (krem) yoxsa tünd?
+3. Qiymət planları: 0 / 29 / 79 ₼ qalsın, yoxsa xərc ölçüləndən sonra?
+
+---
+
+## Gündəlik qeyd
+
+| Tarix | Nə edildi |
+| --- | --- |
+| 2026-11-12 | "Nöqtə" redizaynı (video hero, dot-matrix başlıq, mobil menyu); runtime donması, hydration xətaları, API qoruması düzəldildi; plan yazıldı |

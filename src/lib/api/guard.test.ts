@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { assertSameOrigin, HttpError, isDataImage, rateLimit, readJson, _resetRateLimits } from "./guard";
 
 const req = (headers: Record<string, string>, body = "") => new Request("http://novo.test/api/chat", { method: "POST", headers, body });
@@ -8,6 +8,12 @@ describe("assertSameOrigin", () => {
     expect(() => assertSameOrigin(req({ host: "novo.test", origin: "http://novo.test" }))).not.toThrow();
     expect(() => assertSameOrigin(req({ host: "novo.test" }))).not.toThrow();
   });
+  it("refuses POSTs without Origin in production (scripts, not browsers)", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(() => assertSameOrigin(req({ host: "novo.test" }))).toThrow(HttpError);
+    expect(() => assertSameOrigin(req({ host: "novo.test", origin: "http://novo.test" }))).not.toThrow();
+  });
+  afterEach(() => vi.unstubAllEnvs());
   it("rejects other sites", () => {
     expect(() => assertSameOrigin(req({ host: "novo.test", origin: "https://evil.example" }))).toThrow(HttpError);
   });

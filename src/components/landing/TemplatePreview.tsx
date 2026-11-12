@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { Template } from "./data";
 
 /** Renders a tiny, believable website thumbnail from a template's palette + layout. */
@@ -17,7 +18,7 @@ export function TemplatePreview({ t }: { t: Template }) {
       {t.layout === "dashboard" ? (
         <div className="grid flex-1 grid-cols-[48px_1fr] gap-2 p-2">
           <div className="space-y-2 rounded-md p-2" style={{ background: card }}>
-            {[0, 1, 2, 3].map((i) => bar("100%", i === 0 ? accent : muted, 5, i === 0 ? 1 : 0.4))}
+            {[0, 1, 2, 3].map((i) => <Fragment key={i}>{bar("100%", i === 0 ? accent : muted, 5, i === 0 ? 1 : 0.4)}</Fragment>)}
           </div>
           <div className="space-y-2">
             <div className="grid grid-cols-3 gap-2">

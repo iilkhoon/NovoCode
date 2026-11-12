@@ -14,6 +14,9 @@ import { AstryxTheme } from "@/components/AstryxTheme";
 import { Glass } from "@/components/landing/Section";
 
 type Row = { name: string; status: string; visits: number } & Record<string, unknown>;
+/** Deterministic "12 480" — toLocaleString differs between Node and browsers (hydration mismatch). */
+const formatThousands = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+
 const ROWS: Row[] = [
   { name: "Çay evi «Dəmlə»", status: "Canlı", visits: 1240 },
   { name: "Dizayn studiyası", status: "Qaralama", visits: 0 },
@@ -43,7 +46,7 @@ export function AstryxShowcase() {
         <div className="mt-5 flex flex-wrap gap-2">
           <AxBadge label="Canlı" variant="success" />
           <AxBadge label="Qaralama" variant="neutral" />
-          <AxBadge label="Bürünc" variant="orange" />
+          <AxBadge label="Vurğu" variant="gray" />
           <AxBadge label="Sapfir" variant="blue" />
         </div>
       </Glass>
@@ -67,13 +70,13 @@ export function AstryxShowcase() {
           columns={[
             { key: "name", header: "Layihə" },
             { key: "status", header: "Status", renderCell: (r) => <AxBadge label={r.status} variant={r.status === "Canlı" ? "success" : "neutral"} /> },
-            { key: "visits", header: "Ziyarət", align: "end", renderCell: (r) => r.visits.toLocaleString("az") },
+            { key: "visits", header: "Ziyarət", align: "end", renderCell: (r) => formatThousands(r.visits) },
           ]}
         />
       </Glass>
 
       <Dialog isOpen={open} onOpenChange={setOpen} width={420}>
-        <DialogHeader title="Saytı yayımla" subtitle="Astryx Dialog · Bürünc mövzusu" onOpenChange={setOpen} />
+        <DialogHeader title="Saytı yayımla" subtitle="Astryx Dialog · Novo mövzusu" onOpenChange={setOpen} />
         <div className="space-y-4 p-5 text-[14px] text-ink-300">
           <p>Fokus dialoqun içində qalır, Esc ilə bağlanır və fokus düyməyə qayıdır.</p>
           <div className="flex justify-end gap-2">

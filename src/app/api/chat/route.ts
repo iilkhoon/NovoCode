@@ -105,7 +105,11 @@ export async function POST(req: Request) {
       } catch (e) {
         if (!req.signal.aborted) send({ t: "error", v: (e as Error).message });
       } finally {
-        controller.close();
+        try {
+          controller.close();
+        } catch {
+          /* client already went away */
+        }
       }
     },
   });

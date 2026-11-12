@@ -82,7 +82,17 @@ export class ProjectRuntime {
       this.resolveServing();
       return;
     }
-    await this.wc.mount(toFileSystemTree(files));
+    try {
+      await this.wc.mount(toFileSystemTree(files));
+    } catch (e) {
+      // without this the agent would wait on `mounted` forever
+      this.emit(`\x1b[31mFayllar yüklənmədi: ${(e as Error).message}\x1b[0m\r\n`);
+      this.wc = null;
+      this.setStatus("error");
+      this.resolveMounted();
+      this.resolveServing();
+      return;
+    }
     this.resolveMounted();
     this.wc.on("server-ready", (_port, url) => {
       this.url = url;
@@ -91,8 +101,14 @@ export class ProjectRuntime {
       this.resolveServing();
     });
     this.wc.on("error", (e) => this.emit(`\r\n[runtime] ${e.message}\r\n`));
-    await this.install(files["package.json"]);
-    await this.startDev();
+    try {
+      await this.install(files["package.json"]);
+      await this.startDev();
+    } catch (e) {
+      this.emit(`\r\n\x1b[31m${(e as Error).message}\x1b[0m\r\n`);
+      this.setStatus("error");
+      this.resolveServing();
+    }
   }
 
   async install(pkgJson?: string) {
@@ -103,7 +119,10 @@ export class ProjectRuntime {
     this.pipe(p);
     const code = await p.exit;
     if (pkgJson) this.installedPkgJson = pkgJson;
-    if (code !== 0) this.setStatus("error");
+    if (code !== 0) {
+      this.emit(`\r\n\x1b[31mnpm install uğursuz oldu (kod ${code})\x1b[0m\r\n`);
+      this.setStatus("error");
+    }
     return code;
   }
 

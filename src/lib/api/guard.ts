@@ -12,7 +12,14 @@ export class HttpError extends Error {
 /** Reject cross-site calls: browsers always send Origin on cross-origin POSTs. */
 export function assertSameOrigin(req: Request) {
   const origin = req.headers.get("origin");
-  if (!origin) return; // same-origin GET / server-to-server / curl in dev
+  if (!origin) {
+    // Browsers send Origin on every POST (same-origin too), so a missing header
+    // means a script. Allowed in dev (curl, tests), refused in production.
+    if (process.env.NODE_ENV === "production" && req.method !== "GET" && req.method !== "HEAD") {
+      throw new HttpError(403, "Bu API yalnız Novo Code saytından istifadə oluna bilər");
+    }
+    return;
+  }
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
   let originHost: string;
   try {

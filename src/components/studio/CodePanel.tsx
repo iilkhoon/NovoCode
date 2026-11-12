@@ -6,6 +6,7 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { ChevronRight, FileCode2, Folder, FolderOpen } from "lucide-react";
 import { toast } from "@/components/ui/toast";
+import { useTheme } from "@/lib/theme";
 
 type Node = { name: string; path: string; children?: Node[] };
 
@@ -48,20 +49,21 @@ export function CodePanel({
   onSelect: (p: string) => void;
   onChange: (path: string, content: string) => void;
 }) {
+  const { theme } = useTheme();
   const tree = useMemo(() => buildTree(Object.keys(files).filter((p) => !p.includes("node_modules"))), [files]);
   const isStreaming = streaming && streaming.path === active;
   const value = isStreaming ? streaming.content : active ? files[active] ?? "" : "";
 
   return (
     <div className="flex h-full min-h-0">
-      <div className="hidden w-60 shrink-0 overflow-y-auto border-r border-ink-100/12 bg-ink-950/40 py-2 text-[13px] scroll-thin md:block">
-        <div className="px-4 pb-2 pt-1 text-[11px] font-medium uppercase tracking-wider text-ink-500">Fayllar</div>
+      <div className="hidden w-60 shrink-0 overflow-y-auto border-r border-ink-100/[0.08] bg-ink-1000 py-2 text-[13px] scroll-thin md:block">
+        <div className="px-4 pb-2 pt-1 label-mono text-ink-500">Fayllar</div>
         {tree.map((n) => (
           <TreeNode key={n.path} node={n} depth={0} active={active} onSelect={onSelect} />
         ))}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-2 border-b border-ink-100/12 px-3 py-2 font-mono text-xs text-ink-300">
+        <div className="flex items-center gap-2 border-b border-ink-100/[0.08] bg-ink-1000 px-3 py-2 font-mono text-xs text-ink-300">
           <select aria-label="Fayl seçin" className="max-w-full bg-ink-900 text-ink-200 md:hidden" value={active ?? ""} onChange={(e) => onSelect(e.target.value)}>
             {Object.keys(files).sort().map((p) => (
               <option key={p} value={p} className="bg-ink-900">{p}</option>
@@ -82,7 +84,7 @@ export function CodePanel({
           {active ? (
             <CodeMirror
               value={value}
-              theme="dark"
+              theme={theme}
               extensions={langFor(active)}
               editable={!isStreaming}
               onChange={(v) => onChange(active, v)}
@@ -117,7 +119,7 @@ function TreeNode({ node, depth, active, onSelect }: { node: Node; depth: number
     <button
       style={{ paddingLeft: 10 + depth * 12 + 16 }}
       onClick={() => onSelect(node.path)}
-      className={`flex w-full items-center gap-1.5 py-1 pr-2 text-left ${active === node.path ? "bg-nar-500/10 text-ink-100 shadow-[inset_2px_0_0_var(--color-nar-500)]" : "text-ink-300 hover:text-ink-100"}`}
+      className={`flex w-full items-center gap-1.5 py-1 pr-2 text-left ${active === node.path ? "bg-nar/10 text-ink-100 shadow-[inset_2px_0_0_var(--color-nar)]" : "text-ink-300 hover:text-ink-100"}`}
     >
       <FileCode2 className="size-3.5 shrink-0 text-ink-400" />
       <span className="truncate">{node.name}</span>

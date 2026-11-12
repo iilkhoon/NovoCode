@@ -6,18 +6,20 @@ type Variant = "primary" | "secondary" | "ghost" | "outline" | "white";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "group/btn relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-[transform,background-color,color] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45";
+  "group/btn relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-[transform,background-color,color,box-shadow] duration-200 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-nar text-ink-1000 hover:bg-nar-400",
-  secondary: "bg-ink-100/[0.06] text-ink-100 ring-1 ring-inset ring-ink-100/12 hover:bg-ink-100/10",
-  outline: "text-ink-100 ring-1 ring-inset ring-ink-100/30 hover:bg-ink-100/8",
-  ghost: "text-ink-300 hover:bg-ink-100/6 hover:text-ink-100",
-  white: "bg-ink text-ink-1000 hover:bg-white",
+  /** dark ink pill — the default action */
+  primary: "bg-pill text-wool hover:-translate-y-px hover:shadow-[var(--shadow-nav)]",
+  secondary: "bg-ink-1000 text-ink-100 ring-1 ring-inset ring-ink-100/12 hover:ring-ink-100/25",
+  outline: "text-ink-100 ring-1 ring-inset ring-ink-100/25 hover:bg-ink-100/[0.05]",
+  ghost: "text-ink-300 hover:bg-ink-100/[0.06] hover:text-ink-100",
+  /** the flame — one per screen, the most important action (name kept from v1) */
+  white: "bg-nar text-white shadow-[var(--shadow-glow)] hover:-translate-y-px hover:shadow-[var(--shadow-glow-strong)]",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-4 text-[12px] uppercase tracking-[0.08em]",
+  sm: "h-8 px-3.5 text-[13px]",
   md: "h-10 px-4 text-sm",
   lg: "h-12 px-6 text-[15px]",
 };

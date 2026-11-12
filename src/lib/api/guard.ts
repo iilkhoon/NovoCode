@@ -16,7 +16,7 @@ export function assertSameOrigin(req: Request) {
     // Browsers send Origin on every POST (same-origin too), so a missing header
     // means a script. Allowed in dev (curl, tests), refused in production.
     if (process.env.NODE_ENV === "production" && req.method !== "GET" && req.method !== "HEAD") {
-      throw new HttpError(403, "Bu API yalnız Novo Code saytından istifadə oluna bilər");
+      throw new HttpError(403, "Bu API yalnız NovoCode saytından istifadə oluna bilər");
     }
     return;
   }
@@ -27,7 +27,7 @@ export function assertSameOrigin(req: Request) {
   } catch {
     throw new HttpError(403, "Etibarsız mənbə");
   }
-  if (originHost !== host) throw new HttpError(403, "Bu API yalnız Novo Code saytından istifadə oluna bilər");
+  if (originHost !== host) throw new HttpError(403, "Bu API yalnız NovoCode saytından istifadə oluna bilər");
 }
 
 type Bucket = { count: number; reset: number };

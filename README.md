@@ -1,6 +1,6 @@
-# Novo Code
+# NovoCode
 
-**Danış, saytın qurulsun.** İstifadəçi Azərbaycan dilində yazır (və ya ekran görüntüsü / eskiz atır), Novo Code isə bir neçə dəqiqəyə tam işlək veb-sayt qurur.
+**Danış, saytın qurulsun.** İstifadəçi Azərbaycan dilində yazır (və ya ekran görüntüsü / eskiz atır), NovoCode isə bir neçə dəqiqəyə tam işlək veb-sayt qurur.
 
 - 💬 Azərbaycan dilində söhbətlə sayt qurmaq
 - ⚡ Canlı önizləmə: sayt brauzerin içindəki Node.js mühitində (WebContainers) işləyir
@@ -10,14 +10,14 @@
 - 🧑‍💻 Kod redaktoru, fayl ağacı, interaktiv terminal, cihaz ölçüləri (desktop/tablet/mobil), ZIP yükləmə
 - 🤖 AI: [build.nvidia.com](https://build.nvidia.com) (GLM, Kimi, DeepSeek, Qwen… — model siyahısı canlı gəlir)
 
-## Dizayn sistemi — "Nöqtə"
-Nöqtəli (dot-matrix) başlıqlar, qara səhnədə tam ekran video, ağ pill-lər. Canlı sənəd: **`/dizayn`** səhifəsi.
+## Dizayn sistemi — "Şəfəq"
+İsti kağız fon, mürəkkəb rəngli mətn və tək terrakota "alov" vurğusu. Gündüz və gecə rejimi. Canlı sənəd: **`/dizayn`** səhifəsi.
 
-- **Rənglər:** monoxrom — səhnə `#000`, mətn `#fff`, qrafit pill `#28282a`, yumşaq mətn `#d0d0d0`, səssiz `#8e8e8e`. Vurğu rəng deyil, işıqdır: əsas düymədə tək yumşaq ağ parıltı.
-- **Şriftlər:** Geist Pixel Circle (başlıqlar, `public/fonts`, OFL), Inter (mətn), JetBrains Mono (etiketlər, kod). Üçü də Azərbaycan əlifbasını (ə ğ ı ş ç ö ü) tam dəstəkləyir və serverdən verilir (CDN asılılığı yoxdur).
-- **Loqo:** 7×7 nöqtə şəbəkəsində N, ağ diskdə (`src/components/Logo.tsx`, `src/app/icon.svg`).
-- **Hərəkət:** CSS ilə giriş animasiyaları (`.nv-anim`, `.nv-line` — `globals.css`), statistikalar easeOutCubic ilə sayılır; `prefers-reduced-motion`-da hamısı və video dayanır.
-- **Studio:** Astryx mövzusu eyni tokenlərdən qurulub (`src/themes/burunc/buruncTheme.ts` → `npx astryx theme build ...`).
+- **Rənglər:** kağız `#f4efe6`, səth `#fffcf6`, mürəkkəb `#1d1814`, alov `#e0602f`; gecə: `#14110e` fon. Hamısı CSS dəyişənidir (`globals.css`), `<html data-theme="dark">` bütün tətbiqi (Astryx komponentləri daxil) çevirir. Seçim `localStorage`-da saxlanır, səhifə yanlış temada yanıb-sönmür.
+- **Şriftlər:** Fraunces (başlıqlar, redaksiya serifi), Onest (mətn, ₼ işarəsi var), Martian Mono (etiketlər), JetBrains Mono (kod). Hamısı Azərbaycan əlifbasını (ə ğ ı ş ç ö ü) tam dəstəkləyir, OFL lisenziyalı, `@fontsource` ilə serverdən verilir.
+- **Loqo:** "n" + yanıb-sönən kursor, şəfəq qradiyentli plitədə; yazı — "Novo" serifdə, "code" mono şriftdə (`src/components/Logo.tsx`, `src/app/icon.svg`).
+- **Hərəkət:** CSS giriş animasiyaları (`.nv-anim`, `.nv-line`), hero arxasında yavaş üzən isti işıqlar və zəif simvol sahəsi (`AsciiField.tsx`: canvas, 20–30 fps, ekrandan çıxanda dayanır, zəif cihazda sıxlıq azalır). `prefers-reduced-motion`-da hamısı dayanır.
+- **Studio:** Sadə rejim (yalnız söhbət + canlı sayt, insan dilində xəta mesajları, "Yenidən cəhd et") və Developer rejimi (kod, terminal, model seçimi, ZIP). Astryx mövzusu eyni CSS dəyişənlərinə istinad edir (`src/themes/burunc/buruncTheme.ts` → `npx astryx theme build ...`).
 
 ## Studio imkanları
 - Səslə yazma (az-AZ), şəkil/eskiz, 6 dizayn üslubu (+ avtomatik seçim), ✨ sorğunu təkmilləşdirmə

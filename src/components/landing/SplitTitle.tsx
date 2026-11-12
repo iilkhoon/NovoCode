@@ -32,7 +32,7 @@ export function SplitTitle({ lines, as: Tag = "h2", className, immediate = false
 
   let n = 0;
   return (
-    <Tag ref={ref} className={cn("font-display font-normal tracking-[-0.04em]", className)} aria-label={lines.join(" ").replace(/\*/g, "")}>
+    <Tag ref={ref} className={cn("font-display font-[400] tracking-[-0.03em] [font-variation-settings:'opsz'_144]", className)} aria-label={lines.join(" ").replace(/\*/g, "")}>
       {lines.map((line, li) => {
         // tokenise into words, remembering which ones sit inside *emphasis*
         const words: { w: string; em: boolean }[] = [];
@@ -44,7 +44,7 @@ export function SplitTitle({ lines, as: Tag = "h2", className, immediate = false
           <span key={li} className="block" aria-hidden>
             {words.map(({ w, em }, wi) => (
               <span key={wi}>
-                <span className={cn("inline-block whitespace-nowrap", em && "text-ink-400")}>
+                <span className={cn("inline-block whitespace-nowrap", em && "italic text-ink-400")}>
                   {w.split("").map((ch) => {
                     const d = n++ * 28;
                     return (

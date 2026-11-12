@@ -5,7 +5,7 @@ import { COMPARISON } from "./data";
 import { cn } from "@/lib/cn";
 
 function Cell({ v, hi }: { v: string | boolean; hi?: boolean }) {
-  if (v === true) return <Check className={cn("size-4", hi ? "text-white" : "text-ink-300")} />;
+  if (v === true) return <Check className={cn("size-4", hi ? "text-nar-600" : "text-ink-300")} />;
   if (v === false) return <Minus className="size-4 text-ink-500" />;
   return <>{v}</>;
 }
@@ -24,7 +24,7 @@ export function Compare() {
                 <tr className="border-b border-ink-100/10">
                   <th className="p-5" />
                   {COMPARISON.columns.map((c, i) => (
-                    <th key={c} className={cn("p-5 font-mono text-[10.5px] font-normal uppercase tracking-[0.18em]", i === 2 ? "bg-white/10 text-white" : "text-ink-400")}>
+                    <th key={c} className={cn("p-5 label-mono font-normal", i === 2 ? "bg-nar/[0.07] text-nar-600" : "text-ink-400")}>
                       {c}
                     </th>
                   ))}
@@ -35,7 +35,7 @@ export function Compare() {
                   <tr key={r.label} className="border-b border-ink-100/[0.06] last:border-0">
                     <td className="p-5 text-ink-200">{r.label}</td>
                     {r.values.map((v, i) => (
-                      <td key={i} className={cn("p-5", i === 2 ? "bg-white/10 font-medium text-ink" : "text-ink-400")}>
+                      <td key={i} className={cn("p-5", i === 2 ? "bg-nar/[0.07] font-medium text-ink-100" : "text-ink-400")}>
                         <Cell v={v} hi={i === 2} />
                       </td>
                     ))}
@@ -50,8 +50,8 @@ export function Compare() {
                 <div className="text-[14.5px] font-medium">{r.label}</div>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-[12.5px]">
                   {r.values.map((v, i) => (
-                    <div key={i} className={cn("rounded-lg px-2 py-2", i === 2 ? "bg-white/12 text-ink" : "bg-ink-100/[0.04] text-ink-300")}>
-                      <div className={cn("mb-1 font-mono text-[9px] uppercase tracking-wider", i === 2 ? "text-white" : "text-ink-500")}>{COMPARISON.columns[i]}</div>
+                    <div key={i} className={cn("rounded-lg px-2 py-2", i === 2 ? "bg-nar/10 text-ink-100" : "bg-ink-100/[0.04] text-ink-300")}>
+                      <div className={cn("mb-1 font-mono text-[9px] uppercase tracking-wider", i === 2 ? "text-nar-600" : "text-ink-500")}>{COMPARISON.columns[i]}</div>
                       <Cell v={v} hi={i === 2} />
                     </div>
                   ))}

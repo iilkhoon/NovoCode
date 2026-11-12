@@ -18,7 +18,7 @@ export function Projects({ projects, onChange }: { projects: Project[]; onChange
   return (
     <section id="layihələrim" className="relative scroll-mt-24 py-16">
       <Container>
-        <div className="mb-5 flex items-baseline justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
+        <div className="mb-5 flex items-baseline justify-between label-mono text-ink-400">
           <span>Layihələrim</span>
           <span>{projects.length} · bu brauzerdə</span>
         </div>
@@ -26,7 +26,7 @@ export function Projects({ projects, onChange }: { projects: Project[]; onChange
           {projects.slice(0, 6).map((p) => (
             <div key={p.id} className="group flex items-center gap-4 px-5">
               <a href={`/studio/${p.id}`} className="flex flex-1 items-center gap-4 py-4">
-                <span className="flex-1 truncate text-[15px] transition-colors duration-200 group-hover:text-nar-300">{p.name}</span>
+                <span className="flex-1 truncate text-[15px] transition-colors duration-200 group-hover:text-nar-600">{p.name}</span>
                 <span className="font-mono text-[11px] text-ink-500">{timeAgo(p.updatedAt)}</span>
                 <ArrowUpRight className="size-4 text-ink-500" />
               </a>

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, ChevronDown, Code2, Cpu, Download, Eye, MessageSquare, Pencil, Rocket, SquareTerminal } from "lucide-react";
+import { Check, ChevronDown, Code2, Cpu, Download, Eye, MessageSquare, Pencil, Rocket, Sparkles, SquareTerminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
@@ -11,6 +11,9 @@ import { CommandMenu, type Command } from "./CommandMenu";
 import { AstryxTheme } from "@/components/AstryxTheme";
 import { Kbd } from "@/components/ui/badge";
 import { LogoMark } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { friendlyFile } from "@/lib/humanize";
+import { cn } from "@/lib/cn";
 import { ChatPanel } from "./ChatPanel";
 import { PreviewPanel } from "./PreviewPanel";
 import { CodePanel } from "./CodePanel";
@@ -25,6 +28,8 @@ import type { ModelInfo } from "@/lib/ai/models";
 
 const MAX_FIX = 3;
 type Tab = "preview" | "code" | "terminal";
+export type StudioMode = "simple" | "dev";
+const MODE_KEY = "novo-mode";
 
 export default function Studio({ id }: { id: string }) {
   const router = useRouter();
@@ -47,6 +52,20 @@ export default function Studio({ id }: { id: string }) {
   const [fullscreen, setFullscreen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [mode, setModeState] = useState<StudioMode>("simple");
+  const dev = mode === "dev";
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(MODE_KEY) === "dev") setModeState("dev");
+    } catch {}
+  }, []);
+  const setMode = useCallback((m: StudioMode) => {
+    setModeState(m);
+    if (m === "simple") setTab("preview");
+    try {
+      localStorage.setItem(MODE_KEY, m);
+    } catch {}
+  }, []);
 
   const filesRef = useRef<Record<string, string>>({});
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -197,6 +216,18 @@ export default function Studio({ id }: { id: string }) {
     [busy, runAgent]
   );
 
+  /** Re-run the last request after a failure: drop the failed answer(s), keep the question. */
+  const retry = useCallback(() => {
+    if (busy) return;
+    const all = messagesRef.current;
+    let cut = all.length;
+    while (cut > 0 && all[cut - 1].role === "assistant" && all[cut - 1].error && !all[cut - 1].snapshot) cut--;
+    const history = all.slice(0, cut).filter((m) => !m.pending);
+    if (!history.length || history[history.length - 1].role !== "user") return;
+    commitMessages(history);
+    runAgent(history);
+  }, [busy, runAgent]);
+
   // ---------- boot ----------
   useEffect(() => {
     if (started.current) return;
@@ -284,7 +315,7 @@ export default function Studio({ id }: { id: string }) {
       if (mod && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setCmdOpen((o) => !o);
-      } else if (mod && ["1", "2", "3"].includes(e.key)) {
+      } else if (mod && dev && ["1", "2", "3"].includes(e.key)) {
         e.preventDefault();
         setTab((["preview", "code", "terminal"] as Tab[])[+e.key - 1]);
       } else if (mod && e.key.toLowerCase() === "s") {
@@ -294,7 +325,7 @@ export default function Studio({ id }: { id: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [fullscreen, persist]);
+  }, [fullscreen, persist, dev]);
 
   const onPreviewError = useCallback((msg: string) => runtime.reportPreviewError(msg), [runtime]);
   const versionCount = messages.filter((m) => m.snapshot).length;
@@ -306,8 +337,9 @@ export default function Studio({ id }: { id: string }) {
   ];
 
   const lastSnapshot = [...messages].reverse().find((m) => m.snapshot && m.id !== currentVersion);
-  const commands: Command[] = [
+  const allCommands: Command[] = [
     { id: "tab-preview", group: "Görünüş", label: "Önizləməni aç", hint: "Ctrl 1", keywords: ["preview", "sayt"], run: () => { setTab("preview"); setMobileView("work"); } },
+    { id: "mode", group: "Görünüş", label: dev ? "Sadə rejimə keç" : "Developer rejiminə keç", keywords: ["developer", "sadə", "mode", "rejim"], run: () => setMode(dev ? "simple" : "dev") },
     { id: "tab-code", group: "Görünüş", label: "Kodu aç", hint: "Ctrl 2", keywords: ["code", "fayl"], run: () => { setTab("code"); setMobileView("work"); } },
     { id: "tab-terminal", group: "Görünüş", label: "Terminalı aç", hint: "Ctrl 3", keywords: ["terminal", "konsol"], run: () => { setTab("terminal"); setMobileView("work"); } },
     { id: "fullscreen", group: "Görünüş", label: fullscreen ? "Tam ekrandan çıx" : "Önizləməni tam ekran et", keywords: ["fullscreen"], run: () => { setTab("preview"); setFullscreen((f) => !f); } },
@@ -320,43 +352,56 @@ export default function Studio({ id }: { id: string }) {
       .slice(0, 40)
       .map((f) => ({ id: `file:${f}`, group: "Fayllar", label: f, keywords: [f.split("/").pop() ?? f], run: () => { setActive(f); setTab("code"); setMobileView("work"); } })),
   ];
+  // simple mode never surfaces code, terminal or files
+  const commands = dev ? allCommands : allCommands.filter((c) => !/^(tab-code|tab-terminal|file:)/.test(c.id));
+
+  const showTabs = dev;
+  const effectiveTab: Tab = dev ? tab : "preview";
 
   return (
     <AstryxTheme className="contents">
-    <div className="flex h-dvh flex-col bg-ink-950">
+    <div className="flex h-dvh flex-col bg-ink-950 text-ink-100">
       {/* top bar */}
-      <header className="relative flex h-14 shrink-0 items-center gap-2 border-b border-ink-100/10 px-3">
+      <header className="relative flex h-14 shrink-0 items-center gap-2 border-b border-ink-100/[0.08] bg-ink-1000 px-2.5 sm:px-3">
         <a href="/" aria-label="Ana səhifə" className="group grid size-9 place-items-center rounded-xl transition hover:bg-ink-100/5">
-          <LogoMark className="size-7 transition-transform duration-500 group-hover:-rotate-12" />
+          <LogoMark className="size-7 transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:-rotate-6" />
         </a>
         <span className="text-ink-600">/</span>
         <ProjectName name={project?.name ?? ""} onRename={rename} />
         {versionCount > 0 && (
-          <span className="hidden rounded-full bg-ink-100/5 px-2 py-0.5 text-[11px] text-ink-400 lg:inline">v{versionCount}</span>
+          <span className="hidden rounded-full bg-ink-900 px-2 py-0.5 font-label text-[10px] text-ink-400 lg:inline">v{versionCount}</span>
         )}
-        <div className="ml-auto flex items-center gap-1.5">
-          <button
-            onClick={() => setCmdOpen(true)}
-            aria-label="Əmrlər (Ctrl+K)"
-            className="hidden h-8 items-center gap-2 rounded-full border border-ink-100/10 px-3 text-xs text-ink-400 transition-colors hover:border-ink-100/25 hover:text-ink-100 lg:flex"
-          >
-            Əmrlər <Kbd>Ctrl K</Kbd>
-          </button>
-          <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />
-          <Button variant="ghost" size="sm" onClick={() => setPublishOpen(true)} className="hidden sm:inline-flex" title="Kodu yüklə">
-            <Download className="size-3.5" /> Kod
-          </Button>
-          <Button size="sm" onClick={() => setPublishOpen(true)}>
+
+        <ModeSwitch mode={mode} onChange={setMode} />
+
+        <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
+          {dev && (
+            <button
+              onClick={() => setCmdOpen(true)}
+              aria-label="Əmrlər (Ctrl+K)"
+              className="hidden h-8 items-center gap-2 rounded-full border border-ink-100/10 px-3 text-xs text-ink-400 transition-colors hover:border-ink-100/25 hover:text-ink-100 xl:flex"
+            >
+              Əmrlər <Kbd>Ctrl K</Kbd>
+            </button>
+          )}
+          {dev && <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />}
+          <ThemeToggle />
+          {dev && (
+            <Button variant="ghost" size="sm" onClick={() => setPublishOpen(true)} className="hidden sm:inline-flex" title="Kodu yüklə">
+              <Download className="size-3.5" /> Kod
+            </Button>
+          )}
+          <Button variant="white" size="sm" onClick={() => setPublishOpen(true)}>
             <Rocket className="size-3.5" /> Yayımla
           </Button>
         </div>
       </header>
 
       {/* mobile switcher */}
-      <div className="flex gap-1 border-b border-ink-100/12 p-1.5 md:hidden">
+      <div className="flex gap-1 border-b border-ink-100/[0.08] bg-ink-1000 p-1.5 md:hidden">
         {(["chat", "work"] as const).map((v) => (
           <button key={v} onClick={() => setMobileView(v)} className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs transition ${mobileView === v ? "text-ink-100" : "text-ink-400"}`}>
-            {mobileView === v && <motion.span layoutId="mob-pill" className="absolute inset-0 rounded-lg bg-ink-100/8" />}
+            {mobileView === v && <motion.span layoutId="mob-pill" className="absolute inset-0 rounded-lg bg-ink-900" />}
             <span className="relative flex items-center gap-1.5">
               {v === "chat" ? <MessageSquare className="size-3.5" /> : <Eye className="size-3.5" />}
               {v === "chat" ? "Söhbət" : "Sayt"}
@@ -366,16 +411,19 @@ export default function Studio({ id }: { id: string }) {
       </div>
 
       <div className="flex min-h-0 flex-1">
-        <aside className={`min-h-0 w-full shrink-0 border-r border-ink-100/12 bg-ink-900/40 md:block md:w-[400px] lg:w-[440px] ${mobileView === "chat" ? "block" : "hidden"} ${fullscreen ? "md:hidden" : ""}`}>
+        <aside className={`min-h-0 w-full shrink-0 border-r border-ink-100/[0.08] bg-ink-1000 md:block md:w-[400px] lg:w-[440px] ${mobileView === "chat" ? "block" : "hidden"} ${fullscreen ? "md:hidden" : ""}`}>
           <ChatPanel
             messages={messages}
             busy={busy}
             thinking={thinking}
+            dev={dev}
             onSend={send}
             onStop={() => abortRef.current?.abort()}
+            onRetry={retry}
             onRestore={restore}
             currentVersionId={currentVersion}
             onOpenFile={(p) => {
+              if (!dev) return;
               setActive(p);
               setTab("code");
               setMobileView("work");
@@ -383,49 +431,99 @@ export default function Studio({ id }: { id: string }) {
           />
         </aside>
         <section className={`min-h-0 min-w-0 flex-1 flex-col md:flex ${mobileView === "work" ? "flex" : "hidden"}`}>
-          <div className="flex items-center gap-1 border-b border-ink-100/12 px-2 py-1.5">
-            {TABS.map(({ t, icon: Icon, label, key }) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                title={`${label} (Ctrl+${key})`}
-                className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === t ? "text-ink-100" : "text-ink-400 hover:text-ink-100"}`}
-              >
-                {tab === t && <motion.span layoutId="tab-pill" className="absolute inset-x-2 -bottom-[7px] h-[2px] bg-nar" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
-                <Icon className="relative size-3.5" />
-                <span className="relative">{label}</span>
-              </button>
-            ))}
-            <AnimatePresence>
-              {busy && (
-                <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="ml-auto mr-2 flex items-center gap-2 text-xs">
-                  <span className="relative flex size-2">
-                    <span className="absolute inset-0 animate-ping rounded-full bg-nar-400" />
-                    <span className="relative size-2 rounded-full bg-nar-500" />
-                  </span>
-                  <span className="text-shimmer">Novo işləyir…</span>
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </div>
+          {showTabs && (
+            <div className="flex items-center gap-1 border-b border-ink-100/[0.08] px-2 py-1.5">
+              {TABS.map(({ t, icon: Icon, label, key }) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  title={`${label} (Ctrl+${key})`}
+                  className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === t ? "text-ink-100" : "text-ink-400 hover:text-ink-100"}`}
+                >
+                  {tab === t && <motion.span layoutId="tab-pill" className="absolute inset-x-2 -bottom-[7px] h-[2px] rounded-full bg-nar" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
+                  <Icon className="relative size-3.5" />
+                  <span className="relative">{label}</span>
+                </button>
+              ))}
+              <AnimatePresence>
+                {busy && (
+                  <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="ml-auto mr-2 flex items-center gap-2 text-xs">
+                    <span className="relative flex size-2">
+                      <span className="absolute inset-0 animate-ping rounded-full bg-nar-400" />
+                      <span className="relative size-2 rounded-full bg-nar" />
+                    </span>
+                    <span className="text-shimmer">Novo işləyir…</span>
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
           <div className="relative min-h-0 flex-1">
-            <div className={`absolute inset-0 ${tab === "preview" ? "" : "invisible"}`}>
-              <PreviewPanel url={url} status={status} onPreviewError={onPreviewError} fullscreen={fullscreen} onToggleFullscreen={() => setFullscreen((f) => !f)} />
+            <div className={`absolute inset-0 ${effectiveTab === "preview" ? "" : "invisible"}`}>
+              <PreviewPanel url={url} status={status} dev={dev} onPreviewError={onPreviewError} fullscreen={fullscreen} onToggleFullscreen={() => setFullscreen((f) => !f)} />
+              <AnimatePresence>
+                {!dev && busy && status === "ready" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    className="pointer-events-none absolute bottom-5 left-1/2 flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-full border border-ink-100/10 bg-ink-1000/95 py-2 pl-2.5 pr-4 text-[13px] shadow-[var(--shadow-panel)] backdrop-blur"
+                  >
+                    <LogoMark className="size-6" blink />
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.span key={streaming?.path ?? "think"} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="truncate text-ink-200">
+                        {streaming ? <>Qurulur: <span className="text-ink-100">{friendlyFile(streaming.path)}</span></> : thinking ? "Düşünürəm…" : "Saytınız üzərində işləyirəm…"}
+                      </motion.span>
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div className={`absolute inset-0 ${tab === "code" ? "" : "invisible"}`}>
-              <CodePanel files={files} active={active} streaming={streaming} onSelect={setActive} onChange={onEdit} />
-            </div>
-            <div className={`absolute inset-0 ${tab === "terminal" ? "" : "invisible"}`}>
-              <TerminalPanel runtime={runtime} ready={status === "ready"} visible={tab === "terminal"} />
-            </div>
+            {dev && (
+              <>
+                <div className={`absolute inset-0 ${tab === "code" ? "" : "invisible"}`}>
+                  <CodePanel files={files} active={active} streaming={streaming} onSelect={setActive} onChange={onEdit} />
+                </div>
+                <div className={`absolute inset-0 ${tab === "terminal" ? "" : "invisible"}`}>
+                  <TerminalPanel runtime={runtime} ready={status === "ready"} visible={tab === "terminal"} />
+                </div>
+              </>
+            )}
           </div>
         </section>
       </div>
 
-      <PublishModal open={publishOpen} onClose={() => setPublishOpen(false)} projectName={project?.name ?? "layihe"} runtime={runtime} files={files} />
+      <PublishModal open={publishOpen} onClose={() => setPublishOpen(false)} projectName={project?.name ?? "layihe"} runtime={runtime} files={files} dev={dev} />
       <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} commands={commands} />
     </div>
     </AstryxTheme>
+  );
+}
+
+/** Sadə ↔ Developer. The thumb slides; the label explains what changes. */
+function ModeSwitch({ mode, onChange }: { mode: StudioMode; onChange: (m: StudioMode) => void }) {
+  const items = [
+    { m: "simple" as const, label: "Sadə", icon: Sparkles, title: "Sadə rejim — yalnız söhbət və canlı sayt" },
+    { m: "dev" as const, label: "Developer", icon: Code2, title: "Developer rejimi — kod, terminal, model seçimi" },
+  ];
+  return (
+    <div role="radiogroup" aria-label="Rejim" className="ml-1 hidden items-center rounded-full bg-ink-900 p-0.5 sm:flex">
+      {items.map(({ m, label, icon: Icon, title }) => (
+        <button
+          key={m}
+          role="radio"
+          aria-checked={mode === m}
+          title={title}
+          onClick={() => onChange(m)}
+          className={cn("relative flex h-7 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium transition-colors duration-200", mode === m ? "text-ink-100" : "text-ink-400 hover:text-ink-200")}
+        >
+          {mode === m && <motion.span layoutId="mode-thumb" className="absolute inset-0 rounded-full bg-ink-1000 shadow-[var(--shadow-card)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
+          <Icon className="relative size-3.5" />
+          <span className="relative">{label}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -450,7 +548,7 @@ function ProjectName({ name, onRename }: { name: string; onRename: (n: string) =
             setEditing(false);
           }
         }}
-        className="h-8 w-48 rounded-lg bg-ink-100/5 px-2 text-sm outline-none ring-1 ring-nar-500/40"
+        className="h-8 w-48 rounded-lg bg-ink-900 px-2 text-sm outline-none ring-1 ring-nar/50"
       />
     );
   return (
@@ -469,7 +567,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
       <button
         onClick={() => setOpen((o) => !o)}
         title={error ?? "AI modeli"}
-        className={`flex h-8 items-center gap-2 rounded-[3px] px-3 text-xs ring-1 ring-inset transition ${error ? "text-danger ring-danger/30" : "text-ink-300 ring-ink-100/10 hover:ring-ink-100/20"}`}
+        className={`flex h-8 items-center gap-2 rounded-full px-3 text-xs ring-1 ring-inset transition ${error ? "text-danger ring-danger/30" : "text-ink-300 ring-ink-100/10 hover:ring-ink-100/20"}`}
       >
         <Cpu className="size-3.5" />
         <span className="max-w-[140px] truncate">{error ? "API əlçatan deyil" : current?.label ?? "Modellər…"}</span>
@@ -484,7 +582,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.18 }}
-              className="absolute right-0 top-10 bg-ink-1000 z-50 max-h-80 w-72 overflow-y-auto rounded-2xl border border-ink-100/10 p-1.5 shadow-[var(--shadow-panel)] scroll-thin"
+              className="absolute right-0 top-10 z-50 bg-ink-1000 max-h-80 w-72 overflow-y-auto rounded-2xl border border-ink-100/10 p-1.5 shadow-[var(--shadow-panel)] scroll-thin"
             >
               <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium text-ink-400">AI modeli · <span lang="en">build.nvidia.com</span></div>
               {error && <div className="px-2.5 py-2 text-xs text-danger">{error}</div>}
@@ -503,7 +601,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
                   </span>
                   {i === 0 && <Badge tone="nar">Tövsiyə</Badge>}
                   {m.vision && <Badge>Şəkil</Badge>}
-                  {m.id === value && <Check className="size-4 text-nar-400" />}
+                  {m.id === value && <Check className="size-4 text-nar-600" />}
                 </button>
               ))}
             </motion.div>

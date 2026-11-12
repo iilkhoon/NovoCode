@@ -62,7 +62,7 @@ export class ProjectRuntime {
 
   async start(files: Record<string, string>) {
     this.setStatus("booting");
-    this.emit("\x1b[38;5;203m◆ Novo Code\x1b[0m runtime işə düşür…\r\n");
+    this.emit("\x1b[38;5;203m◆ NovoCode\x1b[0m runtime işə düşür…\r\n");
     if (typeof window !== "undefined" && !window.crossOriginIsolated) {
       this.emit("\x1b[31mBrauzer cross-origin isolation dəstəkləmir. Chrome, Edge və ya Brave istifadə edin.\x1b[0m\r\n");
       this.setStatus("error");

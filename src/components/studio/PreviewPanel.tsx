@@ -22,12 +22,14 @@ const DEVICES = {
 export function PreviewPanel({
   url,
   status,
+  dev,
   onPreviewError,
   fullscreen,
   onToggleFullscreen,
 }: {
   url: string | null;
   status: RuntimeStatus;
+  dev: boolean;
   onPreviewError: (msg: string) => void;
   fullscreen: boolean;
   onToggleFullscreen: () => void;
@@ -48,10 +50,12 @@ export function PreviewPanel({
 
   const src = url ? url.replace(/\/$/, "") + (path.startsWith("/") ? path : "/" + path) : undefined;
   const idx = ORDER.indexOf(status);
+  const [isolated, setIsolated] = useState(true);
+  useEffect(() => setIsolated(typeof window === "undefined" || window.crossOriginIsolated), []);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-2 border-b border-ink-100/12 px-3 py-2">
+      <div className="flex items-center gap-2 border-b border-ink-100/[0.08] bg-ink-1000 px-3 py-2">
         <button
           aria-label="Yenilə"
           title="Yenilə"
@@ -65,7 +69,7 @@ export function PreviewPanel({
           <RotateCw className={cn("size-4 transition-transform duration-500", spin && "rotate-[360deg]")} />
         </button>
         <form
-          className="flex h-8 min-w-0 flex-1 items-center gap-1.5 rounded-lg bg-ink-100/[0.04] px-3 text-xs text-ink-300 ring-1 ring-inset ring-ink-100/6 transition focus-within:ring-ink-100/15"
+          className="flex h-8 min-w-0 flex-1 items-center gap-1.5 rounded-full bg-ink-950 px-3.5 text-xs text-ink-300 ring-1 ring-inset ring-ink-100/[0.06] transition focus-within:ring-nar/40"
           onSubmit={(e) => {
             e.preventDefault();
             setNonce((n) => n + 1);
@@ -75,12 +79,12 @@ export function PreviewPanel({
           <span className="text-ink-400">sayt.novocode.az</span>
           <input value={path} onChange={(e) => setPath(e.target.value)} className="min-w-0 flex-1 bg-transparent outline-none" aria-label="Səhifə yolu" />
         </form>
-        <div className="hidden items-center rounded-lg bg-ink-100/[0.04] p-0.5 ring-1 ring-inset ring-ink-100/6 sm:flex">
+        <div className="hidden items-center rounded-full bg-ink-950 p-0.5 ring-1 ring-inset ring-ink-100/[0.06] sm:flex">
           {(Object.keys(DEVICES) as (keyof typeof DEVICES)[]).map((d) => {
             const Icon = DEVICES[d].icon;
             return (
-              <button key={d} aria-label={DEVICES[d].label} title={DEVICES[d].label} onClick={() => setDevice(d)} className={cn("relative grid size-7 place-items-center rounded-md transition", device === d ? "text-ink-100" : "text-ink-400 hover:text-ink-100")}>
-                {device === d && <motion.span layoutId="device-pill" className="absolute inset-0 rounded-md bg-ink-100/10" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+              <button key={d} aria-label={DEVICES[d].label} title={DEVICES[d].label} onClick={() => setDevice(d)} className={cn("relative grid size-7 place-items-center rounded-full transition", device === d ? "text-ink-100" : "text-ink-400 hover:text-ink-100")}>
+                {device === d && <motion.span layoutId="device-pill" className="absolute inset-0 rounded-full bg-ink-1000 shadow-[var(--shadow-card)]" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
                 <Icon className="relative size-3.5" />
               </button>
             );
@@ -102,7 +106,7 @@ export function PreviewPanel({
               key={nonce}
               src={src}
               title="Önizləmə"
-              className={cn("h-full w-full bg-white sm:shadow-[0_30px_80px_-20px_rgb(0_0_0/0.8)] sm:ring-1 sm:ring-ink-100/10", device === "mobile" ? "sm:rounded-[28px]" : "sm:rounded-xl")}
+              className={cn("h-full w-full bg-white sm:shadow-[var(--shadow-panel)] sm:ring-1 sm:ring-ink-100/10", device === "mobile" ? "sm:rounded-[28px]" : "sm:rounded-2xl")}
               allow="cross-origin-isolated; clipboard-write"
             />
           </motion.div>
@@ -111,14 +115,23 @@ export function PreviewPanel({
           {status !== "ready" && (
             <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.02 }} transition={{ duration: 0.5 }} className="absolute inset-0 grid place-items-center bg-ink-950">
               {status === "error" ? (
-                <div className="max-w-xs text-center">
+                <div className="max-w-sm px-6 text-center">
                   <TriangleAlert className="mx-auto size-8 text-danger" />
-                  <p className="mt-3 font-medium">Mühit işə düşmədi</p>
-                  <p className="mt-1 text-sm text-ink-400">Səbəbi Terminal bölməsindədir. Chrome, Edge və ya Brave brauzerindən istifadə edin.</p>
+                  <p className="mt-3 font-display text-xl">{isolated ? "Önizləmə işə düşmədi" : "Bu brauzer önizləməni dəstəkləmir"}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-400">
+                    {isolated
+                      ? dev
+                        ? "Səbəbi Terminal bölməsindədir. Səhifəni yeniləyib yenidən cəhd edin."
+                        : "Səhifəni yeniləyib yenidən cəhd edin. Saytınız və söhbətiniz yadda saxlanılıb."
+                      : "Canlı önizləmə üçün kompüterdə Chrome, Edge və ya Brave istifadə edin. Söhbət və kod burada da işləyir."}
+                  </p>
+                  <button onClick={() => location.reload()} className="mt-5 inline-flex h-9 items-center gap-1.5 rounded-full bg-pill px-4 text-[13px] font-medium text-wool transition hover:-translate-y-px">
+                    <RotateCw className="size-3.5" /> Yenilə
+                  </button>
                 </div>
               ) : (
                 <div className="w-64">
-                  <LogoMark className="mx-auto size-14" animated />
+                  <LogoMark className="mx-auto size-14" blink />
                   <div className="mt-6 space-y-2.5">
                     {STEPS.map((s) => {
                       const si = ORDER.indexOf(s.key);
@@ -126,15 +139,15 @@ export function PreviewPanel({
                       const active = idx === si;
                       return (
                         <div key={s.key} className={cn("flex items-center gap-3 text-sm transition-colors", done ? "text-ink-300" : active ? "text-ink-100" : "text-ink-500")}>
-                          <span className={cn("grid size-5 place-items-center rounded-full", done ? "bg-success/15" : active ? "bg-nar-500/15" : "bg-ink-100/5")}>
-                            {done ? <Check className="size-3 text-success" /> : active ? <Loader2 className="size-3 animate-spin text-nar-400" /> : <span className="size-1 rounded-full bg-ink-500" />}
+                          <span className={cn("grid size-5 place-items-center rounded-full", done ? "bg-success/15" : active ? "bg-nar/15" : "bg-ink-900")}>
+                            {done ? <Check className="size-3 text-success" /> : active ? <Loader2 className="size-3 animate-spin text-nar" /> : <span className="size-1 rounded-full bg-ink-500" />}
                           </span>
                           {s.label}
                         </div>
                       );
                     })}
                   </div>
-                  <p className="mt-6 text-center text-xs text-ink-500">İlk açılış 20–40 saniyə çəkə bilər</p>
+                  <p className="mt-6 text-center text-xs text-ink-500">İlk açılış bir az vaxt apara bilər — sonrakılar sürətli olur</p>
                 </div>
               )}
             </motion.div>

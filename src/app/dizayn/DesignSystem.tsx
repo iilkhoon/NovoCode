@@ -10,12 +10,12 @@ import { SplitTitle } from "@/components/landing/SplitTitle";
 import { AstryxShowcase } from "./AstryxShowcase";
 
 const COLORS = [
-  { name: "Səhnə", token: "ink-1000", hex: "#000000", note: "Qara səhnə və video fon" },
-  { name: "Mətn", token: "ink / ink-100", hex: "#ffffff", note: "Başlıqlar, ağ pill-lər, əsas düymə" },
-  { name: "Qrafit pill", token: "pill / ink-700", hex: "#28282a", note: "Tünd pill, trust halqaları, burger" },
-  { name: "Yumşaq mətn", token: "ink-200", hex: "#d0d0d0", note: "Alt başlıqlar (80% şəffaflıq)" },
-  { name: "Trust mətni", token: "ink-300", hex: "#c4c2c3", note: "İkinci dərəcəli mətn" },
-  { name: "Səssiz", token: "ink-400", hex: "#8e8e8e", note: "Etiketlər, statistika adları" },
+  { name: "Kağız", token: "wool / ink-950", hex: "#f4efe6", note: "Səhifə fonu — isti, yumşaq kağız" },
+  { name: "Səth", token: "ink-1000", hex: "#fffcf6", note: "Kartlar, popoverlər, söhbət paneli" },
+  { name: "Mürəkkəb", token: "ink / ink-100", hex: "#1d1814", note: "Mətn və əsas (tünd) düymə" },
+  { name: "Alov", token: "nar", hex: "#e0602f", note: "Vurğu — hər ekranda bir dəfə" },
+  { name: "Səssiz", token: "ink-400", hex: "#6e6358", note: "İkinci dərəcəli mətn" },
+  { name: "Gecə", token: "[data-theme=dark] ink-950", hex: "#14110e", note: "Gecə rejiminin fonu" },
 ];
 
 function copy(v: string) {
@@ -28,39 +28,39 @@ export function DesignSystem() {
       <header className="sticky top-0 z-40 border-b border-ink-100/10 bg-ink-1000/70 backdrop-blur-md">
         <Container className="flex h-[70px] items-center justify-between">
           <Logo />
-          <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-400">Dizayn sistemi · Nöqtə</span>
+          <span className="label-mono text-ink-400">Dizayn sistemi · Şəfəq</span>
         </Container>
       </header>
 
       <Container className="py-24">
-        <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
-          <span className="text-white">Novo Code</span> — Dizayn sistemi
+        <div className="label-mono text-ink-400">
+          <span className="text-nar-600">NovoCode</span> — Dizayn sistemi
         </div>
-        <SplitTitle as="h1" immediate lines={["Qara səhnə,", "*nöqtəli işıq.*"]} className="mt-6 text-[clamp(2.4rem,7vw,6rem)] leading-[1.04]" />
+        <SplitTitle as="h1" immediate lines={["İsti kağız,", "*bir alov.*"]} className="mt-6 text-[clamp(2.4rem,7vw,6rem)] leading-[1.04]" />
         <p className="mt-8 max-w-2xl text-[17px] leading-relaxed text-ink-300">
-          Novo-nun dünyası monoxromdur: qara səhnədə tam ekran video, üstündə nöqtəli (dot-matrix) başlıqlar, ağ pill-lər və tək yumşaq ağ parıltı — əsas düymə üçün. Rəng istifadəçinin saytına aiddir, bizim interfeysə yox.
+          NovoCode-un dünyası şəfəq rəngindədir: isti kağız fon, mürəkkəb rəngli mətn və tək bir terrakota alovu — ən vacib hərəkət üçün. Başlıqlar redaksiya serifi ilə (insan dili), etiketlər mono şriftlə (maşın dili). Gündüz və gecə rejimi eyni tokenlərdən qurulur.
         </p>
       </Container>
 
       <Container className="space-y-32 pb-32">
         <section>
-          <SectionHead no="01" label="Brend" lines={["Ağ disk, *nöqtəli N.*"]} text="7×7 nöqtə şəbəkəsində N hərfi — başlıq şriftinin piksel dili. Ağ diskdə, yumşaq kölgə ilə." />
+          <SectionHead no="01" label="Brend" lines={["n, sonra *kursor.*"]} text="Kiçik “n” hərfi və yanında yanıb-sönən kursor — yazılmaqda olan cümlə. Ad “Novo” serifdə, “code” mono şriftdə: insan dili koda çevrilir." />
           <div className="mt-12 grid gap-4 md:grid-cols-3">
-            <Glass className="grid aspect-square place-items-center"><LogoMark className="size-36" /></Glass>
-            <Glass className="grid place-items-center p-10"><Logo /></Glass>
-            <div className="grid place-items-center rounded-2xl bg-ink p-10 text-ink-1000"><div className="flex items-center gap-2.5"><LogoMark className="size-7" /><Wordmark /></div></div>
+            <Glass className="grid aspect-square place-items-center"><LogoMark className="size-36" blink /></Glass>
+            <Glass className="grid place-items-center p-10"><Logo className="text-[22px]" /></Glass>
+            <div data-theme="dark" className="grid place-items-center rounded-[22px] bg-ink-950 p-10"><div className="flex items-center gap-2.5 text-[20px]"><LogoMark className="size-9" /><Wordmark /></div></div>
           </div>
         </section>
 
         <section>
-          <SectionHead no="02" label="Rənglər" lines={["Rəngsiz, *amma soyuq deyil.*"]} text="Qara, ağ və qrafit. Vurğu rəng yox, işıqdır. Kodu kopyalamaq üçün klikləyin." />
+          <SectionHead no="02" label="Rənglər" lines={["Az rəng, *çox istilik.*"]} text="Kağız, mürəkkəb və alov. Qradiyent yalnız brend anlarında (loqo, hero). Kodu kopyalamaq üçün klikləyin." />
           <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {COLORS.map((c) => (
-              <button key={c.hex} onClick={() => copy(c.hex)} className="glass group rounded-2xl border border-ink-100/10 p-3 text-left transition-[border-color] duration-200 hover:border-ink-100/25">
+              <button key={c.hex} onClick={() => copy(c.hex)} className="surface group rounded-[22px] border border-ink-100/[0.08] p-3 text-left transition-[border-color] duration-200 hover:border-nar/30">
                 <div className="h-24 rounded-xl border border-ink-100/10" style={{ background: c.hex }} />
                 <div className="mt-3 flex items-baseline justify-between px-1">
                   <span className="font-display text-2xl">{c.name}</span>
-                  <span className="font-mono text-[11px] text-ink-400 group-hover:text-white">{c.hex}</span>
+                  <span className="font-mono text-[11px] text-ink-400 group-hover:text-nar-600">{c.hex}</span>
                 </div>
                 <div className="px-1 font-mono text-[10.5px] text-ink-500">{c.token}</div>
                 <p className="px-1 pb-1 text-[13.5px] text-ink-400">{c.note}</p>
@@ -70,16 +70,17 @@ export function DesignSystem() {
         </section>
 
         <section>
-          <SectionHead no="03" label="Tipoqrafiya" lines={["Geist Pixel, Inter,", "*JetBrains Mono.*"]} text="Hər üçü Azərbaycan əlifbasını (ə, ğ, ı, ş, ç, ö, ü) tam dəstəkləyir və açıq lisenziyalıdır (OFL)." />
+          <SectionHead no="03" label="Tipoqrafiya" lines={["Fraunces, Onest,", "*Martian Mono.*"]} text="Hamısı Azərbaycan əlifbasını (ə, ğ, ı, ş, ç, ö, ü) tam dəstəkləyir və açıq lisenziyalıdır (OFL). Onest ₼ işarəsini də daşıyır." />
           <Glass className="mt-12 divide-y divide-ink-100/[0.07]">
             {[
-              { l: "Display · Geist Pixel Circle", c: "font-display text-6xl tracking-[-0.04em]", t: "Sözlə de, sayt doğulsun." },
-              { l: "Vurğu · Geist Pixel, səssiz ton", c: "font-display text-4xl tracking-[-0.04em] text-ink-400", t: "bir cümlə uzaqlığındadır." },
-              { l: "Mətn · Inter 400", c: "text-[16.5px] leading-relaxed text-ink-200", t: "Əə Ğğ Iı İi Öö Şş Çç Üü — hamısı düzgün və oxunaqlı." },
-              { l: "Etiket · JetBrains Mono", c: "font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400", t: "02 — Necə işləyir" },
+              { l: "Başlıq · Fraunces 420", c: "font-display text-6xl tracking-[-0.035em]", t: "Sözlə de, sayt doğulsun." },
+              { l: "Vurğu · Fraunces italic, şəfəq", c: "font-display text-4xl italic text-dawn", t: "bir cümlə uzaqlığındadır." },
+              { l: "Mətn · Onest 400", c: "text-[16.5px] leading-relaxed text-ink-200", t: "Əə Ğğ Iı İi Öö Şş Çç Üü — 29,90 ₼. Hamısı düzgün və oxunaqlı." },
+              { l: "Etiket · Martian Mono", c: "label-mono text-ink-400", t: "02 — Necə işləyir" },
+              { l: "Kod · JetBrains Mono", c: "font-mono text-[13px] text-ink-300", t: "export default function App() {}" },
             ].map((x) => (
               <div key={x.l} className="grid gap-3 p-6 md:grid-cols-12">
-                <span className="font-mono text-[10.5px] text-ink-500 md:col-span-3">{x.l}</span>
+                <span className="label-mono text-ink-500 md:col-span-3">{x.l}</span>
                 <span className={`${x.c} md:col-span-9`}>{x.t}</span>
               </div>
             ))}
@@ -90,17 +91,17 @@ export function DesignSystem() {
           <SectionHead no="04" label="Komponentlər" lines={["Sakit, *dəqiq.*"]} />
           <div className="mt-12 grid gap-4 lg:grid-cols-2">
             <Glass className="p-6">
-              <div className="mb-4 font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-500">Düymələr</div>
+              <div className="mb-4 label-mono text-ink-500">Düymələr</div>
               <div className="flex flex-wrap gap-3">
-                <Button className="shadow-[var(--shadow-glow)]">Əsas <ArrowRight className="size-4" /></Button>
-                <Button variant="white">Ağ</Button>
-                <Button variant="secondary">Şüşə</Button>
+                <Button>Əsas <ArrowRight className="size-4" /></Button>
+                <Button variant="white">Alov</Button>
+                <Button variant="secondary">Səth</Button>
                 <Button variant="outline">Kontur</Button>
                 <Button variant="ghost">Şəffaf</Button>
               </div>
             </Glass>
             <Glass className="p-6">
-              <div className="mb-4 font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-500">Nişanlar · bildirişlər</div>
+              <div className="mb-4 label-mono text-ink-500">Nişanlar · bildirişlər</div>
               <div className="flex flex-wrap items-center gap-3">
                 <Badge>Neytral</Badge>
                 <Badge tone="nar">Vurğu</Badge>
@@ -114,7 +115,7 @@ export function DesignSystem() {
               </div>
             </Glass>
             <Glass className="p-6 lg:col-span-2">
-              <div className="mb-4 font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-500">Sorğu qutusu</div>
+              <div className="mb-4 label-mono text-ink-500">Sorğu qutusu</div>
               <div className="max-w-2xl"><PromptBox onSubmit={() => toast.info("Bu nümunədir")} placeholder="Yazın, səslə deyin və ya şəkil atın…" /></div>
             </Glass>
           </div>
@@ -124,8 +125,8 @@ export function DesignSystem() {
           <SectionHead no="05" label="Hərəkət" lines={["Hər animasiyanın *səbəbi var.*"]} />
           <Glass className="mt-12 grid gap-px overflow-hidden md:grid-cols-3">
             {[
-              ["Səhnə", "Tam ekran video fon dövrə vurur; azaldılmış hərəkətdə dayanır, tab gizlənəndə pauza edir."],
-              ["Mətn", "Hero sətir-sətir gəlir (14px → 0); qalan elementlər blur 6px → 0, 0.98 → 1, ease-out (0.22, 1, 0.36, 1). Rəqəmlər easeOutCubic ilə sayılır."],
+              ["Səhnə", "Hero arxasında iki isti işıq yavaş üzür, kənarlarda zəif simvol sahəsi kursora reaksiya verir. Zəif cihazda sıxlıq azalır, tab gizlənəndə dayanır."],
+              ["Mətn", "Başlıq sətir-sətir, blur 8px → 0 ilə gəlir; qalan elementlər 18px yuxarı qalxır, ease-out (0.22, 1, 0.36, 1). Rəqəmlər easeOutCubic ilə sayılır."],
               ["İnterfeys", "Düymələr basılanda 0.97-yə kiçilir; keçidlər 150–300ms. Klaviatura əməliyyatları animasiyasızdır. Azaldılmış hərəkət dəstəklənir."],
             ].map(([t, d]) => (
               <div key={t} className="p-6">
@@ -140,8 +141,8 @@ export function DesignSystem() {
           <SectionHead
             no="06"
             label="Astryx"
-            lines={["Meta-nın sistemi,", "*bizim nöqtə.*"]}
-            text="Studiyanın əmr paleti, dialoqları və tooltip-ləri Astryx (Meta, MIT) üzərində qurulub. Novo mövzusu eyni monoxrom tokenlərdən yığılıb: src/themes/burunc."
+            lines={["Meta-nın sistemi,", "*bizim şəfəq.*"]}
+            text="Studiyanın əmr paleti, dialoqları və tooltip-ləri Astryx (Meta, MIT) üzərində qurulub. NovoCode mövzusu eyni CSS tokenlərinə istinad edir, ona görə gündüz/gecə rejimi avtomatik keçir: src/themes/burunc."
           />
           <AstryxShowcase />
         </section>

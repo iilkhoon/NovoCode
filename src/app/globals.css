@@ -5,67 +5,66 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   NOVO DESIGN SYSTEM — "Nöqtə"
-   Dot-matrix display type on a black, full-bleed video stage. Monochrome:
-   white pills, graphite surfaces, one soft white glow for the primary action.
-   Geist Pixel Circle covers the full Azerbaijani alphabet (ə ğ ı ş ç ö ü).
+   NOVO DESIGN SYSTEM — "Şəfəq" (dawn)
+   Warm paper, ink-dark type, one terracotta flame. Editorial serif headlines
+   (Fraunces) + calm sans UI (Onest) + mono for anything "machine" (Martian Mono).
+   Every colour is a CSS variable, so [data-theme="dark"] flips the whole app.
+   Scale convention (kept from v1 so every component re-themes for free):
+     ink-1000 → raised surfaces (cards, popovers)   ink-950 → page
+     ink-900…700 → sunken fills / dividers           ink-600…100 → text, faint → strong
+   All three fonts cover the full Azerbaijani alphabet (ə ğ ı ş ç ö ü); Onest also has ₼.
    ========================================================================== */
-@font-face {
-  font-family: "Geist Pixel Circle";
-  src: url("/fonts/GeistPixel-Circle.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --font-sans: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Geist Pixel Circle", ui-monospace, monospace;
+  --font-sans: "Onest Variable", "Onest", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
+  --font-label: "Martian Mono Variable", "Martian Mono", ui-monospace, monospace;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   /* semantic */
-  --color-wool: #000000;   /* page / stage */
-  --color-ink: #ffffff;    /* text */
-  --color-nar: #ffffff;    /* primary action (white pill) */
-  --color-indigo: #8fb4ff;
-  --color-saffron: #e2b06a;
-  --color-walnut: #6fbf8e;
-  --color-pill: #28282a;   /* dark pill / trust ring */
+  --color-wool: #f4efe6;   /* page */
+  --color-ink: #1d1814;    /* text */
+  --color-nar: #e0602f;    /* the flame — accent */
+  --color-pill: #1d1814;   /* dark pill (primary action) */
+  --color-indigo: #5a6fb8;
+  --color-saffron: #c98a1e;
+  --color-walnut: #3f8f5f;
 
-  /* neutral scale (1000 = stage, 100 = text) */
-  --color-ink-1000: #000000;
-  --color-ink-950: #050505;
-  --color-ink-900: #0c0c0d;
-  --color-ink-850: #141415;
-  --color-ink-800: #1c1c1e;
-  --color-ink-750: #232325;
-  --color-ink-700: #28282a;
-  --color-ink-600: #3a3a3d;
-  --color-ink-500: #5f5f64;
-  --color-ink-400: #8e8e8e;
-  --color-ink-300: #c4c2c3;
-  --color-ink-200: #d0d0d0;
-  --color-ink-100: #ffffff;
+  --color-ink-1000: #fffcf6;
+  --color-ink-950: #f4efe6;
+  --color-ink-900: #ece5d9;
+  --color-ink-850: #e5ddcf;
+  --color-ink-800: #ddd3c3;
+  --color-ink-750: #d3c8b6;
+  --color-ink-700: #c7bba8;
+  --color-ink-600: #ab9f8e;
+  --color-ink-500: #8d8173;
+  --color-ink-400: #6e6358;
+  --color-ink-300: #51473e;
+  --color-ink-200: #372f28;
+  --color-ink-100: #1d1814;
 
-  /* "nar" is now the monochrome accent ramp (white → graphite) */
-  --color-nar-300: #f2f2f2;
-  --color-nar-400: #e4e4e4;
-  --color-nar-500: #d4d4d4;
-  --color-nar-600: #a3a3a3;
-  --color-nar-700: #737373;
-  --color-saffron-400: #ecc489;
-  --color-saffron-500: #e2b06a;
-  --color-gold-400: #e2b06a;
-  --color-gold-500: #c9953f;
-  --color-indigo-400: #8fb4ff;
-  --color-indigo-500: #5b7fb5;
-  --color-orchid-500: #5b7fb5;
-  --color-violet-500: #5b7fb5;
+  /* flame ramp */
+  --color-nar-300: #f6b48c;
+  --color-nar-400: #ee8a5c;
+  --color-nar-500: #e0602f;
+  --color-nar-600: #c24a22;
+  --color-nar-700: #9b3a1b;
+  --color-saffron-400: #dca03a;
+  --color-saffron-500: #c98a1e;
+  --color-gold-400: #b07818;
+  --color-gold-500: #946412;
+  --color-indigo-400: #7486c9;
+  --color-indigo-500: #5a6fb8;
+  --color-orchid-500: #a3527a;
+  --color-violet-500: #7a5ab8;
 
-  --color-success: #6fbf8e;
-  --color-warning: #e2b06a;
-  --color-danger: #ff6b5e;
-  --color-info: #8fb4ff;
+  --color-success: #2f8a55;
+  --color-warning: #b9770e;
+  --color-danger: #cf3b2b;
+  --color-info: #4a63b3;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -74,16 +73,17 @@
   --radius-2xl: 18px;
   --radius-3xl: 26px;
 
-  --shadow-nav: 0 4px 14px rgb(0 0 0 / 0.16);
-  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.15), 0 0 22px rgb(255 255 255 / 0.32), 0 0 44px rgb(255 255 255 / 0.12);
-  --shadow-glow-strong: 0 0 0 1px rgb(255 255 255 / 0.25), 0 0 30px rgb(255 255 255 / 0.48), 0 0 64px rgb(255 255 255 / 0.2);
-  --shadow-panel: 0 30px 80px -30px rgb(0 0 0 / 0.85);
+  --shadow-nav: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 6px 20px -6px rgb(60 35 15 / 0.18);
+  --shadow-glow: 0 0 0 1px rgb(224 96 47 / 0.25), 0 8px 26px -6px rgb(224 96 47 / 0.45);
+  --shadow-glow-strong: 0 0 0 1px rgb(224 96 47 / 0.4), 0 12px 36px -6px rgb(224 96 47 / 0.6);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 30px 70px -30px rgb(60 35 15 / 0.35), 0 2px 8px -2px rgb(60 35 15 / 0.08);
+  --shadow-card: 0 1px 2px rgb(60 35 15 / 0.06), 0 8px 24px -12px rgb(60 35 15 / 0.18);
 
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 
   --animate-shimmer: shimmer 2.4s linear infinite;
-  --animate-blink: blink 1s step-end infinite;
+  --animate-blink: blink 1.05s step-end infinite;
   --animate-pulse-ring: pulse-ring 2.4s var(--ease-out-expo) infinite;
 
   @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -91,14 +91,66 @@
   @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(2); opacity: 0; } }
 }
 
+/* ---------- dark: warm night, same flame ---------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-wool: #14110e;
+  --color-ink: #f5eee4;
+  --color-nar: #ef7444;
+  --color-pill: #f5eee4;
+
+  --color-ink-1000: #1c1814;
+  --color-ink-950: #14110e;
+  --color-ink-900: #221d18;
+  --color-ink-850: #29231d;
+  --color-ink-800: #312a23;
+  --color-ink-750: #3a322a;
+  --color-ink-700: #453c33;
+  --color-ink-600: #5e5348;
+  --color-ink-500: #85796c;
+  --color-ink-400: #a99c8d;
+  --color-ink-300: #cbbfb0;
+  --color-ink-200: #e3d9cc;
+  --color-ink-100: #f5eee4;
+
+  --color-nar-300: #f9c3a2;
+  --color-nar-400: #f49a6e;
+  --color-nar-500: #ef7444;
+  --color-nar-600: #f08a5e;
+  --color-nar-700: #f6ad89;
+  --color-gold-400: #e2b06a;
+  --color-gold-500: #c9953f;
+
+  --color-success: #6fbf8e;
+  --color-warning: #e2b06a;
+  --color-danger: #ff7b6b;
+  --color-info: #8fb4ff;
+
+  --shadow-nav: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 6px 20px -6px rgb(0 0 0 / 0.6);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 30px 80px -30px rgb(0 0 0 / 0.85);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+
+/* the dawn gradient — brand signature, used sparingly */
+@utility bg-dawn { background-image: linear-gradient(120deg, #ffd3a6 0%, #f59a68 38%, #e0602f 68%, #b8432e 100%); }
+@utility text-dawn {
+  background-image: linear-gradient(100deg, #f08a4c 0%, #e0602f 45%, #b8432e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 @utility text-nar-gradient { color: var(--color-nar); }
 @utility bg-nar-gradient { background: var(--color-nar); }
 @utility glass {
-  background: rgb(20 20 21 / 0.55);
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  background: color-mix(in oklab, var(--color-ink-1000) 72%, transparent);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
 }
-@utility scroll-thin { scrollbar-width: thin; scrollbar-color: var(--color-ink-600) transparent; }
+@utility surface {
+  background: var(--color-ink-1000);
+  box-shadow: var(--shadow-card);
+}
+@utility scroll-thin { scrollbar-width: thin; scrollbar-color: var(--color-ink-700) transparent; }
 @utility text-shimmer {
   background: linear-gradient(90deg, var(--color-ink-500) 0%, var(--color-ink-100) 50%, var(--color-ink-500) 100%);
   background-size: 200% 100%;
@@ -107,63 +159,70 @@
   color: transparent;
   animation: var(--animate-shimmer);
 }
+@utility label-mono {
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
-:root { color-scheme: dark; }
+:root { color-scheme: light; }
 a, button, [role="button"], input, select, textarea, label { touch-action: manipulation; }
-.skip-link { position: fixed; left: 16px; top: -60px; z-index: 200; padding: 10px 16px; border-radius: 999px; background: var(--color-ink); color: #000; font-size: 14px; transition: top 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
+.skip-link { position: fixed; left: 16px; top: -60px; z-index: 200; padding: 10px 16px; border-radius: 999px; background: var(--color-ink); color: var(--color-wool); font-size: 14px; transition: top 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
 .skip-link:focus-visible { top: 16px; }
 html { -webkit-text-size-adjust: 100%; }
-html, body { background: #000; color: var(--color-ink); }
-body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-::selection { background: #fff; color: #000; }
-:focus-visible { outline: 2px solid rgb(255 255 255 / 0.85); outline-offset: 3px; }
+html, body { background: var(--color-wool); color: var(--color-ink); }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+html { transition: background-color 0.3s ease; }
+::selection { background: var(--color-nar); color: #fff; }
+:focus-visible { outline: 2px solid var(--color-nar); outline-offset: 3px; }
+
+/* paper grain — a very light noise so large surfaces never look flat */
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] .paper::before { mix-blend-mode: screen; opacity: 0.18; }
 
 .dot-grid {
-  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-image: radial-gradient(color-mix(in oklab, var(--color-ink-100) 9%, transparent) 1px, transparent 1px);
   background-size: 22px 22px;
 }
-.grain::after { content: none; }
 
 .cm-theme, .cm-editor { height: 100%; }
 .cm-editor { font-size: 13px; }
 .cm-scroller { font-family: var(--font-mono) !important; }
 .xterm { padding: 12px; height: 100%; }
 
-/* ---------- Landing: entrance motion (CSS-only, so it runs before hydration) ---------- */
+/* ---------- entrance motion (CSS-only, so it runs before hydration) ---------- */
 .nv-anim {
   opacity: 0;
-  transform: translateY(22px) scale(0.98);
+  transform: translateY(18px);
   filter: blur(6px);
-  animation: nv-reveal 0.85s var(--ease-out-expo) forwards;
+  animation: nv-reveal 0.9s var(--ease-out-expo) forwards;
   animation-delay: var(--d, 0s);
 }
-.nv-pulse { animation-name: nv-reveal-pulse; animation-duration: 1.1s; }
-.nv-line { display: block; opacity: 0; transform: translateY(14px); animation: nv-line 0.85s var(--ease-out-expo) forwards; animation-delay: var(--d, 0s); }
+.nv-line { display: block; opacity: 0; transform: translateY(0.35em); filter: blur(8px); animation: nv-line 1s var(--ease-out-expo) forwards; animation-delay: var(--d, 0s); }
 .nv-slide { animation: nv-slide 0.7s var(--ease-out-expo) both; }
 @keyframes nv-reveal { to { opacity: 1; transform: none; filter: blur(0); } }
-@keyframes nv-reveal-pulse {
-  0% { opacity: 0; transform: translateY(22px) scale(0.98); filter: blur(6px); }
-  60% { opacity: 1; transform: translateY(0) scale(1.02); filter: blur(0); }
-  100% { opacity: 1; transform: none; filter: blur(0); }
-}
-@keyframes nv-line { to { opacity: 1; transform: none; } }
-@keyframes nv-slide { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+@keyframes nv-line { to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes nv-slide { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 @keyframes nv-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes nv-menu { from { opacity: 0; transform: translateY(-10px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes nv-menu { from { opacity: 0; transform: translateY(-10px) scale(0.97); } to { opacity: 1; transform: none; } }
 
-/* three-dot active indicator under nav labels */
-.nv-dots::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 5px;
-  width: 3px;
-  height: 3px;
-  margin-left: -1.5px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: -5px 0 0 currentColor, 5px 0 0 currentColor;
-}
+/* slow-drifting warm light behind the hero */
+@keyframes nv-drift-a { 0%, 100% { transform: translate(-6%, -4%) scale(1); } 50% { transform: translate(6%, 5%) scale(1.12); } }
+@keyframes nv-drift-b { 0%, 100% { transform: translate(5%, 3%) scale(1.05); } 50% { transform: translate(-7%, -6%) scale(0.95); } }
+.nv-glow-a { animation: nv-drift-a 18s ease-in-out infinite; }
+.nv-glow-b { animation: nv-drift-b 22s ease-in-out infinite; }
+
+/* the caret in the wordmark and prompts */
+.nv-caret { display: inline-block; width: 0.5em; height: 0.95em; background: var(--color-nar); vertical-align: -0.12em; margin-left: 0.06em; border-radius: 1px; animation: var(--animate-blink); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }

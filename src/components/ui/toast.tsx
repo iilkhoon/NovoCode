@@ -25,7 +25,7 @@ export function Toaster() {
     };
   }, []);
   const icons = { success: CheckCircle2, error: XCircle, info: Info };
-  const colors = { success: "text-nar-300", error: "text-danger", info: "text-info" };
+  const colors = { success: "text-success", error: "text-danger", info: "text-info" };
   return (
     <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-5 z-[100] flex flex-col items-center gap-2 px-4">
       <AnimatePresence>
@@ -39,7 +39,7 @@ export function Toaster() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="pointer-events-auto flex items-center gap-2.5 glass rounded-full border border-ink-100/12 px-4 py-2.5 text-sm text-ink shadow-[var(--shadow-panel)]"
+              className="pointer-events-auto flex items-center gap-2.5 rounded-full border border-ink-100/10 bg-ink-1000 px-4 py-2.5 text-sm text-ink-100 shadow-[var(--shadow-panel)]"
             >
               <Icon className={`size-4 ${colors[t.tone]}`} />
               {t.text}

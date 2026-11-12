@@ -54,18 +54,18 @@ export function DemoWindow() {
   const fixed = t >= 18;
 
   return (
-    <div ref={ref} className="glass overflow-hidden rounded-[22px] border border-ink-100/12 shadow-[var(--shadow-panel)]">
+    <div ref={ref} className="overflow-hidden rounded-[22px] border border-ink-100/10 bg-ink-1000 shadow-[var(--shadow-panel)]">
       <div className="flex h-10 items-center gap-3 border-b border-ink-100/10 px-4 font-mono text-[11px] text-ink-400">
         <LogoMark className="size-4" />
-        <span className="text-ink-200">novocode.az/studio</span>
+        <span className="text-ink-300">novocode.az/studio</span>
         <span className="ml-auto hidden sm:inline">Önizləmə · Kod · Terminal</span>
       </div>
       <div className="grid md:grid-cols-[320px_1fr]">
         <div className="hidden border-r border-ink-100/10 p-4 text-[13px] md:block">
           {typed && (
-            <div className="ml-6 rounded-xl rounded-br-sm bg-ink-100/[0.07] px-3 py-2.5 leading-relaxed">
+            <div className="ml-6 rounded-2xl rounded-br-md bg-ink-900 px-3 py-2.5 leading-relaxed">
               {typed}
-              {t === 0 && <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-blink bg-nar-300" />}
+              {t === 0 && <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-blink bg-nar" />}
             </div>
           )}
           {t >= 1 && (
@@ -77,7 +77,7 @@ export function DemoWindow() {
                   <div className="mt-3 overflow-hidden rounded-xl border border-ink-100/10">
                     {FILES.slice(0, filesShown).map((f, i) => (
                       <div key={f} className="flex items-center gap-2 border-b border-ink-100/10 px-2.5 py-1.5 font-mono text-[11px] text-ink-300 last:border-0">
-                        {i < filesDone ? <Check className="size-3 text-success" /> : <Loader2 className="size-3 animate-spin text-nar-300" />}
+                        {i < filesDone ? <Check className="size-3 text-success" /> : <Loader2 className="size-3 animate-spin text-nar-600" />}
                         {f}
                       </div>
                     ))}
@@ -85,7 +85,7 @@ export function DemoWindow() {
                 )}
                 <AnimatePresence>
                   {t >= 15 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`mt-3 flex items-center gap-2 rounded-xl border px-2.5 py-2 text-[12px] ${fixed ? "border-success/40 text-success" : "border-saffron/50 text-saffron"}`}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`mt-3 flex items-center gap-2 rounded-xl border px-2.5 py-2 text-[12px] ${fixed ? "border-success/40 text-success" : "border-warning/50 text-warning"}`}>
                       {fixed ? <Check className="size-3.5" /> : <Wrench className="size-3.5" />}
                       {fixed ? "Xəta avtomatik düzəldildi" : "Xəta tapıldı — düzəldirəm…"}
                     </motion.div>
@@ -101,7 +101,7 @@ export function DemoWindow() {
             {/* the site, woven from the bottom up */}
             <div className="h-full transition-[clip-path] duration-300 ease-out" style={{ clipPath: `inset(${100 - (woven / ROWS) * 100}% 0 0 0)` }}>
               <div className="flex items-center justify-between px-5 py-3 text-[10px]">
-                <span style={{ fontFamily: "var(--font-display)" }} className="text-[15px] font-semibold">dəmlə.</span>
+                <span style={{ fontFamily: "var(--font-display)" }} className="text-[15px] font-semibold italic">dəmlə.</span>
                 <span className="hidden gap-4 opacity-70 sm:flex"><span>Menyu</span><span>Haqqımızda</span><span>Əlaqə</span></span>
                 <span className="bg-[#2b1d14] px-3 py-1 text-[#f6eee4]">Rezerv et</span>
               </div>

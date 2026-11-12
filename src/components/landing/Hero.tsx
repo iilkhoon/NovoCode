@@ -1,44 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Mic, Type } from "lucide-react";
 import { PromptBox } from "@/components/PromptBox";
+import { AsciiField } from "./AsciiField";
 import { EXAMPLES, HERO_STATS, TYPEWRITER } from "./data";
 import { useStartProject } from "./useStart";
-
-export const HERO_VIDEO =
-  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4";
-
-const TRUST = [
-  { icon: Type, label: "Yazı ilə", lift: "group-hover:-translate-y-0.5", z: "z-[1]" },
-  { icon: Mic, label: "Səslə", lift: "group-hover:-translate-y-1", z: "z-[2]" },
-  { icon: ImagePlus, label: "Şəkildən", lift: "group-hover:-translate-y-0.5", z: "z-[4]" },
-];
-
-function BackgroundVideo() {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    v.muted = true;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      v.pause();
-      return;
-    }
-    v.play().catch(() => {});
-    const onVis = () => (document.hidden ? v.pause() : v.play().catch(() => {}));
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
-  return (
-    <div aria-hidden className="absolute inset-0 overflow-hidden bg-black">
-      <video ref={ref} className="pointer-events-none absolute inset-0 size-full object-cover" autoPlay muted loop playsInline preload="auto">
-        <source src={HERO_VIDEO} type="video/mp4" />
-      </video>
-      {/* keeps the prompt legible and hands off to the black sections below */}
-      <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-b from-transparent to-black" />
-    </div>
-  );
-}
 
 /** Counts up from 0 once the value scrolls into view (easeOutCubic). */
 function CountUp({ target, decimals, suffix, index }: { target: number; decimals: number; suffix: string; index: number }) {
@@ -57,7 +22,7 @@ function CountUp({ target, decimals, suffix, index }: { target: number; decimals
       ([e]) => {
         if (!e.isIntersecting) return;
         io.disconnect();
-        const duration = 1500 + index * 80;
+        const duration = 1400 + index * 80;
         timer = setTimeout(() => {
           const start = performance.now();
           const tick = (now: number) => {
@@ -66,7 +31,7 @@ function CountUp({ target, decimals, suffix, index }: { target: number; decimals
             if (t < 1) raf = requestAnimationFrame(tick);
           };
           raf = requestAnimationFrame(tick);
-        }, 480 + index * 90);
+        }, 500 + index * 90);
       },
       { threshold: 0.25 }
     );
@@ -78,9 +43,9 @@ function CountUp({ target, decimals, suffix, index }: { target: number; decimals
     };
   }, [target, index]);
   return (
-    <span ref={ref} className="text-[clamp(18px,2.2vw,26px)] font-medium leading-tight tracking-[-0.025em] text-white tabular-nums">
+    <span ref={ref} className="font-display text-[clamp(26px,3vw,36px)] font-[500] leading-none tracking-[-0.03em] text-ink-100 tabular-nums">
       {value.toFixed(decimals)}
-      {suffix}
+      <span className="text-[0.6em] text-ink-400">{suffix}</span>
     </span>
   );
 }
@@ -90,57 +55,46 @@ export function Hero() {
   const [value, setValue] = useState("");
 
   return (
-    <section id="başla" className="relative isolate flex min-h-svh scroll-mt-0 flex-col items-center px-[clamp(14px,3vw,32px)] pb-[clamp(16px,2.4vh,28px)] pt-[calc(clamp(16px,2.4vh,28px)+72px)]">
-      <BackgroundVideo />
+    <section id="başla" className="paper relative isolate flex min-h-svh flex-col items-center overflow-hidden px-4 pb-8 pt-28 sm:px-8">
+      {/* warm light + quiet character field */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="nv-glow-a absolute left-1/2 top-[18%] size-[min(900px,120vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(255_196_150/0.75),rgb(255_196_150/0)_70%)] blur-2xl dark:bg-[radial-gradient(closest-side,rgb(239_116_68/0.22),transparent_70%)]" />
+        <div className="nv-glow-b absolute right-[-10%] top-[45%] size-[min(700px,90vw)] rounded-full bg-[radial-gradient(closest-side,rgb(224_96_47/0.28),transparent_70%)] blur-2xl dark:bg-[radial-gradient(closest-side,rgb(184_67_46/0.25),transparent_70%)]" />
+        <AsciiField
+          active={value.length > 0}
+          className="absolute inset-0 size-full [mask-composite:intersect] [mask-image:radial-gradient(ellipse_72%_60%_at_50%_46%,transparent_40%,black_88%),linear-gradient(to_bottom,transparent_70px,black_220px)]"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-wool" />
+      </div>
 
-      <div className="relative z-[1] flex w-full max-w-[900px] flex-1 flex-col items-center justify-center py-8 text-center">
-        {/* trust row */}
-        <div className="nv-anim group mb-[clamp(16px,2.5vh,26px)] inline-flex items-center [--ts:clamp(36px,4.5vw,42px)] max-[420px]:[--ts:34px]" style={{ "--d": "0.05s" } as React.CSSProperties}>
-          {TRUST.map(({ icon: Icon, label, lift, z }, i) => (
-            <span
-              key={label}
-              title={label}
-              className={`relative size-[var(--ts)] shrink-0 rounded-full border border-white/40 bg-pill p-[5px] transition-transform duration-[350ms] ease-[var(--ease-out-expo)] ${lift} ${z} ${i ? "-ml-[calc(var(--ts)*0.42)]" : ""}`}
-            >
-              <span className="grid size-full place-items-center rounded-full bg-white text-[#111]">
-                <Icon className="size-[calc(var(--ts)*0.34)]" strokeWidth={2.2} aria-hidden />
-              </span>
-            </span>
-          ))}
-          <span className="relative z-0 -ml-[calc(var(--ts)*0.42)] inline-flex h-[var(--ts)] items-center whitespace-nowrap rounded-full border border-white/40 bg-pill pl-[calc(var(--ts)*0.58)] pr-4 text-[clamp(12px,1.4vw,13.5px)] font-medium text-ink-300 max-[720px]:text-[12px]">
-            Azərbaycan dilində AI sayt qurucusu
-          </span>
+      <div className="relative flex w-full max-w-[860px] flex-1 flex-col items-center justify-center py-6 text-center">
+        <div className="nv-anim inline-flex items-center gap-2.5 rounded-full border border-ink-100/10 bg-ink-1000/70 py-1.5 pl-2 pr-4 shadow-[var(--shadow-card)] backdrop-blur-md" style={{ "--d": "0.05s" } as React.CSSProperties}>
+          <span className="rounded-full bg-ink-100 px-2 py-0.5 font-label text-[9.5px] font-medium uppercase tracking-[0.08em] text-ink-1000">Beta</span>
+          <span className="text-[13px] text-ink-300">Azərbaycan dilində AI sayt qurucusu</span>
         </div>
 
-        {/* headline — dot-matrix, solid white */}
-        <h1 className="max-w-full overflow-hidden whitespace-nowrap font-display text-[clamp(30px,6.6vw,84px)] font-normal leading-[1.12] tracking-[-0.04em] text-white max-[720px]:text-[clamp(34px,10vw,64px)] max-[720px]:leading-[1.05] max-[720px]:tracking-[-0.06em] max-[420px]:leading-[1.04]">
+        <h1 className="mt-7 font-display text-[clamp(44px,8.4vw,112px)] font-[420] leading-[0.98] tracking-[-0.035em] text-ink-100 [font-variation-settings:'opsz'_144]">
           <span className="nv-line" style={{ "--d": "0.12s" } as React.CSSProperties}>
             Sözlə de,
           </span>
-          <span className="nv-line" style={{ "--d": "0.3s" } as React.CSSProperties}>
-            sayt doğulsun.
+          <span className="nv-line" style={{ "--d": "0.28s" } as React.CSSProperties}>
+            sayt <em className="text-dawn pr-[0.06em] font-[380] italic">doğulsun.</em>
           </span>
         </h1>
 
-        <p
-          className="nv-anim mt-[clamp(14px,2.2vh,22px)] max-w-[min(540px,92%)] text-[clamp(15.5px,1.55vw,18.5px)] leading-[1.55] text-ink-200"
-          style={{ "--d": "0.28s" } as React.CSSProperties}
-        >
-          <span className="opacity-80">
-            Fikrinizi Azərbaycan dilində yazın, deyin və ya şəklini atın. Novo dizaynı, kodu və məlumat bazasını qurur — xətaları özü tapıb düzəldir.
-          </span>
+        <p className="nv-anim mt-6 max-w-[540px] text-[clamp(15.5px,1.5vw,18px)] leading-[1.6] text-ink-400" style={{ "--d": "0.4s" } as React.CSSProperties}>
+          Fikrinizi yazın, deyin və ya şəklini atın. NovoCode dizaynı, kodu və məlumat bazasını qurur — xətaları özü tapıb düzəldir.
         </p>
 
-        {/* the real CTA: the prompt itself */}
-        <div className="nv-anim nv-pulse mt-[clamp(20px,3.2vh,32px)] w-full max-w-[640px] text-left" style={{ "--d": "0.4s" } as React.CSSProperties}>
+        <div className="nv-anim mt-9 w-full max-w-[660px] text-left" style={{ "--d": "0.5s" } as React.CSSProperties}>
           <PromptBox size="lg" typewriter={TYPEWRITER} value={value} onValueChange={setValue} busy={starting} onSubmit={({ text, images, styleId }) => start(text, images, styleId)} />
-          <div className="mt-3.5 flex flex-wrap justify-center gap-2">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
             {EXAMPLES.map((ex) => (
               <button
                 key={ex.label}
                 type="button"
                 onClick={() => setValue(ex.prompt)}
-                className="rounded-full border border-white/15 bg-black/35 px-3.5 py-1.5 text-[12.5px] text-ink-300 backdrop-blur-sm transition-[color,border-color,background-color] duration-200 hover:border-white/40 hover:bg-black/50 hover:text-white"
+                className="rounded-full border border-ink-100/10 bg-ink-1000/60 px-3.5 py-1.5 text-[13px] text-ink-300 backdrop-blur-sm transition-[color,border-color,background-color,transform] duration-200 hover:-translate-y-px hover:border-nar/40 hover:bg-ink-1000 hover:text-ink-100 active:scale-[0.97]"
               >
                 {ex.label}
               </button>
@@ -149,15 +103,11 @@ export function Hero() {
         </div>
       </div>
 
-      {/* stats */}
-      <ul aria-label="Novo Code rəqəmlərlə" className="relative z-[1] grid w-full max-w-[920px] shrink-0 grid-cols-4 gap-[clamp(12px,2vw,24px)] pb-[clamp(4px,1vh,10px)] max-[720px]:grid-cols-2 max-[720px]:gap-y-[clamp(14px,2.4vh,22px)]">
+      <ul aria-label="NovoCode rəqəmlərlə" className="relative grid w-full max-w-[880px] shrink-0 grid-cols-4 border-t border-ink-100/10 pt-6 max-[720px]:grid-cols-2 max-[720px]:gap-y-6">
         {HERO_STATS.map((s, i) => (
-          <li key={s.label} className="nv-anim flex flex-col items-center gap-[clamp(4px,0.8vh,8px)] text-center" style={{ "--d": `${0.5 + i * 0.08}s` } as React.CSSProperties}>
-            <span aria-hidden className="font-display text-[clamp(22px,3vw,33px)] leading-none text-white">
-              {s.glyph}
-            </span>
+          <li key={s.label} className="nv-anim flex flex-col items-center gap-2 text-center" style={{ "--d": `${0.6 + i * 0.07}s` } as React.CSSProperties}>
             <CountUp target={s.target} decimals={s.decimals} suffix={s.suffix} index={i} />
-            <span className="whitespace-nowrap text-[clamp(11px,1.2vw,12.5px)] text-ink-400">{s.label}</span>
+            <span className="label-mono whitespace-nowrap text-ink-400">{s.label}</span>
           </li>
         ))}
       </ul>

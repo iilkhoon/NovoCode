@@ -147,7 +147,7 @@ export const PERSONAS = [
 ];
 
 export const COMPARISON = {
-  columns: ["Veb agentlik", "Freelancer", "Novo Code"],
+  columns: ["Veb agentlik", "Freelancer", "NovoCode"],
   rows: [
     { label: "Başlanğıc qiyməti (təxmini)", values: ["1 500 – 5 000 ₼", "400 – 1 500 ₼", "0 ₼-dan"] },
     { label: "İlk versiyanın müddəti", values: ["3 – 8 həftə", "1 – 4 həftə", "Dəqiqələr"] },
@@ -183,7 +183,7 @@ export const PLANS: Plan[] = [
     credits: "Ayda 250 mesaj",
     description: "Fərdi sahibkarlar və freelancerlər üçün.",
     features: ["Pulsuz plandakı hər şey", "Ən güclü AI modelləri", "Bir kliklə yayım (tezliklə)", "Öz domeniniz (tezliklə)", "Prioritet növbə"],
-    cta: "Pro ilə başla",
+    cta: "Beta-da pulsuz sına",
     highlight: true,
   },
   {
@@ -192,7 +192,7 @@ export const PLANS: Plan[] = [
     credits: "Ayda 1 000 mesaj",
     description: "Agentliklər və komandalar üçün.",
     features: ["Pro plandakı hər şey", "Komanda üzvləri (tezliklə)", "Real verilənlər bazası (tezliklə)", "Fərdi skill-lər", "Prioritet dəstək"],
-    cta: "Biznes ilə başla",
+    cta: "Beta-da pulsuz sına",
   },
 ];
 

@@ -17,7 +17,7 @@ export function Faq() {
           {FAQ.map((f, i) => (
             <div key={f.q}>
               <button onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="flex w-full items-center gap-4 px-6 py-5 text-left">
-                <span className="font-mono text-[11px] text-ink-400">{String(i + 1).padStart(2, "0")}</span>
+                <span className="font-label text-[10.5px] text-nar-600">{String(i + 1).padStart(2, "0")}</span>
                 <span className="flex-1 text-[15.5px] font-medium">{f.q}</span>
                 <motion.span animate={{ rotate: open === i ? 45 : 0 }} transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }} className="text-ink-400">
                   <Plus className="size-4" />

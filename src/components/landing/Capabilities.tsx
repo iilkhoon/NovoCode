@@ -20,12 +20,12 @@ export function Capabilities() {
         </div>
         <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {ITEMS.map((x, i) => (
-            <Reveal key={x.t} delay={(i % 2) * 0.08} className="glass group rounded-2xl border border-ink-100/10 p-7 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-white/30">
-              <div className="grid size-10 place-items-center rounded-xl bg-white text-black">
+            <Reveal key={x.t} delay={(i % 2) * 0.08} className="surface group rounded-[22px] border border-ink-100/[0.08] p-7 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-nar/30">
+              <div className="grid size-10 place-items-center rounded-xl bg-dawn text-white shadow-[var(--shadow-glow)]">
                 <x.icon className="size-[18px]" strokeWidth={1.6} />
               </div>
               <h3 className="mt-5 text-[17px] font-medium">{x.t}</h3>
-              <p className="mt-2 text-[14.5px] leading-relaxed text-ink-300">{x.d}</p>
+              <p className="mt-2 text-[14.5px] leading-relaxed text-ink-400">{x.d}</p>
             </Reveal>
           ))}
         </div>

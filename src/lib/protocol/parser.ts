@@ -1,5 +1,5 @@
 /**
- * Novo Code action protocol — streaming parser.
+ * NovoCode action protocol — streaming parser.
  *
  * The model answers with free text plus XML-like action tags:
  *   <novo-plan>short plan</novo-plan>

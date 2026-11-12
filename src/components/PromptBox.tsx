@@ -124,8 +124,8 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
     <div className="relative">
       <div
         className={cn(
-          "glass relative rounded-[22px] border shadow-[var(--shadow-panel)] transition-[border-color] duration-200",
-          focused ? "border-nar/60" : "border-ink-100/15"
+          "relative rounded-[24px] border bg-[rgb(20_20_21/0.72)] backdrop-blur-xl backdrop-saturate-150 shadow-[var(--shadow-panel)] transition-[border-color] duration-200",
+          focused ? "border-white/60" : "border-white/20"
         )}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
@@ -271,7 +271,11 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               {enhancing ? <Loader2 className="size-3.5 animate-spin" /> : <PenLine className="size-3.5" />}
               <span className="hidden sm:inline">Təkmilləşdir</span>
             </button>
-            {busy ? (
+            {busy && !onStop ? (
+              <span role="status" aria-label="Hazırlanır" className="grid size-9 place-items-center rounded-full bg-white text-black">
+                <Loader2 className="size-4 animate-spin" />
+              </span>
+            ) : busy ? (
               <button onClick={onStop} aria-label="Dayandır" className="grid size-9 place-items-center rounded-full bg-ink-700 text-ink transition hover:bg-ink-600">
                 <Square className="size-3.5 fill-current" />
               </button>
@@ -281,7 +285,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                 onClick={submit}
                 aria-label="Göndər"
                 disabled={!text.trim() && images.length === 0}
-                className="grid size-9 place-items-center rounded-full bg-ink text-ink-1000 transition-[transform,background-color] duration-150 hover:bg-nar-300 active:scale-[0.95] disabled:bg-ink-700 disabled:text-ink-500"
+                className="grid size-9 place-items-center rounded-full bg-ink text-ink-1000 transition-[transform,background-color] duration-150 hover:shadow-[var(--shadow-glow)] active:scale-[0.95] disabled:bg-ink-700 disabled:text-ink-500"
               >
                 <ArrowUp className="size-4" />
               </motion.button>
@@ -289,7 +293,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
           </div>
         </div>
       </div>
-          </div>
+    </div>
   );
 }
 

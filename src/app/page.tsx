@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import { listProjects } from "@/lib/store/projects";
 import type { Project } from "@/lib/types";
-import { Stage } from "@/components/landing/Stage";
-import { Overlay } from "@/components/landing/Overlay";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { Projects } from "@/components/landing/Projects";
@@ -21,17 +19,13 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {});
-    document.documentElement.classList.add("landing");
-    return () => document.documentElement.classList.remove("landing");
   }, []);
 
   return (
     <>
       <a href="#main" className="skip-link">Məzmuna keç</a>
-      <Stage />
-      <Overlay />
       <Navbar hasProjects={projects.length > 0} />
-      <main id="main" tabIndex={-1} className="relative z-10 outline-none">
+      <main id="main" tabIndex={-1} className="relative outline-none">
         <Hero />
         <Projects projects={projects} onChange={setProjects} />
         <HowItWorks />
@@ -43,9 +37,7 @@ export default function Home() {
         <Faq />
         <Closing />
       </main>
-      <div className="relative z-10">
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 }

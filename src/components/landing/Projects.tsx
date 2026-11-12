@@ -16,7 +16,7 @@ function timeAgo(ts: number) {
 export function Projects({ projects, onChange }: { projects: Project[]; onChange: (p: Project[]) => void }) {
   if (!projects.length) return null;
   return (
-    <section data-stage="right" id="layihələrim" className="relative scroll-mt-24 py-16">
+    <section id="layihələrim" className="relative scroll-mt-24 py-16">
       <Container>
         <div className="mb-5 flex items-baseline justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
           <span>Layihələrim</span>

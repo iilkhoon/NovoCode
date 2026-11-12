@@ -58,3 +58,38 @@ Tarix: 2026-11-08 · Budaq: `feat/novo-code-mvp`
 2. Paylanmış limit + istifadəçi hesabı + kredit sistemi (S8).
 3. Bir kliklə yayım (`*.novocode.az`) üçün backend.
 4. Studiyada daha çox Astryx: model seçicisini `Selector`-a, versiya tarixçəsini `Drawer`-ə keçirmək.
+
+---
+
+# Yenidən dizayn və audit — "Nöqtə" (2026-11-12)
+
+## Dizayn
+- "Bürünc" (WebGL bürünc səhnə, serif, xüsusi kursor) əvəzinə **"Nöqtə"**: tam ekran video hero, Geist Pixel Circle başlıqlar, ağ nav pill, qrafit "Başla" pill-i, mobil burger + ağ menyu, sayğaclı statistikalar.
+- `three` (WebGL) və iki font paketi silindi; landing JS 186 → 182 KB.
+- Xüsusi kursor (`cursor: none`) silindi — klaviatura/əlçatanlıq və gözlənilməz davranış problemi idi.
+- 3D obyekt üçün boş saxlanmış sol 42% sahə bölmələrdən götürüldü.
+
+## Şrift qərarı
+Tapşırıqda BubbledotICG-FinePos (OnlineWebFonts CDN) istənilmişdi. İstifadə **edilmədi**, çünki:
+1. Kommersiya şriftidir (Image Club Graphics); OnlineWebFonts-dakı nüsxənin lisenziyası yoxdur — investor/prodakşn üçün hüquqi risk.
+2. Köhnə şrift olduğu üçün Azərbaycan hərfləri (xüsusən **ə**) çox güman yoxdur → "Sözlə" sözündə hərflər fərqli şriftlərdə görünərdi.
+3. Saytda COEP aktivdir (WebContainers üçün); xarici şrift CDN-ləri CORS başlığı verməsə şrift yüklənməz.
+Geist Pixel Circle (Vercel, OFL) bütün Azərbaycan hərflərini dəstəkləyir (yoxlanılıb) və serverdən verilir.
+
+## Tapılan və düzəldilən problemlər
+| # | Problem | Düzəliş |
+| --- | --- | --- |
+| B1 | WebContainer-də `mount` / `npm install` xəta atanda status heç vaxt "error" olmurdu; agent `writeFile`-da **sonsuza qədər donurdu** | try/catch, status "error", gözləyən vədlər həll olunur |
+| B2 | Layihə yaradılmayanda (gizli rejim, IndexedDB bağlı) "Başla" düyməsi əbədi yüklənirdi, xəta göstərilmirdi | try/catch + aydın toast |
+| B3 | `/dizayn`-da React hydration xətası: `toLocaleString("az")` Node və brauzerdə fərqli nəticə verir | deterministik formatlama |
+| B4 | `TemplatePreview`-də `key`-siz siyahı (React xəbərdarlığı) | `Fragment key` |
+| B5 | Prodakşında `Origin`-siz POST qəbul olunurdu (skript ilə AI açarından istifadə) | prodakşında rədd edilir (+ test) |
+| B6 | Klient stream-i kəsəndə `controller.close()` ikinci dəfə xəta atırdı | qorunur |
+| B7 | Landing-də prompt göndərilərkən "Dayandır" düyməsi görünürdü, amma heç nə etmirdi | spinner |
+| B8 | README/hero "7 dizayn üslubu" deyirdi, real sayı 6 (+ avtomatik) | düzəldildi; hero rəqəmləri testlə koddan yoxlanılır (`data.test.ts`) |
+
+## Qalan risklər (bu işdə həll olunmayıb)
+- `Origin` başlığı skriptlə saxtalaşdırıla bilər — həqiqi qoruma üçün hesab + kvota lazımdır (S8 ilə birlikdə).
+- Limit yaddaşdadır (bir server nüsxəsi); Vercel-də paylanmış limit (Upstash/Redis) lazımdır.
+- WebContainers kommersiya istifadəsi StackBlitz lisenziyası tələb edir.
+- Hero video xarici CloudFront ünvanındadır; prodakşından əvvəl öz hostinqinizə köçürmək tövsiyə olunur.

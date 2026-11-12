@@ -5,51 +5,62 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   NOVO DESIGN SYSTEM — "Bürünc"
-   A molten-bronze form on a black stage. Editorial serif type, hairline grid,
-   one warm metal accent. Light comes from the scene, not from CSS effects.
+   NOVO DESIGN SYSTEM — "Nöqtə"
+   Dot-matrix display type on a black, full-bleed video stage. Monochrome:
+   white pills, graphite surfaces, one soft white glow for the primary action.
+   Geist Pixel Circle covers the full Azerbaijani alphabet (ə ğ ı ş ç ö ü).
    ========================================================================== */
+@font-face {
+  font-family: "Geist Pixel Circle";
+  src: url("/fonts/GeistPixel-Circle.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: "Onest Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Cormorant Garamond Variable", "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Geist Pixel Circle", ui-monospace, monospace;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   /* semantic */
-  --color-wool: #050505;   /* page / stage */
-  --color-ink: #fff6ed;    /* warm white text */
-  --color-nar: #c98a52;    /* bronze accent */
-  --color-indigo: #2c4a78; /* sapphire */
-  --color-saffron: #e2b06a;/* gold highlight */
+  --color-wool: #000000;   /* page / stage */
+  --color-ink: #ffffff;    /* text */
+  --color-nar: #ffffff;    /* primary action (white pill) */
+  --color-indigo: #8fb4ff;
+  --color-saffron: #e2b06a;
   --color-walnut: #6fbf8e;
+  --color-pill: #28282a;   /* dark pill / trust ring */
 
-  /* neutral scale (950 = stage, 100 = text) */
+  /* neutral scale (1000 = stage, 100 = text) */
   --color-ink-1000: #000000;
   --color-ink-950: #050505;
-  --color-ink-900: #0b0b0c;
-  --color-ink-850: #111113;
-  --color-ink-800: #18181b;
-  --color-ink-750: #1e1e21;
-  --color-ink-700: #27272b;
-  --color-ink-600: #3a3a3f;
-  --color-ink-500: #5c5c63;
-  --color-ink-400: #8b8b93;
-  --color-ink-300: #b4b4bc;
-  --color-ink-200: #d1d5db;
-  --color-ink-100: #fff6ed;
+  --color-ink-900: #0c0c0d;
+  --color-ink-850: #141415;
+  --color-ink-800: #1c1c1e;
+  --color-ink-750: #232325;
+  --color-ink-700: #28282a;
+  --color-ink-600: #3a3a3d;
+  --color-ink-500: #5f5f64;
+  --color-ink-400: #8e8e8e;
+  --color-ink-300: #c4c2c3;
+  --color-ink-200: #d0d0d0;
+  --color-ink-100: #ffffff;
 
-  --color-nar-300: #e6b78f;
-  --color-nar-400: #d79d6b;
-  --color-nar-500: #c98a52;
-  --color-nar-600: #a96e3d;
-  --color-nar-700: #7d502b;
+  /* "nar" is now the monochrome accent ramp (white → graphite) */
+  --color-nar-300: #f2f2f2;
+  --color-nar-400: #e4e4e4;
+  --color-nar-500: #d4d4d4;
+  --color-nar-600: #a3a3a3;
+  --color-nar-700: #737373;
   --color-saffron-400: #ecc489;
   --color-saffron-500: #e2b06a;
   --color-gold-400: #e2b06a;
   --color-gold-500: #c9953f;
-  --color-indigo-400: #5b7fb5;
-  --color-indigo-500: #2c4a78;
-  --color-orchid-500: #2c4a78;
-  --color-violet-500: #2c4a78;
+  --color-indigo-400: #8fb4ff;
+  --color-indigo-500: #5b7fb5;
+  --color-orchid-500: #5b7fb5;
+  --color-violet-500: #5b7fb5;
 
   --color-success: #6fbf8e;
   --color-warning: #e2b06a;
@@ -63,10 +74,12 @@
   --radius-2xl: 18px;
   --radius-3xl: 26px;
 
-  --shadow-glow: 0 0 #0000;
+  --shadow-nav: 0 4px 14px rgb(0 0 0 / 0.16);
+  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.15), 0 0 22px rgb(255 255 255 / 0.32), 0 0 44px rgb(255 255 255 / 0.12);
+  --shadow-glow-strong: 0 0 0 1px rgb(255 255 255 / 0.25), 0 0 30px rgb(255 255 255 / 0.48), 0 0 64px rgb(255 255 255 / 0.2);
   --shadow-panel: 0 30px 80px -30px rgb(0 0 0 / 0.85);
 
-  --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 
   --animate-shimmer: shimmer 2.4s linear infinite;
@@ -81,7 +94,7 @@
 @utility text-nar-gradient { color: var(--color-nar); }
 @utility bg-nar-gradient { background: var(--color-nar); }
 @utility glass {
-  background: rgb(10 10 12 / 0.55);
+  background: rgb(20 20 21 / 0.55);
   backdrop-filter: blur(14px) saturate(1.2);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
 }
@@ -101,17 +114,9 @@ a, button, [role="button"], input, select, textarea, label { touch-action: manip
 .skip-link:focus-visible { top: 16px; }
 html { -webkit-text-size-adjust: 100%; }
 html, body { background: #000; color: var(--color-ink); }
-body { -webkit-font-smoothing: antialiased; }
-::selection { background: var(--color-nar); color: #000; }
-:focus-visible { outline: 1.5px solid var(--color-nar-300); outline-offset: 3px; }
-
-/* landing page: hidden scrollbars, custom cursor only for fine pointers */
-.landing { scrollbar-width: none; }
-.landing::-webkit-scrollbar { display: none; }
-@media (hover: hover) and (pointer: fine) {
-  .landing, .landing a, .landing button { cursor: none; }
-  .landing textarea, .landing input { cursor: text; }
-}
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+::selection { background: #fff; color: #000; }
+:focus-visible { outline: 2px solid rgb(255 255 255 / 0.85); outline-offset: 3px; }
 
 .dot-grid {
   background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
@@ -124,6 +129,43 @@ body { -webkit-font-smoothing: antialiased; }
 .cm-scroller { font-family: var(--font-mono) !important; }
 .xterm { padding: 12px; height: 100%; }
 
+/* ---------- Landing: entrance motion (CSS-only, so it runs before hydration) ---------- */
+.nv-anim {
+  opacity: 0;
+  transform: translateY(22px) scale(0.98);
+  filter: blur(6px);
+  animation: nv-reveal 0.85s var(--ease-out-expo) forwards;
+  animation-delay: var(--d, 0s);
+}
+.nv-pulse { animation-name: nv-reveal-pulse; animation-duration: 1.1s; }
+.nv-line { display: block; opacity: 0; transform: translateY(14px); animation: nv-line 0.85s var(--ease-out-expo) forwards; animation-delay: var(--d, 0s); }
+.nv-slide { animation: nv-slide 0.7s var(--ease-out-expo) both; }
+@keyframes nv-reveal { to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes nv-reveal-pulse {
+  0% { opacity: 0; transform: translateY(22px) scale(0.98); filter: blur(6px); }
+  60% { opacity: 1; transform: translateY(0) scale(1.02); filter: blur(0); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes nv-line { to { opacity: 1; transform: none; } }
+@keyframes nv-slide { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+@keyframes nv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nv-menu { from { opacity: 0; transform: translateY(-10px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+/* three-dot active indicator under nav labels */
+.nv-dots::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: -5px 0 0 currentColor, 5px 0 0 currentColor;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  .nv-anim, .nv-line { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
 }

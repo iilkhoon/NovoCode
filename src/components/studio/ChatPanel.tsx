@@ -40,7 +40,7 @@ export function ChatPanel({ messages, busy, thinking, onSend, onStop, onOpenFile
           <div className="grid h-full place-items-center text-center">
             <div>
               <LogoMark className="mx-auto size-12" animated />
-              <p className="mt-4 font-display text-lg tracking-tight">Nə quraq?</p>
+              <p className="mt-4 font-display text-xl tracking-[-0.03em]">Nə quraq?</p>
               <p className="mt-1 text-sm text-ink-400">Saytınızı təsvir edin və ya şəkil atın.</p>
             </div>
           </div>

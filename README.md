@@ -10,16 +10,17 @@
 - 🧑‍💻 Kod redaktoru, fayl ağacı, interaktiv terminal, cihaz ölçüləri (desktop/tablet/mobil), ZIP yükləmə
 - 🤖 AI: [build.nvidia.com](https://build.nvidia.com) (GLM, Kimi, DeepSeek, Qwen… — model siyahısı canlı gəlir)
 
-## Dizayn sistemi — "Xalça"
-Xalça düyün-düyün toxunur, sayt piksel-piksel. Canlı sənəd: **`/dizayn`** səhifəsi.
+## Dizayn sistemi — "Nöqtə"
+Nöqtəli (dot-matrix) başlıqlar, qara səhnədə tam ekran video, ağ pill-lər. Canlı sənəd: **`/dizayn`** səhifəsi.
 
-- **Rənglər:** təbii boyalar — yun `#f1e9da`, mürəkkəb `#1c1f2e`, nar `#a82a2d`, indiqo `#24386b`, zəfəran `#d29a2e`, qoz `#4e5b36`. Yalnız düz rəng: qradiyent, parıltı, şüşə effekti yoxdur.
-- **Şriftlər:** Fraunces (başlıqlar), Onest (mətn), JetBrains Mono (etiketlər, kod) — hamısı Azərbaycan əlifbasını tam dəstəkləyir.
-- **Naxışlar:** `src/components/carpet/` — göl medalyonu, haşiyə zolağı, loqo və 7×7 motivlər koddan generasiya olunur; `<Knots weave>` onları sıra-sıra "toxuyur".
-- **Düzülüş:** jurnal üslubu — nömrələnmiş bölmələr (№ 01…), nazik xətlər, sola düzülmüş mətn, şəkilaltı yazılar.
+- **Rənglər:** monoxrom — səhnə `#000`, mətn `#fff`, qrafit pill `#28282a`, yumşaq mətn `#d0d0d0`, səssiz `#8e8e8e`. Vurğu rəng deyil, işıqdır: əsas düymədə tək yumşaq ağ parıltı.
+- **Şriftlər:** Geist Pixel Circle (başlıqlar, `public/fonts`, OFL), Inter (mətn), JetBrains Mono (etiketlər, kod). Üçü də Azərbaycan əlifbasını (ə ğ ı ş ç ö ü) tam dəstəkləyir və serverdən verilir (CDN asılılığı yoxdur).
+- **Loqo:** 7×7 nöqtə şəbəkəsində N, ağ diskdə (`src/components/Logo.tsx`, `src/app/icon.svg`).
+- **Hərəkət:** CSS ilə giriş animasiyaları (`.nv-anim`, `.nv-line` — `globals.css`), statistikalar easeOutCubic ilə sayılır; `prefers-reduced-motion`-da hamısı və video dayanır.
+- **Studio:** Astryx mövzusu eyni tokenlərdən qurulub (`src/themes/burunc/buruncTheme.ts` → `npx astryx theme build ...`).
 
 ## Studio imkanları
-- Səslə yazma (az-AZ), şəkil/eskiz, 7 dizayn üslubu, ✨ sorğunu təkmilləşdirmə
+- Səslə yazma (az-AZ), şəkil/eskiz, 6 dizayn üslubu (+ avtomatik seçim), ✨ sorğunu təkmilləşdirmə
 - Versiya tarixçəsi — istənilən AI addımına bir kliklə qayıtmaq
 - Yayımla: brauzerdə build edilmiş statik sayt (ZIP → Netlify Drop) və ya mənbə kodu
 - Cihaz önizləməsi, tam ekran, qısayollar (`Ctrl+1/2/3`, `Ctrl+S`), layihə adını dəyişmək

@@ -7,13 +7,13 @@ export function SectionHead({ no, label, lines, text, className, center = false 
   return (
     <div className={cn(center && "text-center", className)}>
       <Reveal className={cn("flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400", center && "justify-center")}>
-        <span className="text-nar-300">{no}</span>
+        <span className="text-white">{no}</span>
         <span className="h-px w-8 bg-ink-100/25" />
         {label}
       </Reveal>
       <SplitTitle
         lines={lines}
-        className={cn("mt-6 text-[clamp(2.6rem,6.2vw,5.6rem)] leading-[0.98] tracking-[-0.01em] text-ink [text-shadow:0_2px_40px_rgb(0_0_0/0.6)]", center && "mx-auto")}
+        className={cn("mt-6 text-[clamp(2.1rem,5vw,4.4rem)] leading-[1.06] text-ink [text-shadow:0_2px_40px_rgb(0_0_0/0.6)]", center && "mx-auto")}
       />
       {text && (
         <Reveal delay={0.2} className={cn("mt-6 max-w-xl text-[16.5px] leading-relaxed text-ink-200/85 [text-shadow:0_1px_24px_rgb(0_0_0/0.7)]", center && "mx-auto")}>

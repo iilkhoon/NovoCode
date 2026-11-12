@@ -1,9 +1,10 @@
 /**
- * Bürünc — Novo Code-un Astryx mövzusu (yalnız qaranlıq).
+ * Novo Code-un Astryx mövzusu — "Nöqtə" (yalnız qaranlıq).
  *
- * Qara səhnə, isti ağ mətn, tək vurğu: bürünc (#c98a52).
- * Tokenlər src/app/globals.css-dəki "Bürünc" dizayn sistemi ilə eynidir,
+ * Qara səhnə, ağ mətn, qrafit səthlər; vurğu rəng yox, ağ işıqdır.
+ * Tokenlər src/app/globals.css-dəki "Nöqtə" dizayn sistemi ilə eynidir,
  * beləliklə Astryx komponentləri Tailwind ilə yazılmış hissələrlə bir dildə danışır.
+ * (Fayl/slug adı "burunc" tarixi səbəbdən qalıb.)
  */
 import {defineTheme} from '@astryxdesign/core/theme';
 import {neutralTheme} from '@astryxdesign/theme-neutral';
@@ -12,9 +13,9 @@ import {palette} from './burunc.palette';
 const {bronze, neutral, sapphire, green, red, yellow} = palette;
 const a = (hex: string, alpha: string) => `${hex}${alpha}`;
 
-const INK = '#fff6ed';
-const STAGE = '#050505';
-const BRONZE = '#c98a52';
+const INK = '#ffffff';
+const STAGE = '#000000';
+const ACCENT = '#ffffff';
 
 export const buruncTheme = defineTheme({
   name: 'burunc',
@@ -22,8 +23,8 @@ export const buruncTheme = defineTheme({
 
   typography: {
     scale: {base: 15, ratio: 1.2},
-    body: {family: 'Onest Variable', fallbacks: 'Onest, system-ui, -apple-system, "Segoe UI", sans-serif'},
-    heading: {family: 'Cormorant Garamond Variable', fallbacks: '"Cormorant Garamond", Georgia, serif', weights: {1: '300', 2: '300', 3: '400', 4: '500'}},
+    body: {family: 'Inter Variable', fallbacks: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif'},
+    heading: {family: 'Inter Variable', fallbacks: 'Inter, "Segoe UI", system-ui, sans-serif', weights: {1: '600', 2: '600', 3: '600', 4: '500'}},
     code: {family: 'JetBrains Mono Variable', fallbacks: '"JetBrains Mono", ui-monospace, Menlo, monospace'},
   },
 
@@ -31,17 +32,17 @@ export const buruncTheme = defineTheme({
   motion: {fast: 150, medium: 250, slow: 400, ratio: 0.8, easing: 'cubic-bezier(0.23, 1, 0.32, 1)'},
 
   tokens: {
-    '--color-accent': BRONZE,
-    '--color-accent-muted': a(BRONZE, '26'),
-    '--color-text-accent': '#e6b78f',
-    '--color-icon-accent': '#e6b78f',
+    '--color-accent': ACCENT,
+    '--color-accent-muted': a(ACCENT, '1f'),
+    '--color-text-accent': '#ffffff',
+    '--color-icon-accent': '#ffffff',
     '--color-on-accent': '#000000',
 
     '--color-background-body': STAGE,
-    '--color-background-surface': '#0b0b0c',
-    '--color-background-card': '#111112',
-    '--color-background-popover': '#141415',
-    '--color-background-muted': '#18181a',
+    '--color-background-surface': '#0c0c0d',
+    '--color-background-card': '#141415',
+    '--color-background-popover': '#1c1c1e',
+    '--color-background-muted': '#28282a',
     '--color-background-inverted': INK,
     '--color-neutral': a(INK, '12'),
     '--color-overlay': 'rgb(0 0 0 / 0.72)',
@@ -49,11 +50,11 @@ export const buruncTheme = defineTheme({
     '--color-overlay-pressed': a(INK, '1a'),
 
     '--color-text-primary': INK,
-    '--color-text-secondary': '#b5aaa0',
-    '--color-text-disabled': '#5c5650',
+    '--color-text-secondary': '#8e8e8e',
+    '--color-text-disabled': '#5f5f64',
     '--color-icon-primary': INK,
-    '--color-icon-secondary': '#b5aaa0',
-    '--color-icon-disabled': '#5c5650',
+    '--color-icon-secondary': '#8e8e8e',
+    '--color-icon-disabled': '#5f5f64',
     '--color-on-dark': INK,
     '--color-on-light': '#000000',
 
@@ -89,7 +90,7 @@ export const buruncTheme = defineTheme({
 
     '--color-background-gray': a(INK, '14'),
     '--color-border-gray': a(INK, '26'),
-    '--color-icon-gray': '#b5aaa0',
+    '--color-icon-gray': '#8e8e8e',
     '--color-text-gray': INK,
     '--color-background-orange': a(bronze.dark[60], '2e'),
     '--color-border-orange': a(bronze.dark[60], '66'),
@@ -123,7 +124,7 @@ export const buruncTheme = defineTheme({
     '--shadow-med': '0 2px 6px rgb(0 0 0 / 0.5), 0 12px 32px rgb(0 0 0 / 0.45)',
     '--shadow-high': `0 0 0 1px ${a(INK, '14')}, 0 30px 80px -20px rgb(0 0 0 / 0.8)`,
     '--shadow-inset-hover': `inset 0 0 0 1px ${a(INK, '26')}`,
-    '--shadow-inset-selected': `inset 0 0 0 1px ${BRONZE}`,
+    '--shadow-inset-selected': `inset 0 0 0 1px ${ACCENT}`,
     '--shadow-inset-success': `inset 0 0 0 1px ${a(green.dark[60], '80')}`,
     '--shadow-inset-warning': `inset 0 0 0 1px ${a(yellow.dark[70], '80')}`,
     '--shadow-inset-error': `inset 0 0 0 1px ${a(red.dark[60], '80')}`,
@@ -133,9 +134,9 @@ export const buruncTheme = defineTheme({
     button: {
       base: {borderRadius: '9999px'},
       'variant:secondary': {
-        backgroundColor: 'rgb(255 246 237 / 0.06)',
+        backgroundColor: 'rgb(255 255 255 / 0.06)',
         color: 'var(--color-text-primary)',
-        borderColor: 'rgb(255 246 237 / 0.12)',
+        borderColor: 'rgb(255 255 255 / 0.12)',
       },
     },
     badge: {base: {borderRadius: '9999px'}},

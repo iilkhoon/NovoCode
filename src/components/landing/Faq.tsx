@@ -8,7 +8,7 @@ import { FAQ } from "./data";
 export function Faq() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section data-stage="far" id="suallar" className="relative scroll-mt-20 py-36">
+    <section id="suallar" className="relative scroll-mt-20 py-36">
       <Container className="grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <SectionHead no="08" label="Suallar" lines={["Tez-tez", "*verilən suallar.*"]} />
@@ -17,7 +17,7 @@ export function Faq() {
           {FAQ.map((f, i) => (
             <div key={f.q}>
               <button onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="flex w-full items-center gap-4 px-6 py-5 text-left">
-                <span className="font-mono text-[11px] text-nar-300">{String(i + 1).padStart(2, "0")}</span>
+                <span className="font-mono text-[11px] text-ink-400">{String(i + 1).padStart(2, "0")}</span>
                 <span className="flex-1 text-[15.5px] font-medium">{f.q}</span>
                 <motion.span animate={{ rotate: open === i ? 45 : 0 }} transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }} className="text-ink-400">
                   <Plus className="size-4" />

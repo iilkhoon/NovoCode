@@ -10,6 +10,14 @@ export const TYPEWRITER = [
   "Toy fotoqrafı üçün zərif, minimal portfolio…",
 ];
 
+/** Hero metrics — every number is a real product fact (see README / src). */
+export const HERO_STATS = [
+  { glyph: "<", target: 3, suffix: " cəhd", decimals: 0, label: "Xətanı özü düzəldir" },
+  { glyph: "*", target: 12, suffix: "", decimals: 0, label: "Peşəkar skill" },
+  { glyph: "#", target: 6, suffix: "", decimals: 0, label: "Dizayn üslubu" },
+  { glyph: "%", target: 100, suffix: "%", decimals: 0, label: "Kod sizindir" },
+];
+
 export const EXAMPLES = [
   { label: "Kofe şop", prompt: "Bakıda 'Dəmlə' adlı kofe şopu üçün sayt: menyu kateqoriyaları, qiymətlər manatla, masa rezervasiyası və əlaqə bölməsi. İsti, premium dizayn." },
   { label: "Onlayn mağaza", prompt: "Əl işi keramika satan 'Gil' mağazası: kataloq, filtr, səbət, sifariş forması və admin panel." },

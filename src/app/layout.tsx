@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/onest";
-import "@fontsource-variable/cormorant-garamond";
-import "@fontsource-variable/cormorant-garamond/wght-italic.css";
+import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toast";
@@ -25,6 +23,9 @@ export const viewport: Viewport = { themeColor: "#000000", width: "device-width"
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="az">
+      <head>
+        <link rel="preload" href="/fonts/GeistPixel-Circle.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-dvh font-sans antialiased">
         {children}
         <Toaster />

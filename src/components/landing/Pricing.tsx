@@ -11,12 +11,12 @@ import { cn } from "@/lib/cn";
 export function Pricing() {
   const [yearly, setYearly] = useState(true);
   return (
-    <section data-stage="far" id="qiymətlər" className="relative scroll-mt-20 py-36">
+    <section id="qiymətlər" className="relative scroll-mt-20 py-36">
       <Container>
-        <div className="lg:ml-auto lg:w-[58%]">
+        <div className="lg:w-[60%]">
           <SectionHead no="07" label="Qiymətlər" lines={["Sadə qiymət.", "*Gizli ödəniş yoxdur.*"]} text="Pulsuz başlayın, biznesiniz böyüdükcə yüksəldin. İstənilən vaxt ləğv edə bilərsiniz." />
         </div>
-        <Reveal className="mt-12 flex lg:justify-end">
+        <Reveal className="mt-12 flex">
           <div className="glass flex items-center gap-1 rounded-full border border-ink-100/10 p-1 text-[12.5px]">
             {[
               { k: false, l: "Aylıq" },
@@ -34,14 +34,14 @@ export function Pricing() {
             const price = yearly ? p.price.yearly : p.price.monthly;
             return (
               <Reveal key={p.name} delay={i * 0.08} className="h-full">
-                <div className={cn("glass flex h-full flex-col rounded-[22px] border p-7", p.highlight ? "border-nar/50" : "border-ink-100/10")}>
+                <div className={cn("glass flex h-full flex-col rounded-[22px] border p-7", p.highlight ? "border-white/50 shadow-[0_0_44px_rgb(255_255_255/0.08)]" : "border-ink-100/10")}>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-display text-3xl font-light">{p.name}</h3>
-                    {p.highlight && <span className="rounded-full bg-nar/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-nar-300">Ən çox seçilən</span>}
+                    <h3 className="font-display text-3xl">{p.name}</h3>
+                    {p.highlight && <span className="rounded-full bg-white px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-black">Ən çox seçilən</span>}
                   </div>
                   <p className="mt-1 text-[14px] text-ink-400">{p.description}</p>
                   <div className="mt-8 flex items-baseline gap-2">
-                    <span className="font-display text-6xl font-light tabular-nums">
+                    <span className="font-display text-6xl tabular-nums">
                       <AnimatePresence mode="popLayout" initial={false}>
                         <motion.span key={price} initial={{ opacity: 0, y: 12, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(4px)" }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }} className="inline-block">
                           {price}
@@ -55,7 +55,7 @@ export function Pricing() {
                   <ul className="mt-6 flex-1 space-y-2.5">
                     {p.features.map((f) => (
                       <li key={f} className="flex gap-2.5 text-[14px] text-ink-300">
-                        <Check className={cn("mt-0.5 size-4 shrink-0", p.highlight ? "text-nar-300" : "text-ink-500")} />
+                        <Check className={cn("mt-0.5 size-4 shrink-0", p.highlight ? "text-white" : "text-ink-500")} />
                         {f}
                       </li>
                     ))}

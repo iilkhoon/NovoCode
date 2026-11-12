@@ -1,24 +1,36 @@
 import Link from "next/link";
 
-/** Novo mark — a bronze disc with an N, circled by a thin orbit. */
-export function LogoMark({ className = "size-7" }: { className?: string; animated?: boolean }) {
+/** 7×7 dot-matrix "N": 1 = full dot, 0 = faint grid dot. */
+const N_GRID = ["1000001", "1100001", "1010001", "1001001", "1000101", "1000011", "1000001"];
+
+/** Novo mark — a dot-matrix N, drawn in currentColor. */
+export function NMark({ className = "size-5" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden fill="none">
-      <circle cx="16" cy="16" r="9.5" fill="#c98a52" />
-      <path d="M12.4 20.5v-9l7.2 9v-9" stroke="#050505" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-      <ellipse cx="16" cy="16" rx="15" ry="5.2" transform="rotate(-24 16 16)" stroke="#fff6ed" strokeOpacity=".55" strokeWidth=".9" />
+    <svg viewBox="0 0 70 70" className={className} aria-hidden fill="currentColor">
+      {N_GRID.flatMap((row, y) =>
+        row.split("").map((c, x) => <circle key={`${x}-${y}`} cx={5 + x * 10} cy={5 + y * 10} r={c === "1" ? 3.6 : 1.2} opacity={c === "1" ? 1 : 0.22} />)
+      )}
     </svg>
   );
 }
 
+/** Mark on a white disc with a soft shadow (nav, studio, footer). */
+export function LogoMark({ className = "size-7" }: { className?: string; animated?: boolean }) {
+  return (
+    <span className={`grid shrink-0 place-items-center rounded-full bg-white text-black shadow-[var(--shadow-nav)] ${className}`} aria-hidden>
+      <NMark className="size-[58%]" />
+    </span>
+  );
+}
+
 export function Wordmark({ className = "" }: { className?: string }) {
-  return <span className={`text-[13px] font-semibold uppercase tracking-[0.32em] ${className}`}>Novo&nbsp;Code</span>;
+  return <span className={`font-display text-[17px] tracking-[-0.02em] ${className}`}>Novo&nbsp;Code</span>;
 }
 
 export function Logo({ href = "/" }: { href?: string }) {
   return (
     <Link href={href} className="flex items-center gap-2.5" aria-label="Novo Code ana səhifə">
-      <LogoMark className="size-7" />
+      <LogoMark className="size-8" />
       <Wordmark />
     </Link>
   );

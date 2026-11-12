@@ -13,15 +13,15 @@ const ITEMS = [
 
 export function Capabilities() {
   return (
-    <section data-stage="right" className="relative py-36">
+    <section className="relative py-36">
       <Container>
         <div className="lg:w-[55%]">
           <SectionHead no="04" label="Bacarıqlar" lines={["Agentliyin işi —", "*söhbət sürətində.*"]} />
         </div>
-        <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:w-[62%]">
+        <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {ITEMS.map((x, i) => (
-            <Reveal key={x.t} delay={(i % 2) * 0.08} className="glass group rounded-2xl border border-ink-100/10 p-7 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-nar/40">
-              <div className="grid size-10 place-items-center rounded-xl border border-nar/30 bg-nar/10 text-nar-300">
+            <Reveal key={x.t} delay={(i % 2) * 0.08} className="glass group rounded-2xl border border-ink-100/10 p-7 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-white/30">
+              <div className="grid size-10 place-items-center rounded-xl bg-white text-black">
                 <x.icon className="size-[18px]" strokeWidth={1.6} />
               </div>
               <h3 className="mt-5 text-[17px] font-medium">{x.t}</h3>

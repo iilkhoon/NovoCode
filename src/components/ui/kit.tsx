@@ -258,7 +258,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             <header className="flex shrink-0 items-start gap-3.5 px-6 pb-2 pt-5 sm:pt-6">
               {icon && <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-nar/10 text-nar [&>svg]:size-5">{icon}</span>}
               <div className="min-w-0 flex-1">
-                <h2 id={titleId} className="font-display text-[22px] font-[500] leading-tight tracking-[-0.02em] text-ink-100">
+                <h2 id={titleId} className="font-display text-[22px] font-[650] leading-tight tracking-[-0.02em] text-ink-100">
                   {title}
                 </h2>
                 {description && <p className="mt-1 text-[13.5px] leading-relaxed text-ink-400">{description}</p>}
@@ -326,7 +326,7 @@ export function EmptyState({ icon, title, children, action, className }: { icon:
   return (
     <div className={cn("flex flex-col items-center rounded-3xl border border-dashed border-ink-100/15 px-6 py-12 text-center", className)}>
       <span className="grid size-12 place-items-center rounded-2xl bg-ink-100/[0.05] text-ink-400 [&>svg]:size-5">{icon}</span>
-      <p className="mt-4 font-display text-[19px] font-[500] tracking-[-0.01em] text-ink-100">{title}</p>
+      <p className="mt-4 font-display text-[19px] font-[650] tracking-[-0.01em] text-ink-100">{title}</p>
       {children && <p className="mt-1.5 max-w-sm text-[13.5px] leading-relaxed text-ink-400">{children}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>

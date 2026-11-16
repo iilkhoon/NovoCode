@@ -104,11 +104,11 @@ export function Workspace() {
           </div>
           <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-b from-transparent to-wool" />
           <div className="mx-auto flex max-w-[720px] flex-col items-center text-center">
-            <h1 className="nv-anim font-display text-[clamp(32px,5vw,52px)] font-[420] leading-[1.05] tracking-[-0.03em] text-ink-100 [font-variation-settings:'opsz'_144]">
+            <h1 className="nv-anim font-display text-[clamp(32px,5vw,52px)] font-[650] leading-[1.05] tracking-[-0.03em] text-ink-100 ">
               {greeting()}
               {firstName && firstName !== "Qonaq" ? `, ${firstName}` : ""}.
               <br />
-              <span className="italic text-brand">Bu gün nə quraq?</span>
+              <span className=" text-brand">Bu gün nə quraq?</span>
             </h1>
             <div id="workspace-prompt" className="nv-anim mt-8 w-full text-left" style={{ "--d": "0.12s" } as React.CSSProperties}>
               <div className="mb-3 flex justify-center">
@@ -137,7 +137,7 @@ export function Workspace() {
         <section id="layihələr" className="mx-auto max-w-[1180px] scroll-mt-6 px-4 pb-24 sm:px-8">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-[26px] font-[500] tracking-[-0.02em] text-ink-100">Layihələrim</h2>
+              <h2 className="font-display text-[26px] font-[650] tracking-[-0.02em] text-ink-100">Layihələrim</h2>
               <p className="text-[13px] text-ink-400">{projects ? `${projects.length} layihə · bu brauzerdə saxlanılır` : "Yüklənir…"}</p>
             </div>
             <Segmented

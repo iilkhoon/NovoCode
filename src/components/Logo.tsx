@@ -24,15 +24,15 @@ export function LogoMark({ className = "size-7", blink = false }: { className?: 
       <svg viewBox="0 0 64 64" className="absolute inset-0 size-full">
         <defs>
           <linearGradient id={id} x1="6" y1="4" x2="58" y2="62" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#ffb070" />
-            <stop offset="0.45" stopColor="#e4561f" />
-            <stop offset="1" stopColor="#b8304f" />
+            <stop offset="0" stopColor="#4f8bff" />
+            <stop offset="0.45" stopColor="#6447ff" />
+            <stop offset="1" stopColor="#c04cfd" />
           </linearGradient>
         </defs>
         <rect x="1" y="1" width="62" height="62" rx="19" fill={`url(#${id})`} />
         <rect x="1.5" y="1.5" width="61" height="61" rx="18.5" fill="none" stroke="#fff" strokeOpacity=".35" />
       </svg>
-      <NMark className="relative size-[78%] text-[#fffaf2]" blink={blink} />
+      <NMark className="relative size-[78%] text-[#ffffff]" blink={blink} />
     </span>
   );
 }
@@ -41,7 +41,7 @@ export function LogoMark({ className = "size-7", blink = false }: { className?: 
 export function Wordmark({ className = "", caret = true }: { className?: string; caret?: boolean }) {
   return (
     <span className={cn("inline-flex items-baseline whitespace-nowrap leading-none text-ink-100", className)} aria-label="NovoCode">
-      <span aria-hidden className="font-display text-[1.25em] font-[600] tracking-[-0.03em] [font-variation-settings:'opsz'_72]">
+      <span aria-hidden className="font-display text-[1.25em] font-[600] tracking-[-0.03em] ">
         Novo
       </span>
       <span aria-hidden className="ml-[0.08em] font-label text-[0.82em] font-[500] tracking-[-0.04em] text-ink-400">

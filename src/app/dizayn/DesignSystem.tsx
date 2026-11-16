@@ -13,12 +13,12 @@ import { cn } from "@/lib/cn";
 
 /** Brand palette with the reasoning behind each colour. */
 const COLORS = [
-  { name: "Nar", token: "nar", hex: "#e4561f", cls: "bg-nar", note: "Əsas vurğu. Narıncı-qırmızı: enerji, yaradıcılıq, hərəkətə çağırış. Ən çox kliklənən düymələr. Bakı narından ilhamlanıb." },
-  { name: "Gavalı", token: "plum", hex: "#7a2e58", cls: "bg-plum", note: "Qradiyentin sonu. Premium və etibar hissi — reklamda dərinlik verir." },
-  { name: "Kağız", token: "wool", hex: "#f4efe6", cls: "bg-wool ring-1 ring-inset ring-ink-100/10", note: "Fon. Ağ deyil, isti krem — gözü yormur, rəqiblərin soyuq ağından fərqlənir." },
-  { name: "Səth", token: "ink-1000", hex: "#fffcf6", cls: "bg-ink-1000 ring-1 ring-inset ring-ink-100/10", note: "Kartlar, pəncərələr, panellər." },
-  { name: "Mürəkkəb", token: "ink-100", hex: "#1d1814", cls: "bg-ink-100", note: "Mətn və əsas tünd düymə. Saf qara yox — isti qəhvəyi-qara." },
-  { name: "Səssiz", token: "ink-400", hex: "#6e6358", cls: "bg-ink-400", note: "İkinci dərəcəli mətn, ipucları." },
+  { name: "Novo bənövşəyi", token: "nar", hex: "#6447ff", cls: "bg-nar", note: "Əsas vurğu. Texnologiya, yaradıcılıq və premium hissi; ağ mətnlə yüksək kontrast. Əsas düymələr və aktiv hallar." },
+  { name: "Qradiyent", token: "bg-brand", hex: "#3b82f6 → #ff9a5a", cls: "bg-brand", note: "Göy → bənövşəyi → çəhrayı → narıncı. Reklam, “Yüksəlt”, loqo, hero işığı." },
+  { name: "Fon", token: "wool", hex: "#f7f7f8", cls: "bg-wool ring-1 ring-inset ring-ink-100/10", note: "Neytral, sakit fon — məzmun və rənglər önə çıxır." },
+  { name: "Səth", token: "ink-1000", hex: "#ffffff", cls: "bg-ink-1000 ring-1 ring-inset ring-ink-100/10", note: "Kartlar, pəncərələr, panellər." },
+  { name: "Mürəkkəb", token: "ink-100", hex: "#0b0b12", cls: "bg-ink-100", note: "Mətn və tünd əsas düymə." },
+  { name: "Səssiz", token: "ink-400", hex: "#5f5f6b", cls: "bg-ink-400", note: "İkinci dərəcəli mətn, ipucları." },
 ];
 const STATUS = [
   { name: "Uğur", cls: "bg-success" },
@@ -33,7 +33,7 @@ function Block({ id, n, title, desc, children }: { id: string; n: string; title:
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <header>
           <p className="label-mono text-nar">{n}</p>
-          <h2 className="mt-2 font-display text-[30px] font-[500] tracking-[-0.025em] text-ink-100">{title}</h2>
+          <h2 className="mt-2 font-display text-[30px] font-[650] tracking-[-0.025em] text-ink-100">{title}</h2>
           {desc && <p className="mt-2 text-[14px] leading-relaxed text-ink-400">{desc}</p>}
         </header>
         <div className="min-w-0">{children}</div>
@@ -71,7 +71,7 @@ export function DesignSystem() {
       <header className="sticky top-0 z-40 border-b border-ink-100/8 bg-wool/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1240px] items-center gap-4 px-4 sm:px-8">
           <Logo />
-          <span className="hidden label-mono text-ink-400 sm:inline">Dizayn sistemi · Nar</span>
+          <span className="hidden label-mono text-ink-400 sm:inline">Dizayn sistemi · v3</span>
           <nav className="scroll-thin ml-auto hidden gap-1 overflow-x-auto xl:flex">
             {NAV.map(([id, l]) => (
               <a key={id} href={`#${id}`} className="rounded-full px-2.5 py-1 text-[12.5px] text-ink-400 hover:bg-ink-100/[0.05] hover:text-ink-100">
@@ -93,11 +93,11 @@ export function DesignSystem() {
             <i />
           </div>
           <p className="label-mono text-ink-400">NovoCode · v2</p>
-          <h1 className="mt-4 max-w-[900px] font-display text-[clamp(40px,7vw,88px)] font-[420] leading-[1] tracking-[-0.035em] text-ink-100 [font-variation-settings:'opsz'_144]">
-            İsti kağız, <em className="text-brand italic">bir alov.</em>
+          <h1 className="mt-4 max-w-[900px] font-display text-[clamp(40px,7vw,88px)] font-[650] leading-[1] tracking-[-0.035em] text-ink-100 ">
+            Sadə forma, <em className="not-italic text-brand">canlı rəng.</em>
           </h1>
           <p className="mt-6 max-w-[620px] text-[17px] leading-relaxed text-ink-400">
-            Bir vurğu rəngi, isti neytrallar, redaksiya serifi və sakit hərəkət. Hər ekran eyni qaydalarla qurulur: bir əsas əməliyyat, aydın iyerarxiya, heç bir səs-küy.
+            Bir vurğu rəngi, sakit neytrallar, bir həndəsi şrift və yumşaq hərəkət. Hər ekran eyni qaydalarla qurulur: bir əsas əməliyyat, aydın iyerarxiya, heç bir səs-küy.
           </p>
         </section>
 
@@ -117,7 +117,7 @@ export function DesignSystem() {
           <p className="mt-2 text-[12.5px] text-ink-500">bg-brand · #ffb070 → #f2783a → #e4561f → #c2335a → #7a2e58 · reklam, kredit kartı, “Yüksəlt”</p>
         </Block>
 
-        <Block id="reng" n="02" title="Rəng" desc="Niyə narıncı? İsti rənglər hərəkətə təşviq edir və yadda qalır; bazarda hamı bənövşəyi-mavi istifadə edir — biz fərqlənirik.">
+        <Block id="reng" n="02" title="Rəng" desc="Niyə bənövşəyi? AI və texnologiya ilə assosiasiya olunur, etibar (göy) və enerjini (çəhrayı-narıncı) birləşdirir; qradiyent reklamda yadda qalır.">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {COLORS.map((c) => (
               <button key={c.name} type="button" onClick={() => navigator.clipboard.writeText(c.hex).then(() => toast.success(`${c.hex} kopyalandı`))} className="overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000 text-left transition-transform hover:-translate-y-0.5">
@@ -145,15 +145,15 @@ export function DesignSystem() {
         <Block id="sriftler" n="03" title="Şriftlər" desc="Hamısı Azərbaycan hərflərini (ə ğ ı ş ç ö ü) və ₼ işarəsini dəstəkləyir.">
           <Card className="flex flex-col gap-6">
             <div>
-              <Label>Fraunces — başlıqlar</Label>
-              <p className="font-display text-[56px] font-[420] leading-none tracking-[-0.03em] text-ink-100">Sözlə de, <em className="italic text-brand">doğulsun.</em></p>
+              <Label>Plus Jakarta Sans — başlıqlar (650)</Label>
+              <p className="font-display text-[56px] font-[650] leading-none tracking-[-0.03em] text-ink-100">Sözlə de, <em className=" text-brand">doğulsun.</em></p>
             </div>
             <div>
-              <Label>Onest — interfeys və mətn</Label>
+              <Label>Plus Jakarta Sans — interfeys və mətn</Label>
               <p className="text-[18px] leading-relaxed text-ink-200">Gözəl, işlək sayt — dəqiqələr içində. Qiymət: 29 ₼ / ay. Şəkil, ğ, ı, ə, ö, ü, ç, ş.</p>
             </div>
             <div>
-              <Label>Martian Mono — etiketlər</Label>
+              <Label>JetBrains Mono — etiketlər və kod</Label>
               <p className="label-mono text-ink-400">№ 02 — Necə işləyir</p>
             </div>
             <div className="grid min-w-0 gap-2 overflow-hidden border-t border-ink-100/8 pt-5 text-ink-100">

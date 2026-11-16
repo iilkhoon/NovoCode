@@ -7,8 +7,8 @@ import type { ProjectRuntime } from "@/lib/runtime/webcontainer";
 import { useTheme } from "@/lib/theme";
 
 const THEMES = {
-  dark: { background: "#1c1814", foreground: "#f5eee4", cursor: "#ef7444", selectionBackground: "#ef744444", black: "#29231d", red: "#ff7b6b", green: "#6fbf8e", yellow: "#e2b06a", blue: "#8fb4ff", magenta: "#f49a6e", cyan: "#8fd0d0", white: "#e3d9cc", brightBlack: "#85796c" },
-  light: { background: "#fffcf6", foreground: "#1d1814", cursor: "#e0602f", selectionBackground: "#e0602f33", black: "#1d1814", red: "#cf3b2b", green: "#2f8a55", yellow: "#946412", blue: "#4a63b3", magenta: "#c24a22", cyan: "#2a7f86", white: "#51473e", brightBlack: "#8d8173" },
+  dark: { background: "#131317", foreground: "#f4f4f6", cursor: "#7c66ff", selectionBackground: "#7c66ff44", black: "#26262d", red: "#ff7b6b", green: "#6fbf8e", yellow: "#e2b06a", blue: "#8fb4ff", magenta: "#f49a6e", cyan: "#8fd0d0", white: "#e3d9cc", brightBlack: "#85796c" },
+  light: { background: "#ffffff", foreground: "#0b0b12", cursor: "#6447ff", selectionBackground: "#6447ff33", black: "#0b0b12", red: "#cf3b2b", green: "#2f8a55", yellow: "#946412", blue: "#4a63b3", magenta: "#c24a22", cyan: "#2a7f86", white: "#51473e", brightBlack: "#8d8173" },
 };
 
 /** Shows all runtime output and gives the user an interactive shell (jsh). */

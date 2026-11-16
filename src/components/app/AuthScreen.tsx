@@ -40,7 +40,7 @@ export function AuthScreen() {
                 <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-success/12 text-success">
                   <MailCheck className="size-6" />
                 </span>
-                <h1 className="mt-6 font-display text-[30px] font-[500] tracking-[-0.02em] text-ink-100">Poçtunuzu yoxlayın</h1>
+                <h1 className="mt-6 font-display text-[30px] font-[650] tracking-[-0.02em] text-ink-100">Poçtunuzu yoxlayın</h1>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-ink-400">
                   <span className="font-medium text-ink-100">{email}</span> ünvanına giriş linki göndərdik. Link 15 dəqiqə etibarlıdır.
                 </p>
@@ -50,7 +50,7 @@ export function AuthScreen() {
               </motion.div>
             ) : (
               <motion.div key="form" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h1 className="font-display text-[34px] font-[500] leading-tight tracking-[-0.025em] text-ink-100">{mode === "login" ? "Yenidən xoş gəldiniz" : "Pulsuz başlayın"}</h1>
+                <h1 className="font-display text-[34px] font-[650] leading-tight tracking-[-0.025em] text-ink-100">{mode === "login" ? "Yenidən xoş gəldiniz" : "Pulsuz başlayın"}</h1>
                 <p className="mt-2 text-[14.5px] text-ink-400">{mode === "login" ? "Layihələrinizə qayıtmaq üçün daxil olun." : "Kart tələb olunmur. İlk saytınız bir neçə dəqiqəyə hazır."}</p>
 
                 <div className="mt-8 flex flex-col gap-2.5">
@@ -99,7 +99,7 @@ export function AuthScreen() {
       </div>
 
       {/* brand side */}
-      <aside className="relative isolate m-3 hidden overflow-hidden rounded-[32px] bg-[#1d1814] lg:flex lg:flex-col lg:justify-end">
+      <aside className="relative isolate m-3 hidden overflow-hidden rounded-[32px] bg-[#0b0b12] lg:flex lg:flex-col lg:justify-end">
         <div aria-hidden className="aurora aurora-high -z-10 [&>i]:!opacity-90">
           <i />
           <i />
@@ -116,13 +116,13 @@ export function AuthScreen() {
               <span className="rounded-full bg-white/15 px-3 py-1 text-[12px]">Yayımla</span>
             </div>
           </div>
-          <p className="max-w-[520px] font-display text-[40px] font-[400] leading-[1.1] tracking-[-0.025em] text-white">
-            Fikrinizi yazın. <span className="italic text-[#ffc08a]">Saytınız dəqiqələr içində hazırdır.</span>
+          <p className="max-w-[520px] font-display text-[40px] font-[650] leading-[1.1] tracking-[-0.025em] text-white">
+            Fikrinizi yazın. <span className="italic text-[#c9bdff]">Saytınız dəqiqələr içində hazırdır.</span>
           </p>
           <ul className="mt-6 flex flex-wrap gap-2 text-[13px] text-white/85">
             {["Azərbaycan, Türk, Rus, İngilis dilləri", "Canlı önizləmə", "Bir kliklə yayım"].map((t) => (
               <li key={t} className="flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1">
-                <Check className="size-3.5 text-[#ffc08a]" /> {t}
+                <Check className="size-3.5 text-[#c9bdff]" /> {t}
               </li>
             ))}
           </ul>

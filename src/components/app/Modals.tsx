@@ -50,7 +50,7 @@ function UpgradeModal({ open }: { open: boolean }) {
                 <p className="text-[15px] font-medium text-ink-100">{p.name}</p>
                 <p className="mt-0.5 text-[12.5px] text-ink-400">{p.description}</p>
                 <p className="mt-4 flex items-baseline gap-1">
-                  <span className="font-display text-[38px] font-[500] leading-none tracking-[-0.03em] text-ink-100">{price}</span>
+                  <span className="font-display text-[38px] font-[650] leading-none tracking-[-0.03em] text-ink-100">{price}</span>
                   <span className="text-[14px] text-ink-400">₼ / ay</span>
                 </p>
                 <p className="mt-1 text-[12.5px] font-medium text-nar">{p.credits}</p>
@@ -105,7 +105,7 @@ function ShareModal({ open, url, name }: { open: boolean; url?: string; name?: s
   const [isPublic, setPublic] = useState(true);
   useEffect(() => {
     if (!open) return;
-    QRCode.toDataURL(link, { margin: 1, width: 360, color: { dark: "#1d1814", light: "#ffffff" } }).then(setQr).catch(() => setQr(""));
+    QRCode.toDataURL(link, { margin: 1, width: 360, color: { dark: "#0b0b12", light: "#ffffff" } }).then(setQr).catch(() => setQr(""));
   }, [open, link]);
   const copy = () =>
     navigator.clipboard.writeText(link).then(() => {
@@ -297,7 +297,7 @@ function SettingsModal({ open, initialTab }: { open: boolean; initialTab?: strin
             <Section title="Plan və kredit">
               <div className="rounded-3xl bg-brand p-5 text-white">
                 <p className="label-mono opacity-80">Hazırkı plan</p>
-                <p className="mt-1 font-display text-[28px] font-[500] tracking-[-0.02em]">{USAGE.plan}</p>
+                <p className="mt-1 font-display text-[28px] font-[650] tracking-[-0.02em]">{USAGE.plan}</p>
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/25">
                   <div className="h-full rounded-full bg-white" style={{ width: `${(USAGE.used / USAGE.limit) * 100}%` }} />
                 </div>

@@ -42,7 +42,7 @@ function CountUp({ target, decimals, suffix, index }: { target: number; decimals
     };
   }, [target, index]);
   return (
-    <span ref={ref} className="font-display text-[clamp(26px,3vw,36px)] font-[500] leading-none tracking-[-0.03em] text-ink-100 tabular-nums">
+    <span ref={ref} className="font-display text-[clamp(26px,3vw,36px)] font-[650] leading-none tracking-[-0.03em] text-ink-100 tabular-nums">
       {value.toFixed(decimals)}
       <span className="text-[0.6em] text-ink-400">{suffix}</span>
     </span>
@@ -73,12 +73,12 @@ export function Hero() {
           <span className="text-[13px] text-ink-300">Azərbaycan dilində AI sayt qurucusu</span>
         </div>
 
-        <h1 className="mt-7 font-display text-[clamp(44px,8.4vw,112px)] font-[420] leading-[0.98] tracking-[-0.035em] text-ink-100 [font-variation-settings:'opsz'_144]">
+        <h1 className="mt-7 font-display text-[clamp(44px,8.4vw,112px)] font-[650] leading-[0.98] tracking-[-0.035em] text-ink-100 ">
           <span className="nv-line" style={{ "--d": "0.12s" } as React.CSSProperties}>
             Sözlə de,
           </span>
           <span className="nv-line" style={{ "--d": "0.28s" } as React.CSSProperties}>
-            sayt <em className="text-brand pr-[0.06em] font-[380] italic">doğulsun.</em>
+            sayt <em className="text-brand pr-[0.06em] font-[380]">doğulsun.</em>
           </span>
         </h1>
 

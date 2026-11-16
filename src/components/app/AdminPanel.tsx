@@ -73,7 +73,7 @@ export function AdminPanel() {
       </header>
 
       <main className="mx-auto max-w-[1180px] px-4 py-10 sm:px-8">
-        <h1 className="font-display text-[36px] font-[500] tracking-[-0.025em] text-ink-100">İdarəetmə</h1>
+        <h1 className="font-display text-[36px] font-[650] tracking-[-0.025em] text-ink-100">İdarəetmə</h1>
         <p className="mt-1 text-[14px] text-ink-400">AI provayderləri, modellər, skill-lər və xərclər.</p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -212,7 +212,7 @@ function Stat({ icon, label, value, note }: { icon: React.ReactNode; label: stri
   return (
     <div className="rounded-3xl border border-ink-100/8 bg-ink-1000 p-5 shadow-[var(--shadow-card)]">
       <span className="grid size-9 place-items-center rounded-xl bg-nar/10 text-nar [&>svg]:size-[18px]">{icon}</span>
-      <p className="mt-4 font-display text-[30px] font-[500] leading-none tracking-[-0.02em] text-ink-100">{value}</p>
+      <p className="mt-4 font-display text-[30px] font-[650] leading-none tracking-[-0.02em] text-ink-100">{value}</p>
       <p className="mt-1.5 text-[13px] text-ink-400">{label}</p>
       {note && <p className="text-[11.5px] text-ink-500">{note}</p>}
     </div>

@@ -33,7 +33,7 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 17. ⏳ İkon dəsti və mikro-animasiyalar cilası (Bolt səviyyəsi)
 
 ## C. Dillər və SEO
-18. 🔄 İnterfeys dilləri: Azərbaycan, Türk, Rus, İngilis (dil seçici hazır; menyu, hero, panel, giriş, yazı qutusu tərcümə olunub — landing-in qalan bölmələri və studio növbədə)
+18. ✅ İnterfeys dilləri: AZ/TR/RU/EN — ana səhifənin bütün bölmələri, panel, giriş, yazı qutusu (studio daxili mətnlər və nümunə saytlar Azərbaycanca qalır)
 19. ✅ AI cavab dili istifadəçinin dilinə uyğun
 20. ⏳ SEO: metadata, OG şəkilləri, sitemap, robots, hreflang, strukturlaşdırılmış data
 21. ⏳ Yaradılan saytlara da avtomatik SEO (title, description, OG)
@@ -108,3 +108,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (9) | AI xərc ölçümü (server logu + admin qrafiki); real gündəlik mesaj sayğacı (beta: gündə 50, pulsuz) |
 | 2026-11-16 (10) | Studio sürəti: node_modules snapshot keşi (IndexedDB), uğursuz keşdə avtomatik təmiz quraşdırma |
 | 2026-11-16 (11) | Skill-lər: admin yükləməsi və idarəsi; model seçimi sadə rejimdə də |
+| 2026-11-16 (12) | Ana səhifənin bütün bölmələri 4 dildə (addımlar, imkanlar, müqayisə, qiymətlər, FAQ, footer); yayım artıq real olduğu üçün AZ mətnlərdə “tezliklə” götürüldü |

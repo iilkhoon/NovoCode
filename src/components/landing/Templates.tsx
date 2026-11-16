@@ -1,4 +1,5 @@
 "use client";
+import { useCopy } from "./copy";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
@@ -10,6 +11,8 @@ import { cn } from "@/lib/cn";
 
 export function Templates() {
   const [cat, setCat] = useState<TemplateCategory>("Hamısı");
+  const c = useCopy();
+  const copy = c;
   const { start, starting } = useStartProject();
   const list = TEMPLATES.filter((t) => cat === "Hamısı" || t.category === cat);
 
@@ -17,13 +20,13 @@ export function Templates() {
     <section id="nümunələr" className="relative scroll-mt-20 py-36">
       <Container>
         <div className="lg:w-[60%]">
-          <SectionHead no="05" label="Nümunələr" lines={["Bir ideya seçin,", "*Novo uyğunlaşdırsın.*"]} text="Hər nümunə real, işlək funksiyalarla qurulur. Kliklə başlayın, sonra öz biznesinizə görə dəyişin." />
+          <SectionHead key={c.templates.label} no="05" label={c.templates.label} lines={c.templates.lines} text={c.templates.text} />
         </div>
         <div className="surface mt-14 flex w-fit max-w-full gap-1 overflow-x-auto rounded-full border border-ink-100/[0.08] p-1">
           {TEMPLATE_CATEGORIES.map((c) => (
             <button key={c} onClick={() => setCat(c)} className={cn("relative whitespace-nowrap rounded-full px-4 py-1.5 text-[12.5px] transition-colors duration-200", cat === c ? "text-ink-1000" : "text-ink-300 hover:text-ink")}>
               {cat === c && <motion.span layoutId="tpl-pill" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", duration: 0.45, bounce: 0.15 }} />}
-              <span className="relative">{c}</span>
+              <span className="relative">{copy.templates.cats[c]}</span>
             </button>
           ))}
         </div>

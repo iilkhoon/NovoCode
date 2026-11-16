@@ -134,7 +134,7 @@ export const STEPS = [
   { n: "01", title: "Təsvir edin", text: "Azərbaycan dilində yazın, danışın və ya bəyəndiyiniz saytın ekran görüntüsünü atın. Üslub seçin — qalanını Novo düşünür." },
   { n: "02", title: "Novo qurur", text: "AI plan qurur, dizayn sistemi seçir, kodu yazır, paketləri yükləyir və saytı işə salır. Xəta olsa — özü tapıb düzəldir." },
   { n: "03", title: "Söhbətlə təkmilləşdirin", text: "\"Rəngləri isti et\", \"qeydiyyat əlavə et\" deyin. Hər dəyişiklik saniyələr içində önizləmədə görünür, istənilən versiyaya qayıda bilərsiniz." },
-  { n: "04", title: "Dünyaya göstərin", text: "Kodu ZIP olaraq yükləyin və ya hazır statik saytı bir kliklə endirib istənilən hostinqə qoyun. layihe.novocode.az tezliklə." },
+  { n: "04", title: "Dünyaya göstərin", text: "Bir kliklə yayımlayın — saytınız öz ünvanında canlıdır. Kodu ZIP olaraq da yükləyə bilərsiniz." },
 ];
 
 export const PERSONAS = [
@@ -182,7 +182,7 @@ export const PLANS: Plan[] = [
     price: { monthly: 29, yearly: 23 },
     credits: "Ayda 250 mesaj",
     description: "Fərdi sahibkarlar və freelancerlər üçün.",
-    features: ["Pulsuz plandakı hər şey", "Ən güclü AI modelləri", "Bir kliklə yayım (tezliklə)", "Öz domeniniz (tezliklə)", "Prioritet növbə"],
+    features: ["Pulsuz plandakı hər şey", "Ən güclü AI modelləri", "Bir kliklə yayım", "Öz domeniniz (tezliklə)", "Prioritet növbə"],
     cta: "Beta-da pulsuz sına",
     highlight: true,
   },
@@ -191,7 +191,7 @@ export const PLANS: Plan[] = [
     price: { monthly: 79, yearly: 63 },
     credits: "Ayda 1 000 mesaj",
     description: "Agentliklər və komandalar üçün.",
-    features: ["Pro plandakı hər şey", "Komanda üzvləri (tezliklə)", "Real verilənlər bazası (tezliklə)", "Fərdi skill-lər", "Prioritet dəstək"],
+    features: ["Pro plandakı hər şey", "Komanda üzvləri (tezliklə)", "Real verilənlər bazası", "Fərdi skill-lər", "Prioritet dəstək"],
     cta: "Beta-da pulsuz sına",
   },
 ];

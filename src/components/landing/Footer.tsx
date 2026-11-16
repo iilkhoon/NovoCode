@@ -1,13 +1,15 @@
+"use client";
+import { useCopy } from "./copy";
 import Link from "next/link";
 import { LogoMark, Wordmark } from "@/components/Logo";
 
-const COLS = [
-  { t: "Məhsul", l: [["Necə işləyir", "#necə-işləyir"], ["Studio", "#studio"], ["Nümunələr", "#nümunələr"], ["Qiymətlər", "#qiymətlər"]] },
-  { t: "Resurslar", l: [["Suallar", "#suallar"], ["Dizayn sistemi", "/dizayn"]] },
-  { t: "Əlaqə", l: [["salam@novocode.az", "mailto:salam@novocode.az"]] },
-];
-
 export function Footer() {
+  const c = useCopy();
+  const COLS = [
+    { t: c.footer.product, l: [[c.footer.links[0], "#necə-işləyir"], [c.extra.studio, "#studio"], [c.footer.links[1], "#nümunələr"], [c.footer.links[2], "#qiymətlər"]] },
+    { t: c.extra.resources, l: [[c.extra.faq, "#suallar"], [c.extra.designSystem, "/dizayn"]] },
+    { t: c.footer.contact, l: [["salam@novocode.az", "mailto:salam@novocode.az"]] },
+  ];
   return (
     <footer className="relative border-t border-ink-100/10 bg-ink-900/50">
       <div className="mx-auto grid max-w-[1240px] gap-12 px-6 py-16 sm:px-14 md:grid-cols-12">
@@ -16,7 +18,7 @@ export function Footer() {
             <LogoMark className="size-8" />
             <Wordmark />
           </div>
-          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink-400">Azərbaycan dilində AI sayt qurucusu. Bir cümlə yaz — sayt hazırdır.</p>
+          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink-400">{c.footer.tagline}</p>
         </div>
         {COLS.map((c) => (
           <div key={c.t} className="md:col-span-2">
@@ -36,7 +38,7 @@ export function Footer() {
       <div className="border-t border-ink-100/[0.06]">
         <div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-2 px-6 py-6 label-mono text-ink-500 sm:flex-row sm:px-14">
           <span>© {new Date().getFullYear()} NovoCode · Bakı</span>
-          <span>Azərbaycan dili · AZN</span>
+          <span>{c.footer.locale}</span>
         </div>
       </div>
     </footer>

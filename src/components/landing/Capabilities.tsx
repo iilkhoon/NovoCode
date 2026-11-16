@@ -1,3 +1,4 @@
+import { useCopy } from "./copy";
 import { Code2, History, ImageIcon, LayoutTemplate, Mic, Wrench } from "lucide-react";
 import { Reveal } from "@/components/ui/motion";
 import { Container, SectionHead } from "./Section";
@@ -12,14 +13,15 @@ const ITEMS = [
 ];
 
 export function Capabilities() {
+  const c = useCopy();
   return (
     <section className="relative py-36">
       <Container>
         <div className="lg:w-[55%]">
-          <SectionHead no="04" label="Bacarıqlar" lines={["Agentliyin işi —", "*söhbət sürətində.*"]} />
+          <SectionHead key={c.caps.label} no="04" label={c.caps.label} lines={c.caps.lines} />
         </div>
         <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {ITEMS.map((x, i) => (
+          {ITEMS.map((x, i) => ({ ...x, ...c.caps.items[i] })).map((x, i) => (
             <Reveal key={x.t} delay={(i % 2) * 0.08} className="surface group rounded-[22px] border border-ink-100/[0.08] p-7 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-nar/30">
               <div className="grid size-10 place-items-center rounded-xl bg-dawn text-white shadow-[var(--shadow-glow)]">
                 <x.icon className="size-[18px]" strokeWidth={1.6} />

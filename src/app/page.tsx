@@ -14,16 +14,18 @@ import { Pricing } from "@/components/landing/Pricing";
 import { Faq } from "@/components/landing/Faq";
 import { Closing } from "@/components/landing/Closing";
 import { Footer } from "@/components/landing/Footer";
+import { useT } from "@/lib/i18n";
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const t = useT();
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {});
   }, []);
 
   return (
     <>
-      <a href="#main" className="skip-link">Məzmuna keç</a>
+      <a href="#main" className="skip-link">{t("nav.skip")}</a>
       <Navbar hasProjects={projects.length > 0} />
       <main id="main" tabIndex={-1} className="relative outline-none">
         <Hero />

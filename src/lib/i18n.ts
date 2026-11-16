@@ -8,6 +8,7 @@ import { usePrefs, type Lang } from "./ui-store";
  */
 const D = {
   // nav
+  "nav.skip": ["Məzmuna keç", "İçeriğe geç", "Перейти к содержимому", "Skip to content"],
   "nav.how": ["Necə işləyir", "Nasıl çalışır", "Как это работает", "How it works"],
   "nav.studio": ["Studio", "Stüdyo", "Студия", "Studio"],
   "nav.examples": ["Nümunələr", "Örnekler", "Примеры", "Examples"],

@@ -1,20 +1,21 @@
 "use client";
+import { useCopy } from "./copy";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Plus } from "lucide-react";
 import { Container, Glass, SectionHead } from "./Section";
-import { FAQ } from "./data";
 
 export function Faq() {
+  const c = useCopy();
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section id="suallar" className="relative scroll-mt-20 py-36">
       <Container className="grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <SectionHead no="08" label="Suallar" lines={["Tez-tez", "*verilən suallar.*"]} />
+          <SectionHead key={c.faq.label} no="08" label={c.faq.label} lines={c.faq.lines} />
         </div>
         <Glass className="divide-y divide-ink-100/[0.07] lg:col-span-7">
-          {FAQ.map((f, i) => (
+          {c.faq.items.map((f, i) => (
             <div key={f.q}>
               <button onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="flex w-full items-center gap-4 px-6 py-5 text-left">
                 <span className="font-label text-[10.5px] text-nar-600">{String(i + 1).padStart(2, "0")}</span>

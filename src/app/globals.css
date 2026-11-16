@@ -285,3 +285,54 @@ html { transition: background-color 0.3s ease; }
 
 @keyframes sb-in { from { transform: translateX(-100%); } to { transform: none; } }
 .aurora-high > i { translate: 0 -24vmax; }
+
+/* ── investor deck (/pitch) ─────────────────────────────── */
+.pitch-range {
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6447ff var(--p), rgb(11 11 18 / 0.1) var(--p));
+  cursor: pointer;
+}
+.pitch-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #6447ff;
+  box-shadow: 0 4px 12px rgb(100 71 255 / 0.35);
+}
+.pitch-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #6447ff;
+}
+@media print {
+  @page {
+    size: 1600px 900px;
+    margin: 0;
+  }
+  .pitch-root {
+    position: static !important;
+    display: block !important;
+    background: #fff !important;
+  }
+  .pitch-stage {
+    display: block !important;
+  }
+  .pitch-slide {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    break-after: page;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

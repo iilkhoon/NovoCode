@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { PromptBox } from "@/components/PromptBox";
-import { AsciiField } from "./AsciiField";
 import { EXAMPLES, HERO_STATS, TYPEWRITER } from "./data";
 import { useStartProject } from "./useStart";
 
@@ -56,15 +55,16 @@ export function Hero() {
 
   return (
     <section id="başla" className="paper relative isolate flex min-h-svh flex-col items-center overflow-hidden px-4 pb-8 pt-28 sm:px-8">
-      {/* warm light + quiet character field */}
+      {/* signature aurora: warm light rising from the horizon */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="nv-glow-a absolute left-1/2 top-[18%] size-[min(900px,120vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(255_196_150/0.75),rgb(255_196_150/0)_70%)] blur-2xl dark:bg-[radial-gradient(closest-side,rgb(239_116_68/0.22),transparent_70%)]" />
-        <div className="nv-glow-b absolute right-[-10%] top-[45%] size-[min(700px,90vw)] rounded-full bg-[radial-gradient(closest-side,rgb(224_96_47/0.28),transparent_70%)] blur-2xl dark:bg-[radial-gradient(closest-side,rgb(184_67_46/0.25),transparent_70%)]" />
-        <AsciiField
-          active={value.length > 0}
-          className="absolute inset-0 size-full [mask-composite:intersect] [mask-image:radial-gradient(ellipse_72%_60%_at_50%_46%,transparent_40%,black_88%),linear-gradient(to_bottom,transparent_70px,black_220px)]"
-        />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-wool" />
+        <div className="aurora">
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
+        <div className="absolute inset-0 dot-grid opacity-50 [mask-image:radial-gradient(ellipse_70%_55%_at_50%_40%,black,transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-wool" />
       </div>
 
       <div className="relative flex w-full max-w-[860px] flex-1 flex-col items-center justify-center py-6 text-center">
@@ -78,7 +78,7 @@ export function Hero() {
             Sözlə de,
           </span>
           <span className="nv-line" style={{ "--d": "0.28s" } as React.CSSProperties}>
-            sayt <em className="text-dawn pr-[0.06em] font-[380] italic">doğulsun.</em>
+            sayt <em className="text-brand pr-[0.06em] font-[380] italic">doğulsun.</em>
           </span>
         </h1>
 

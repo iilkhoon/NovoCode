@@ -6,6 +6,7 @@ import "@fontsource-variable/martian-mono";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toast";
+import { GlobalModals } from "@/components/app/Modals";
 import { THEME_BOOT } from "@/lib/theme";
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-dvh font-sans antialiased">
         {children}
+        <GlobalModals />
         <Toaster />
       </body>
     </html>

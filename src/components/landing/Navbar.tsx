@@ -57,8 +57,8 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
     };
   }, [open]);
 
-  const mobileLinks = [...LINKS, ...(hasProjects ? [{ href: "#layihələrim", label: "Layihələrim" }] : [])];
-  const cta = hasProjects ? { href: "#layihələrim", label: "Layihələrim" } : { href: "#başla", label: "Pulsuz başla" };
+  const mobileLinks = [...LINKS, ...(hasProjects ? [{ href: "/app", label: "Layihələrim" }] : []), { href: "/giris", label: "Daxil ol" }];
+  const cta = hasProjects ? { href: "/app", label: "Layihələrim" } : { href: "#başla", label: "Pulsuz başla" };
 
   return (
     <>
@@ -90,6 +90,9 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
           </div>
 
           <ThemeToggle />
+          <a href="/giris" className="hidden h-10 items-center rounded-full px-3.5 text-[14px] text-ink-300 transition-colors hover:text-ink-100 min-[821px]:inline-flex">
+            Daxil ol
+          </a>
           <a
             href={cta.href}
             className="group hidden h-10 items-center gap-1.5 rounded-full bg-pill pl-4 pr-3.5 text-[14px] font-medium text-wool transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[var(--shadow-glow)] active:scale-[0.97] min-[821px]:inline-flex"

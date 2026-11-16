@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, ChevronDown, Code2, Cpu, Download, Eye, MessageSquare, Pencil, Rocket, Sparkles, SquareTerminal } from "lucide-react";
+import { Check, ChevronDown, Code2, Share2, Zap, Cpu, Download, Eye, MessageSquare, Pencil, Rocket, Sparkles, SquareTerminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
@@ -12,6 +12,8 @@ import { AstryxTheme } from "@/components/AstryxTheme";
 import { Kbd } from "@/components/ui/badge";
 import { LogoMark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { USAGE, openModal } from "@/lib/ui-store";
+import { slug } from "@/components/app/Workspace";
 import { friendlyFile } from "@/lib/humanize";
 import { cn } from "@/lib/cn";
 import { ChatPanel } from "./ChatPanel";
@@ -385,7 +387,19 @@ export default function Studio({ id }: { id: string }) {
             </button>
           )}
           {dev && <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />}
+          <button
+            type="button"
+            onClick={() => openModal("upgrade")}
+            title="Bu günkü mesajlar — planı yüksəlt"
+            className="hidden h-8 items-center gap-1.5 rounded-full border border-ink-100/10 px-3 text-[12.5px] text-ink-300 transition-colors hover:border-nar/40 hover:text-ink-100 lg:inline-flex"
+          >
+            <Zap className="size-3.5 text-nar" />
+            {USAGE.limit - USAGE.used} mesaj qalıb
+          </button>
           <ThemeToggle />
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => openModal("share", { name: project?.name, url: `https://${slug(project?.name ?? "layihe")}.novocode.app` })}>
+            <Share2 className="size-3.5" /> Paylaş
+          </Button>
           {dev && (
             <Button variant="ghost" size="sm" onClick={() => setPublishOpen(true)} className="hidden sm:inline-flex" title="Kodu yüklə">
               <Download className="size-3.5" /> Kod

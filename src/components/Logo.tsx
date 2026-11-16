@@ -24,9 +24,9 @@ export function LogoMark({ className = "size-7", blink = false }: { className?: 
       <svg viewBox="0 0 64 64" className="absolute inset-0 size-full">
         <defs>
           <linearGradient id={id} x1="6" y1="4" x2="58" y2="62" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#ffc595" />
-            <stop offset="0.45" stopColor="#f07a46" />
-            <stop offset="1" stopColor="#c2402a" />
+            <stop offset="0" stopColor="#ffb070" />
+            <stop offset="0.45" stopColor="#e4561f" />
+            <stop offset="1" stopColor="#b8304f" />
           </linearGradient>
         </defs>
         <rect x="1" y="1" width="62" height="62" rx="19" fill={`url(#${id})`} />

@@ -143,6 +143,7 @@ export default function Studio({ id }: { id: string }) {
             raw = await streamTurn({
               intent,
               summary: ctx.summary,
+              lang: prefsRef.current.replyLang === "auto" ? (prefsRef.current.lang === "az" ? "auto" : prefsRef.current.lang) : prefsRef.current.replyLang,
               onUsage: (t) => (tokens = t),
               messages: ctx.messages.map((m) => ({
                 role: m.role,

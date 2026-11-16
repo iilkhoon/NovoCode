@@ -56,11 +56,21 @@ The user is asking or discussing. Answer helpfully in Azerbaijani; do NOT write 
 Keep it short; end with <novo-next>…</novo-next> ideas that could be built next.`,
 };
 
-export function buildSystemPrompt(opts: { skills: Skill[]; files: Record<string, string>; intent?: PromptIntent; summary?: string }): string {
+const LANG_NAME: Record<string, string> = { az: "Azerbaijani", tr: "Turkish", ru: "Russian", en: "English" };
+
+/** Overrides the default Azerbaijani for all user-facing prose (messages, plan, next ideas). */
+export function languageRule(lang?: string): string {
+  if (lang === "auto") return "# Language\nReply in the same language the user writes in (Azerbaijani, Turkish, Russian or English). Site content: the language the user asks for, otherwise the language of their message.";
+  if (lang && lang !== "az" && LANG_NAME[lang]) return `# Language\nWrite every user-facing sentence (intro, <novo-plan>, closing line, <novo-next>) in ${LANG_NAME[lang]}, not Azerbaijani. Site content: the language the user asks for, otherwise ${LANG_NAME[lang]}.`;
+  return "";
+}
+
+export function buildSystemPrompt(opts: { skills: Skill[]; files: Record<string, string>; intent?: PromptIntent; summary?: string; lang?: string }): string {
   const skills = opts.skills.map((s) => `<skill name="${s.name}">\n${s.body}\n</skill>`).join("\n\n");
   const mode = MODES[opts.intent ?? "build"];
   const summary = opts.summary ? `\n\n# Earlier conversation (summary — the messages themselves were compacted)\n${opts.summary}` : "";
-  return `${PROTOCOL}${mode ? `\n\n${mode}` : ""}\n\n# Skills (follow them)\n${skills}${summary}\n\n# Current project\n${filesContext(opts.files)}`;
+  const lang = languageRule(opts.lang);
+  return `${PROTOCOL}${lang ? `\n\n${lang}` : ""}${mode ? `\n\n${mode}` : ""}\n\n# Skills (follow them)\n${skills}${summary}\n\n# Current project\n${filesContext(opts.files)}`;
 }
 
 /** System prompt for /compact: a dense summary that replaces the old messages. */

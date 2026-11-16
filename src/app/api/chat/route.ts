@@ -21,6 +21,7 @@ interface Body {
   model?: string;
   intent: Intent;
   summary?: string;
+  lang?: string;
 }
 
 const MAX_HISTORY = 12;
@@ -47,7 +48,8 @@ function parseBody(raw: unknown): Body {
   const model = typeof b.model === "string" && b.model.length < 200 ? b.model : undefined;
   const intent: Intent = b.intent === "plan" || b.intent === "chat" || b.intent === "compact" ? b.intent : "build";
   const summary = typeof b.summary === "string" && b.summary.trim() ? b.summary.slice(0, 8000) : undefined;
-  return { messages, files, model, intent, summary };
+  const lang = typeof b.lang === "string" && /^(auto|az|tr|ru|en)$/.test(b.lang) ? b.lang : undefined;
+  return { messages, files, model, intent, summary, lang };
 }
 
 export async function POST(req: Request) {
@@ -83,7 +85,7 @@ export async function POST(req: Request) {
   const system =
     body.intent === "compact"
       ? `${COMPACT_PROMPT}${body.summary ? `\n\nEarlier summary:\n${body.summary}` : ""}`
-      : buildSystemPrompt({ skills, files: body.files ?? {}, intent: body.intent, summary: body.summary });
+      : buildSystemPrompt({ skills, files: body.files ?? {}, intent: body.intent, summary: body.summary, lang: body.lang });
   const messages: ChatMessage[] = [
     { role: "system", content: system },
     ...history.map<ChatMessage>((m) =>

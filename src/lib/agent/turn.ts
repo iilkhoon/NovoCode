@@ -46,6 +46,7 @@ export interface TurnRequest {
   model?: string;
   intent?: "build" | "plan" | "chat" | "compact";
   summary?: string;
+  lang?: string;
   signal?: AbortSignal;
   onUsage?: (tokens: number) => void;
   onMeta?: (meta: { model: string; skills: string[] }) => void;
@@ -58,7 +59,7 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: req.messages, files: req.files, model: req.model, intent: req.intent, summary: req.summary }),
+    body: JSON.stringify({ messages: req.messages, files: req.files, model: req.model, intent: req.intent, summary: req.summary, lang: req.lang }),
     signal: req.signal,
   });
   if (!res.ok) {

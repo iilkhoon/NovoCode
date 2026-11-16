@@ -34,3 +34,13 @@ describe("buildFixPrompt", () => {
     expect(p).toContain("2/3");
   });
 });
+
+import { languageRule } from "./prompt";
+describe("language rule", () => {
+  it("keeps Azerbaijani default and switches when asked", () => {
+    expect(languageRule("az")).toBe("");
+    expect(languageRule(undefined)).toBe("");
+    expect(languageRule("ru")).toContain("Russian");
+    expect(languageRule("auto")).toContain("same language");
+  });
+});

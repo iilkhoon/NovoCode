@@ -1,6 +1,6 @@
 # NovoCode
 
-**Danış, saytın qurulsun.** İstifadəçi Azərbaycan dilində yazır (və ya ekran görüntüsü / eskiz atır), NovoCode isə bir neçə dəqiqəyə tam işlək veb-sayt qurur.
+**Fikirdən sayta — bir neçə dəqiqəyə.** İstifadəçi Azərbaycan dilində yazır (və ya ekran görüntüsü / eskiz atır), NovoCode isə bir neçə dəqiqəyə tam işlək veb-sayt qurur.
 
 - 💬 Azərbaycan dilində söhbətlə sayt qurmaq
 - ⚡ Canlı önizləmə: sayt brauzerin içindəki Node.js mühitində (WebContainers) işləyir

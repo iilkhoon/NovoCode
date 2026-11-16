@@ -142,7 +142,7 @@ export function DesignSystem() {
           <Card className="flex flex-col gap-6">
             <div>
               <Label>Bricolage Grotesque — başlıqlar</Label>
-              <p className="font-display text-[56px] font-[650] leading-none tracking-[-0.03em] text-ink-100">Sözlə de, <em className=" text-brand">doğulsun.</em></p>
+              <p className="font-display text-[56px] font-[650] leading-none tracking-[-0.03em] text-ink-100">Fikirdən sayta — <em className="not-italic text-brand">bir neçə dəqiqəyə.</em></p>
             </div>
             <div>
               <Label>Geist — interfeys və mətn</Label>

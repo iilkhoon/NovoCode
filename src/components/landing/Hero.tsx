@@ -69,12 +69,12 @@ export function Hero() {
           <span className="text-[13px] text-ink-300">Azərbaycan dilində AI sayt qurucusu</span>
         </div>
 
-        <h1 className="mt-7 font-display text-[clamp(40px,7vw,96px)] font-[650] leading-[0.98] tracking-[-0.035em] text-ink-100 ">
+        <h1 className="mt-7 font-display text-[clamp(34px,5.2vw,68px)] font-[600] leading-[1.04] tracking-[-0.03em] text-ink-100 ">
           <span className="nv-line" style={{ "--d": "0.12s" } as React.CSSProperties}>
-            Fikirdən sayta —
+            Bir cümlə yaz,
           </span>
           <span className="nv-line" style={{ "--d": "0.28s" } as React.CSSProperties}>
-            <em className="not-italic text-brand pr-[0.04em]">bir neçə dəqiqəyə.</em>
+            <em className="not-italic text-brand pr-[0.04em]">sayt hazırdır.</em>
           </span>
         </h1>
 

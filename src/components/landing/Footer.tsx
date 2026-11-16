@@ -16,7 +16,7 @@ export function Footer() {
             <LogoMark className="size-8" />
             <Wordmark />
           </div>
-          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink-400">Azərbaycan dilində AI sayt qurucusu. Fikirdən sayta — bir neçə dəqiqəyə.</p>
+          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-ink-400">Azərbaycan dilində AI sayt qurucusu. Bir cümlə yaz — sayt hazırdır.</p>
         </div>
         {COLS.map((c) => (
           <div key={c.t} className="md:col-span-2">

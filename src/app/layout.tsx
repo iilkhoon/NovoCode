@@ -9,12 +9,12 @@ import { THEME_BOOT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://novocode.az"),
-  title: { default: "NovoCode — Fikirdən sayta, bir neçə dəqiqəyə", template: "%s · NovoCode" },
+  title: { default: "NovoCode — Bir cümlə yaz, sayt hazırdır", template: "%s · NovoCode" },
   description:
     "Azərbaycan dilində yazın və ya danışın — NovoCode süni intellektlə bir neçə dəqiqəyə dizaynı, funksionallığı və məlumat bazası olan tam işlək sayt qursun.",
   keywords: ["sayt qurucusu", "süni intellekt", "AI", "veb sayt", "Azərbaycan", "no-code", "NovoCode"],
   openGraph: {
-    title: "NovoCode — Fikirdən sayta, bir neçə dəqiqəyə",
+    title: "NovoCode — Bir cümlə yaz, sayt hazırdır",
     description: "Azərbaycanın AI sayt qurucusu. Fikrinizi yazın, saytınız dəqiqələr içində hazır olsun.",
     locale: "az_AZ",
     type: "website",

@@ -44,7 +44,10 @@ export interface TurnRequest {
   messages: { role: "user" | "assistant"; content: string; images?: string[] }[];
   files: Record<string, string>;
   model?: string;
+  intent?: "build" | "plan" | "chat" | "compact";
+  summary?: string;
   signal?: AbortSignal;
+  onUsage?: (tokens: number) => void;
   onMeta?: (meta: { model: string; skills: string[] }) => void;
   onThinking?: () => void;
   onEvent: (e: ParserEvent) => void;
@@ -55,7 +58,7 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: req.messages, files: req.files, model: req.model }),
+    body: JSON.stringify({ messages: req.messages, files: req.files, model: req.model, intent: req.intent, summary: req.summary }),
     signal: req.signal,
   });
   if (!res.ok) {
@@ -77,6 +80,9 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
         break;
       case "thinking":
         req.onThinking?.();
+        break;
+      case "usage":
+        req.onUsage?.(Number(msg.v));
         break;
       case "d": {
         const v = String(msg.v);

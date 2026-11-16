@@ -9,6 +9,9 @@ import { applyStyle } from "@/lib/styles";
 import { EASE } from "@/components/ui/motion";
 import { cn } from "@/lib/cn";
 import { friendlyFile, humanizeError } from "@/lib/humanize";
+import { COMPACT_AT, extractNext, matchCommands, stripMeta, type Intent } from "@/lib/chat";
+import { Segmented } from "@/components/ui/kit";
+import { usePrefs } from "@/lib/ui-store";
 
 interface Props {
   messages: ChatMessage[];
@@ -17,7 +20,11 @@ interface Props {
   /** developer mode: show paths, commands, raw errors, models */
   dev: boolean;
   onRetry: () => void;
-  onSend: (text: string, images: string[]) => void;
+  onSend: (text: string, images: string[], intent?: Intent) => void;
+  intent: Intent;
+  onIntent: (i: Intent) => void;
+  usage: { tokens: number; ratio: number; measured: boolean };
+  onPublish: () => void;
   onStop: () => void;
   onOpenFile: (path: string) => void;
   onRestore: (messageId: string) => void;
@@ -26,8 +33,15 @@ interface Props {
 
 const SUGGESTIONS = ["Dizaynı daha premium et", "Qeydiyyat və giriş əlavə et", "Rəylər bölməsi əlavə et", "Mobil görünüşü təkmilləşdir", "Tünd rejim əlavə et"];
 
-export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRetry, onOpenFile, onRestore, currentVersionId }: Props) {
+export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRetry, onOpenFile, onRestore, currentVersionId, intent, onIntent, usage, onPublish }: Props) {
   const scroller = useRef<HTMLDivElement>(null);
+  const [draft, setDraft] = useState("");
+  const prefs = usePrefs();
+  const slash = matchCommands(draft);
+  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant" && !m.compact);
+  const ideas = lastAssistant && !lastAssistant.pending ? extractNext(lastAssistant.content) : [];
+  const planned = !!lastAssistant?.parts?.some((p) => p.kind === "plan") && !lastAssistant?.parts?.some((p) => p.kind === "file");
+  const hasSite = messages.some((m) => m.snapshot);
   useEffect(() => {
     const el = scroller.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
@@ -52,7 +66,9 @@ export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRet
         <AnimatePresence initial={false}>
           {messages.map((m, mi) => (
             <motion.div key={m.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
-              {m.role === "user" ? (
+              {m.compact ? (
+                <CompactDivider m={m} />
+              ) : m.role === "user" ? (
                 m.auto ? <AutoFixNote m={m} dev={dev} /> : <UserBubble m={m} />
               ) : (
                 <AssistantMessage
@@ -70,22 +86,78 @@ export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRet
             </motion.div>
           ))}
         </AnimatePresence>
-        {!busy && messages.some((m) => m.role === "assistant" && !m.pending) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-1.5 pt-1">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => onSend(s, [])}
-                className="rounded-full border border-ink-100/10 bg-ink-950 px-3 py-1.5 text-xs text-ink-300 transition hover:-translate-y-0.5 hover:border-nar/40 hover:text-ink-100 active:scale-[0.97]"
-              >
+        {!busy && prefs.suggestions && lastAssistant && !lastAssistant.pending && !lastAssistant.error && (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="flex flex-wrap gap-1.5 pl-10">
+            {planned && (
+              <Chip strong onClick={() => (onIntent("build"), onSend("Planı icra et", [], "build"))}>
+                Planı icra et
+              </Chip>
+            )}
+            {(ideas.length ? ideas : SUGGESTIONS.slice(0, 3)).map((s) => (
+              <Chip key={s} onClick={() => onSend(s, [])}>
                 {s}
-              </button>
+              </Chip>
             ))}
+            {hasSite && !planned && (
+              <Chip onClick={onPublish} strong>
+                Yayımla
+              </Chip>
+            )}
           </motion.div>
         )}
       </div>
-      <div className="border-t border-ink-100/[0.08] p-3">
-        <PromptBox busy={busy} onSubmit={({ text, images, styleId }) => onSend(applyStyle(text, styleId), images)} onStop={onStop} placeholder="Dəyişiklik istəyin… (Enter — göndər, Shift+Enter — yeni sətir)" />
+      <div className="relative border-t border-ink-100/[0.08] p-3">
+        <AnimatePresence>
+          {slash.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              role="listbox"
+              aria-label="Əmrlər"
+              className="absolute inset-x-3 bottom-full z-20 mb-2 overflow-hidden rounded-2xl border border-ink-100/10 bg-ink-1000 p-1.5 shadow-[var(--shadow-panel)]"
+            >
+              {slash.map((c) => (
+                <button
+                  key={c.name}
+                  type="button"
+                  role="option"
+                  aria-selected={false}
+                  onClick={() => (c.takesText ? setDraft(c.name + " ") : (setDraft(""), onSend(c.name, [])))}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-ink-100/[0.05]"
+                >
+                  <span className="font-mono text-[13px] font-medium text-nar">{c.name}</span>
+                  <span className="text-[12.5px] text-ink-400">{c.hint}</span>
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <PromptBox
+          busy={busy}
+          value={draft}
+          onValueChange={setDraft}
+          onSubmit={({ text, images, styleId }) => {
+            setDraft("");
+            onSend(applyStyle(text, styleId), images);
+          }}
+          onStop={onStop}
+          placeholder={intent === "plan" ? "Nə planlayaq? Əvvəl plan, sonra təsdiq…" : intent === "chat" ? "Sual verin — kod dəyişməyəcək…" : "Dəyişiklik istəyin… ( / — əmrlər)"}
+        />
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <Segmented
+            size="sm"
+            label="Rejim"
+            value={intent}
+            onChange={onIntent}
+            options={[
+              { value: "build", label: "Qur" },
+              { value: "plan", label: "Planla" },
+              { value: "chat", label: "Söhbət" },
+            ]}
+          />
+          <ContextMeter usage={usage} />
+        </div>
       </div>
     </div>
   );
@@ -160,7 +232,7 @@ function AssistantMessage({
     if (p.kind === "file" || p.kind === "shell") {
       if (Array.isArray(last)) last.push(p);
       else groups.push([p]);
-    } else if (p.kind !== "text" || p.text.trim()) groups.push(p);
+    } else if (p.kind !== "text" || stripMeta(p.text).trim()) groups.push(p);
   }
   const fileCount = parts.filter((p) => p.kind === "file").length;
 
@@ -223,7 +295,7 @@ function AssistantMessage({
               <div className="whitespace-pre-wrap">{g.text}</div>
             </div>
           ) : g.kind === "text" ? (
-            <div key={gi} className="whitespace-pre-wrap text-ink-100">{g.text.trim()}</div>
+            <div key={gi} className="whitespace-pre-wrap text-ink-100">{stripMeta(g.text).trim()}</div>
           ) : null
         )}
         {m.error && <ErrorNote raw={m.error} dev={dev} onRetry={onRetry} />}
@@ -314,6 +386,63 @@ function ErrorNote({ raw, dev, onRetry }: { raw: string; dev: boolean; onRetry?:
           <RotateCcw className="size-3.5" /> {stopped ? "Davam et" : "Yenidən cəhd et"}
         </button>
       )}
+    </div>
+  );
+}
+
+function Chip({ children, onClick, strong }: { children: React.ReactNode; onClick: () => void; strong?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-1.5 text-[12.5px] transition-[transform,border-color,color,background-color] duration-200 hover:-translate-y-0.5 active:scale-[0.97]",
+        strong ? "border-nar/30 bg-nar/10 font-medium text-nar hover:bg-nar/15" : "border-ink-100/10 bg-ink-950 text-ink-300 hover:border-nar/40 hover:text-ink-100"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Ring that fills as the conversation uses the model's context window. */
+function ContextMeter({ usage }: { usage: { tokens: number; ratio: number; measured: boolean } }) {
+  const pct = Math.min(100, Math.round(usage.ratio * 100));
+  const warn = usage.ratio >= COMPACT_AT;
+  const r = 7, c = 2 * Math.PI * r;
+  const k = usage.tokens >= 1000 ? `${(usage.tokens / 1000).toFixed(usage.tokens >= 10000 ? 0 : 1)}k` : String(usage.tokens);
+  return (
+    <span
+      title={`${usage.measured ? "" : "≈ "}${usage.tokens.toLocaleString("az")} token istifadə olunub. ${warn ? "Növbəti mesajda söhbət avtomatik yığcamlaşdırılacaq." : "80%-də söhbət avtomatik yığcamlaşdırılır (/compact)."}`}
+      className={cn("inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[11.5px] tabular-nums", warn ? "text-warning" : "text-ink-500")}
+    >
+      <svg viewBox="0 0 18 18" className="size-4 -rotate-90" aria-hidden>
+        <circle cx="9" cy="9" r={r} fill="none" stroke="currentColor" strokeOpacity=".18" strokeWidth="2" />
+        <circle cx="9" cy="9" r={r} fill="none" stroke={warn ? "currentColor" : "var(--color-nar)"} strokeWidth="2" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)} className="transition-[stroke-dashoffset] duration-700" />
+      </svg>
+      {k} · {pct}%
+    </span>
+  );
+}
+
+/** Marker where the conversation was compacted (or a fresh chat began). */
+function CompactDivider({ m }: { m: ChatMessage }) {
+  const [open, setOpen] = useState(false);
+  const fresh = !m.content.trim();
+  return (
+    <div className="py-1">
+      <div className="flex items-center gap-3 text-[11.5px] text-ink-500">
+        <span className="h-px flex-1 bg-ink-100/10" />
+        {fresh ? (
+          <span>Yeni söhbət · layihə faylları qorunur</span>
+        ) : (
+          <button type="button" onClick={() => setOpen((o) => !o)} className="inline-flex items-center gap-1 hover:text-ink-100" aria-expanded={open}>
+            Söhbət yığcamlaşdırıldı <ChevronDown className={cn("size-3 transition-transform", open && "rotate-180")} />
+          </button>
+        )}
+        <span className="h-px flex-1 bg-ink-100/10" />
+      </div>
+      {open && !fresh && <div className="mt-2 whitespace-pre-wrap rounded-2xl bg-ink-950 px-4 py-3 text-[12.5px] leading-relaxed text-ink-400">{m.content}</div>}
     </div>
   );
 }

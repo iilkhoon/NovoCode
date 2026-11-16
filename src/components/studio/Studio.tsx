@@ -14,8 +14,10 @@ import { LogoMark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { USAGE, openModal } from "@/lib/ui-store";
 import { slug } from "@/components/app/Workspace";
-import { friendlyFile } from "@/lib/humanize";
+import { friendlyFile, humanizeError } from "@/lib/humanize";
 import { apiResolver, resolveImages } from "@/lib/images";
+import { COMMANDS, COMPACT_AT, contextOf, contextUsage, parseCommand, stripMeta, type Intent } from "@/lib/chat";
+import { usePrefs } from "@/lib/ui-store";
 import { cn } from "@/lib/cn";
 import { ChatPanel } from "./ChatPanel";
 import { PreviewPanel } from "./PreviewPanel";
@@ -51,11 +53,25 @@ export default function Studio({ id }: { id: string }) {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [model, setModel] = useState<string>("");
   const [modelError, setModelError] = useState<string | null>(null);
-  const [currentVersion, setCurrentVersion] = useState<string | null>(null);
+  const [currentVersion, setCurrentVersionState] = useState<string | null>(null);
+  const currentVersionRef = useRef<string | null>(null);
+  const setCurrentVersion = (v: string | null) => {
+    currentVersionRef.current = v;
+    setCurrentVersionState(v);
+  };
   const [fullscreen, setFullscreen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [mode, setModeState] = useState<StudioMode>("simple");
+  const [intent, setIntentState] = useState<Intent>("build");
+  const intentRef = useRef<Intent>("build");
+  const setIntent = useCallback((i: Intent) => {
+    intentRef.current = i;
+    setIntentState(i);
+  }, []);
+  const prefs = usePrefs();
+  const prefsRef = useRef(prefs);
+  prefsRef.current = prefs;
   const dev = mode === "dev";
   useEffect(() => {
     try {
@@ -97,7 +113,7 @@ export default function Studio({ id }: { id: string }) {
 
   // ---------- agent loop ----------
   const runAgent = useCallback(
-    async (history: ChatMessage[]) => {
+    async (history: ChatMessage[], intent: Intent = "build") => {
       setBusy(true);
       const ctrl = new AbortController();
       abortRef.current = ctrl;
@@ -113,12 +129,17 @@ export default function Studio({ id }: { id: string }) {
           let chain: Promise<unknown> = Promise.resolve();
           let actions = 0;
           const queue = (fn: () => Promise<unknown>) => (chain = chain.then(fn).catch((e) => console.error(e)));
-          const lastUser = [...convo].reverse().find((m) => m.role === "user");
+          const ctx = contextOf(convo);
+          const lastUser = [...ctx.messages].reverse().find((m) => m.role === "user");
+          let tokens: number | undefined;
 
           let raw = "";
           try {
             raw = await streamTurn({
-              messages: convo.map((m) => ({
+              intent,
+              summary: ctx.summary,
+              onUsage: (t) => (tokens = t),
+              messages: ctx.messages.map((m) => ({
                 role: m.role,
                 content: m.role === "assistant" ? compactAssistant(m.content) : m.content,
                 images: m === lastUser ? m.images : undefined,
@@ -184,6 +205,7 @@ export default function Studio({ id }: { id: string }) {
             ...messagesRef.current.find((m) => m.id === aid)!,
             content: raw,
             pending: false,
+            tokens,
             snapshot: actions > 0 ? { ...filesRef.current } : undefined,
           };
           patchMessage(aid, () => done);
@@ -212,16 +234,109 @@ export default function Studio({ id }: { id: string }) {
     [model, runtime, persist]
   );
 
+  // ---------- compaction (/compact, /new, auto at 80%) ----------
+  const compact = useCallback(
+    async (fresh = false): Promise<boolean> => {
+      const all = messagesRef.current.filter((m) => !m.pending);
+      const marker = (content: string): ChatMessage => ({ id: uid(), role: "assistant", compact: true, content, createdAt: Date.now() });
+      if (fresh) {
+        commitMessages([...all, marker("")]);
+        await persist();
+        toast.success("Yeni söhbət başladı", "Layihə faylları olduğu kimi qalır.");
+        return true;
+      }
+      const ctx = contextOf(all);
+      if (!ctx.messages.length) {
+        toast.info("Yığcamlaşdırmağa hələ söhbət yoxdur");
+        return false;
+      }
+      setBusy(true);
+      const tid = toast.loading("Söhbət yığcamlaşdırılır…", "Köhnə mesajlar xülasəyə çevrilir");
+      try {
+        let text = "";
+        await streamTurn({
+          intent: "compact",
+          summary: ctx.summary,
+          model: model || undefined,
+          files: {},
+          messages: [
+            ...ctx.messages.map((m) => ({ role: m.role, content: m.role === "assistant" ? compactAssistant(m.content) : m.content })),
+            { role: "user" as const, content: "Summarize the conversation above now." },
+          ],
+          onEvent: (e) => {
+            if (e.type === "text") text += e.text;
+          },
+        });
+        const summary = stripMeta(text).trim();
+        if (!summary) throw new Error("Boş xülasə");
+        commitMessages([...messagesRef.current, marker(summary)]);
+        await persist();
+        toast.dismiss(tid);
+        toast.success("Söhbət yığcamlaşdırıldı", "Kontekst boşaldı — davam edə bilərsiniz.");
+        return true;
+      } catch (e) {
+        toast.dismiss(tid);
+        toast.error("Yığcamlaşdırmaq alınmadı", humanizeError((e as Error).message).title);
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [model, persist]
+  );
+
+  const restoreRef = useRef<(mid: string) => Promise<void>>(async () => {});
+  const undo = useCallback(() => {
+    const versions = messagesRef.current.filter((m) => m.snapshot);
+    const cur = versions.findIndex((m) => m.id === currentVersionRef.current);
+    const target = versions[(cur === -1 ? versions.length - 1 : cur) - 1];
+    if (!target) return toast.info("Geri qaytarmaq üçün əvvəlki versiya yoxdur");
+    restoreRef.current(target.id);
+  }, []);
+
   const send = useCallback(
-    (text: string, images: string[]) => {
+    async (text: string, images: string[], intentOverride?: Intent) => {
       if (busy) return;
+      let intent = intentOverride ?? intentRef.current;
+      const cmd = images.length ? null : parseCommand(text);
+      if (cmd) {
+        switch (cmd.name) {
+          case "/compact":
+            await compact();
+            return;
+          case "/new":
+            await compact(true);
+            return;
+          case "/undo":
+            undo();
+            return;
+          case "/publish":
+            setPublishOpen(true);
+            return;
+          case "/help":
+            toast.show({ tone: "info", title: "Əmrlər", description: COMMANDS.map((c) => `${c.name} — ${c.hint}`).join(" · "), duration: 9000 });
+            return;
+          case "/plan":
+          case "/chat":
+            if (!cmd.arg) {
+              setIntent(cmd.name === "/plan" ? "plan" : "chat");
+              toast.info(cmd.name === "/plan" ? "Plan rejimi" : "Söhbət rejimi", "Növbəti mesajınız buna uyğun cavablanacaq.");
+              return;
+            }
+            intent = cmd.name === "/plan" ? "plan" : "chat";
+            text = cmd.arg;
+        }
+      }
+      // keep the context window healthy before a long conversation overflows
+      const usage = contextUsage(messagesRef.current, Object.values(filesRef.current).reduce((n, c) => n + c.length, 0));
+      if (prefsRef.current.autoCompact && usage.ratio >= COMPACT_AT) await compact();
       const msg: ChatMessage = { id: uid(), role: "user", content: text, images: images.length ? images : undefined, createdAt: Date.now() };
       const history = [...messagesRef.current.filter((m) => !m.pending), msg];
       commitMessages(history);
       setMobileView("chat");
-      runAgent(history);
+      runAgent(history, intent);
     },
-    [busy, runAgent]
+    [busy, runAgent, compact, undo, setIntent]
   );
 
   /** Re-run the last request after a failure: drop the failed answer(s), keep the question. */
@@ -288,6 +403,7 @@ export default function Studio({ id }: { id: string }) {
   };
 
   // ---------- version restore ----------
+  restoreRef.current = (mid: string) => restore(mid);
   async function restore(mid: string) {
     const snap = messagesRef.current.find((m) => m.id === mid)?.snapshot;
     if (!snap || busy) return;
@@ -344,6 +460,7 @@ export default function Studio({ id }: { id: string }) {
     { t: "terminal", icon: SquareTerminal, label: "Terminal", key: "3" },
   ];
 
+  const usage = useMemo(() => contextUsage(messages, Object.values(files).reduce((n, c) => n + c.length, 0)), [messages, files]);
   const lastSnapshot = [...messages].reverse().find((m) => m.snapshot && m.id !== currentVersion);
   const allCommands: Command[] = [
     { id: "tab-preview", group: "Görünüş", label: "Önizləməni aç", hint: "Ctrl 1", keywords: ["preview", "sayt"], run: () => { setTab("preview"); setMobileView("work"); } },
@@ -438,6 +555,10 @@ export default function Studio({ id }: { id: string }) {
             thinking={thinking}
             dev={dev}
             onSend={send}
+            intent={intent}
+            onIntent={setIntent}
+            usage={usage}
+            onPublish={() => setPublishOpen(true)}
             onStop={() => abortRef.current?.abort()}
             onRetry={retry}
             onRestore={restore}

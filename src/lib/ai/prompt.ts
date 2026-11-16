@@ -11,7 +11,8 @@ const PROTOCOL = `You are **Novo**, the AI engineer inside NovoCode — a platfo
    …the COMPLETE file content, no markdown fences…
    </novo-file>
    <novo-delete path="src/old.jsx"/>
-4. End with one short Azerbaijani sentence: what was done + 2 concrete ideas for the next step.
+4. End with one short Azerbaijani sentence about what was done, then on the last line 2–3 short next-step ideas the user can click (Azerbaijani, ≤ 6 words each, specific to this site):
+   <novo-next>Rəylər bölməsi əlavə et | Rəngləri istiləşdir | Sayta onlayn sifariş qoş</novo-next>
 
 # Hard rules
 - Paths are relative to the project root. Write complete files every time — never partial snippets or "// unchanged".
@@ -42,10 +43,32 @@ export function filesContext(files: Record<string, string>, budget = 60_000): st
   return `## Project files\n${tree}\n\n## Current contents\n${bodies.join("\n\n")}`;
 }
 
-export function buildSystemPrompt(opts: { skills: Skill[]; files: Record<string, string> }): string {
+export type PromptIntent = "build" | "plan" | "chat";
+
+const MODES: Record<PromptIntent, string> = {
+  build: "",
+  plan: `# Mode: PLAN
+The user wants a plan before any change. Do NOT write files, delete files or run commands in this answer.
+Reply with one short sentence, then <novo-plan> with 4–9 numbered, concrete steps (pages, sections, features, design direction) </novo-plan>,
+then ask in one sentence whether to start. Last line: <novo-next>Planı icra et | Planı dəyiş</novo-next>`,
+  chat: `# Mode: CHAT
+The user is asking or discussing. Answer helpfully in Azerbaijani; do NOT write files or run commands.
+Keep it short; end with <novo-next>…</novo-next> ideas that could be built next.`,
+};
+
+export function buildSystemPrompt(opts: { skills: Skill[]; files: Record<string, string>; intent?: PromptIntent; summary?: string }): string {
   const skills = opts.skills.map((s) => `<skill name="${s.name}">\n${s.body}\n</skill>`).join("\n\n");
-  return `${PROTOCOL}\n\n# Skills (follow them)\n${skills}\n\n# Current project\n${filesContext(opts.files)}`;
+  const mode = MODES[opts.intent ?? "build"];
+  const summary = opts.summary ? `\n\n# Earlier conversation (summary — the messages themselves were compacted)\n${opts.summary}` : "";
+  return `${PROTOCOL}${mode ? `\n\n${mode}` : ""}\n\n# Skills (follow them)\n${skills}${summary}\n\n# Current project\n${filesContext(opts.files)}`;
 }
+
+/** System prompt for /compact: a dense summary that replaces the old messages. */
+export const COMPACT_PROMPT = `You compress a website-building conversation so it can continue with less context.
+Write a concise summary in English (max 250 words, bullet points) covering: what the site is and who it is for;
+design direction (colors, fonts, style); pages, sections and features already built; data/auth decisions;
+open problems or requests not done yet; the user's stated preferences. Include the earlier summary if one is given.
+Output plain text only — no tags, no code.`;
 
 export function buildFixPrompt(error: string, attempt: number, max: number): string {
   return `⚠️ Avtomatik təmir (${attempt}/${max}). The project shows this error after your last change:

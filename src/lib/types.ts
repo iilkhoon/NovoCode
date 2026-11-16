@@ -23,6 +23,10 @@ export interface ChatMessage {
   model?: string;
   skills?: string[];
   pending?: boolean;
+  /** context tokens the model reported for this turn */
+  tokens?: number;
+  /** a compaction marker: content is the summary of everything before it (empty = fresh chat) */
+  compact?: boolean;
   /** project files right after this assistant step (for version restore) */
   snapshot?: Record<string, string>;
   createdAt: number;

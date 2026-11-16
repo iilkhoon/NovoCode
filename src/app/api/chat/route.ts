@@ -1,6 +1,6 @@
 import { streamChat, listModels, type ChatMessage } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
-import { buildSystemPrompt } from "@/lib/ai/prompt";
+import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
 import { selectSkills } from "@/lib/skills/select";
 import { assertSameOrigin, errorResponse, HttpError, isDataImage, rateLimit, readJson } from "@/lib/api/guard";
@@ -14,13 +14,17 @@ interface InMessage {
   images?: string[]; // data URLs
 }
 
+type Intent = "build" | "plan" | "chat" | "compact";
 interface Body {
   messages: InMessage[];
   files: Record<string, string>;
   model?: string;
+  intent: Intent;
+  summary?: string;
 }
 
 const MAX_HISTORY = 12;
+const MAX_COMPACT_HISTORY = 60;
 const MAX_BODY = 12 * 1024 * 1024; // project files + up to 4 compressed screenshots
 const MAX_MSG = 40_000;
 const MAX_IMAGES = 4;
@@ -30,7 +34,7 @@ const MAX_FILES = 300;
 function parseBody(raw: unknown): Body {
   const b = raw as Partial<Body> | null;
   if (!b || !Array.isArray(b.messages)) throw new HttpError(400, "messages tələb olunur");
-  const messages = b.messages.slice(-MAX_HISTORY).map((m) => {
+  const messages = b.messages.slice(-MAX_COMPACT_HISTORY).map((m) => {
     if (!m || (m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") throw new HttpError(400, "Yanlış mesaj formatı");
     const images = Array.isArray(m.images) ? m.images.slice(0, MAX_IMAGES) : undefined;
     if (images && !images.every(isDataImage)) throw new HttpError(400, "Şəkillər yalnız data:image formatında qəbul olunur");
@@ -41,7 +45,9 @@ function parseBody(raw: unknown): Body {
     for (const [k, v] of Object.entries(b.files).slice(0, MAX_FILES)) if (typeof v === "string") files[k] = v;
   }
   const model = typeof b.model === "string" && b.model.length < 200 ? b.model : undefined;
-  return { messages, files, model };
+  const intent: Intent = b.intent === "plan" || b.intent === "chat" || b.intent === "compact" ? b.intent : "build";
+  const summary = typeof b.summary === "string" && b.summary.trim() ? b.summary.slice(0, 8000) : undefined;
+  return { messages, files, model, intent, summary };
 }
 
 export async function POST(req: Request) {
@@ -53,7 +59,7 @@ export async function POST(req: Request) {
   } catch (e) {
     return errorResponse(e);
   }
-  const history = body.messages;
+  const history = body.intent === "compact" ? body.messages : body.messages.slice(-MAX_HISTORY);
   const last = history[history.length - 1];
   if (!last || last.role !== "user") return Response.json({ error: "Son mesaj istifadəçidən olmalıdır" }, { status: 400 });
 
@@ -74,8 +80,12 @@ export async function POST(req: Request) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 
+  const system =
+    body.intent === "compact"
+      ? `${COMPACT_PROMPT}${body.summary ? `\n\nEarlier summary:\n${body.summary}` : ""}`
+      : buildSystemPrompt({ skills, files: body.files ?? {}, intent: body.intent, summary: body.summary });
   const messages: ChatMessage[] = [
-    { role: "system", content: buildSystemPrompt({ skills, files: body.files ?? {} }) },
+    { role: "system", content: system },
     ...history.map<ChatMessage>((m) =>
       m.images?.length && m.role === "user"
         ? {

@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { PromptBox } from "@/components/PromptBox";
 import { openModal } from "@/lib/ui-store";
 import { cn } from "@/lib/cn";
+import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 
 /** Brand palette with the reasoning behind each colour. */
 const COLORS = [
@@ -86,12 +87,7 @@ export function DesignSystem() {
       <main className="mx-auto max-w-[1240px] px-4 sm:px-8">
         {/* intro */}
         <section className="relative isolate overflow-hidden py-20">
-          <div aria-hidden className="aurora -z-10 opacity-60">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
+          <GradientBackdrop className="-z-10" intensity={0.85} reach={1.1} />
           <p className="label-mono text-ink-400">NovoCode · v2</p>
           <h1 className="mt-4 max-w-[900px] font-display text-[clamp(40px,7vw,88px)] font-[650] leading-[1] tracking-[-0.035em] text-ink-100 ">
             Sadə forma, <em className="not-italic text-brand">canlı rəng.</em>
@@ -145,11 +141,11 @@ export function DesignSystem() {
         <Block id="sriftler" n="03" title="Şriftlər" desc="Hamısı Azərbaycan hərflərini (ə ğ ı ş ç ö ü) və ₼ işarəsini dəstəkləyir.">
           <Card className="flex flex-col gap-6">
             <div>
-              <Label>Plus Jakarta Sans — başlıqlar (650)</Label>
+              <Label>Bricolage Grotesque — başlıqlar</Label>
               <p className="font-display text-[56px] font-[650] leading-none tracking-[-0.03em] text-ink-100">Sözlə de, <em className=" text-brand">doğulsun.</em></p>
             </div>
             <div>
-              <Label>Plus Jakarta Sans — interfeys və mətn</Label>
+              <Label>Geist — interfeys və mətn</Label>
               <p className="text-[18px] leading-relaxed text-ink-200">Gözəl, işlək sayt — dəqiqələr içində. Qiymət: 29 ₼ / ay. Şəkil, ğ, ı, ə, ö, ü, ç, ş.</p>
             </div>
             <div>

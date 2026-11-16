@@ -7,19 +7,19 @@
 /* ==========================================================================
    NOVO DESIGN SYSTEM — v3 "Novo"
    Cool neutrals, one electric violet, a blue → violet → pink → orange signature gradient.
-   One geometric sans for everything (Plus Jakarta Sans) + JetBrains Mono for labels/code.
+   Bricolage Grotesque for headlines, Geist for UI/body, JetBrains Mono for labels/code.
    Every colour is a CSS variable, so [data-theme="dark"] flips the whole app.
    Scale convention (kept from v1 so every component re-themes for free):
      ink-1000 → raised surfaces (cards, popovers)   ink-950 → page
      ink-900…700 → sunken fills / dividers           ink-600…100 → text, faint → strong
-   Plus Jakarta Sans covers ə ğ ı ş ç ö ü, Cyrillic and ₼.
+   All cover ə ğ ı ş ç ö ü; Geist also covers Cyrillic (headlines fall back to it in Russian).
    ========================================================================== */
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --font-sans: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Geist Variable", "Geist", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Geist Variable", "Segoe UI", system-ui, sans-serif;
   --font-label: "JetBrains Mono Variable", ui-monospace, monospace;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/plus-jakarta-sans/wght.css";
-import "@fontsource-variable/plus-jakarta-sans/wght-italic.css";
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/geist";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toast";

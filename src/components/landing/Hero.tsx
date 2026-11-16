@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { PromptBox } from "@/components/PromptBox";
 import { EXAMPLES, HERO_STATS, TYPEWRITER } from "./data";
 import { useStartProject } from "./useStart";
+import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 
 /** Counts up from 0 once the value scrolls into view (easeOutCubic). */
 function CountUp({ target, decimals, suffix, index }: { target: number; decimals: number; suffix: string; index: number }) {
@@ -57,12 +58,7 @@ export function Hero() {
     <section id="başla" className="paper relative isolate flex min-h-svh flex-col items-center overflow-hidden px-4 pb-8 pt-28 sm:px-8">
       {/* signature aurora: warm light rising from the horizon */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="aurora">
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
+        <GradientBackdrop reach={0.9} />
         <div className="absolute inset-0 dot-grid opacity-50 [mask-image:radial-gradient(ellipse_70%_55%_at_50%_40%,black,transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-wool" />
       </div>

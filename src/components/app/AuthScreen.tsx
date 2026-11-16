@@ -9,6 +9,7 @@ import { Field, Input, Spinner } from "@/components/ui/kit";
 import { toast } from "@/components/ui/toast";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Github, GoogleIcon } from "./Modals";
+import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 
 export function AuthScreen() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -100,12 +101,7 @@ export function AuthScreen() {
 
       {/* brand side */}
       <aside className="relative isolate m-3 hidden overflow-hidden rounded-[32px] bg-[#0b0b12] lg:flex lg:flex-col lg:justify-end">
-        <div aria-hidden className="aurora aurora-high -z-10 [&>i]:!opacity-90">
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
+        <GradientBackdrop className="-z-10" bg="#0b0b12" reach={1.6} colors={["#3b6bff", "#6447ff", "#e0458f", "#ff8a4c"]} />
         <div aria-hidden className="absolute inset-0 -z-10 dot-grid opacity-30" />
         <div className="p-12">
           <div className="mb-10 w-[min(440px,100%)] rounded-2xl border border-white/15 bg-white/10 p-4 text-white backdrop-blur-xl">

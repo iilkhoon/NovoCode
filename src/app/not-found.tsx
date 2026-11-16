@@ -1,10 +1,11 @@
 import { LogoMark } from "@/components/Logo";
 import { ButtonLink } from "@/components/ui/button";
+import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 
 export default function NotFound() {
   return (
     <main className="relative isolate grid min-h-dvh place-items-center overflow-hidden px-5 text-center">
-      <div aria-hidden className="aurora -z-10 opacity-60"><i /><i /><i /><i /></div>
+      <GradientBackdrop className="-z-10" reach={0.8} />
       <div>
         <LogoMark className="mx-auto size-16" blink />
         <div className="mt-8 font-display text-[140px] leading-none tracking-[-0.04em] text-brand">404</div>

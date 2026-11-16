@@ -13,6 +13,7 @@ import type { Project } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { Sidebar, projectHue } from "./Sidebar";
 import { Github } from "./Modals";
+import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 
 type Kind = "site" | "landing" | "app" | "full";
 const KINDS: { value: Kind; label: string; icon: React.ReactNode; hint: string }[] = [
@@ -96,12 +97,7 @@ export function Workspace() {
       <main className="relative min-w-0 flex-1">
         {/* hero */}
         <section ref={top} className="paper relative isolate overflow-hidden px-4 pb-16 pt-16 sm:px-8 md:pt-24">
-          <div aria-hidden className="aurora -z-10 opacity-70">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
+          <GradientBackdrop className="-z-10 [mask-image:linear-gradient(to_bottom,black_55%,transparent)]" intensity={0.9} reach={1.05} />
           <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-b from-transparent to-wool" />
           <div className="mx-auto flex max-w-[720px] flex-col items-center text-center">
             <h1 className="nv-anim font-display text-[clamp(32px,5vw,52px)] font-[650] leading-[1.05] tracking-[-0.03em] text-ink-100 ">

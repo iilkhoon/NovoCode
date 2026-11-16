@@ -11,6 +11,7 @@ import { USAGE, openModal, usePrefs } from "@/lib/ui-store";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { useT } from "@/lib/i18n";
+import { signOut, useUser } from "@/lib/supabase";
 
 /** Deterministic warm hue per project, for thumbnails and dots. */
 export function projectHue(id: string) {
@@ -214,15 +215,16 @@ function UserRow({ mini }: { mini: boolean }) {
   const p = usePrefs();
   const { theme, toggle } = useTheme();
   const t = useT();
-  const name = p.name && p.name !== "Qonaq" ? p.name : t("app.guest");
+  const { user } = useUser();
+  const name = user?.name || (p.name && p.name !== "Qonaq" ? p.name : t("app.guest"));
   return (
     <div className="relative">
             <button type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} className={cn("flex w-full items-center gap-2.5 rounded-xl p-1.5 text-left transition-colors hover:bg-ink-100/[0.05]", mini && "justify-center")}>
-        <Avatar name={name} size={30} />
+        <Avatar name={name} src={user?.avatar} size={30} />
         {!mini && (
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[13.5px] font-medium text-ink-100">{name}</span>
-            <span className="block truncate text-[11.5px] text-ink-500">{p.email || t("app.guestMode")}</span>
+            <span className="block truncate text-[11.5px] text-ink-500">{user?.email || p.email || t("app.guestMode")}</span>
           </span>
         )}
         {!mini && <Settings className="size-4 text-ink-500" />}
@@ -242,9 +244,15 @@ function UserRow({ mini }: { mini: boolean }) {
           <MenuItem icon={<Shield />} onClick={() => (window.location.href = "/admin")}>
             {t("app.admin")}
           </MenuItem>
-          <MenuItem icon={<LogOut />} onClick={() => (window.location.href = "/giris")}>
-            {t("nav.login")}
-          </MenuItem>
+          {user ? (
+            <MenuItem icon={<LogOut />} onClick={() => (setOpen(false), signOut())}>
+              {t("auth.logout")}
+            </MenuItem>
+          ) : (
+            <MenuItem icon={<LogOut />} onClick={() => (window.location.href = "/giris")}>
+              {t("nav.login")}
+            </MenuItem>
+          )}
         </Menu>
       </div>
     </div>

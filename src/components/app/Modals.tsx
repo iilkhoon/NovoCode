@@ -9,6 +9,7 @@ import { PLANS } from "@/components/landing/data";
 import { setTheme, useTheme } from "@/lib/theme";
 import { LANGS, USAGE, closeModal, openModal, setPrefs, useModal, usePrefs } from "@/lib/ui-store";
 import { cn } from "@/lib/cn";
+import { authEnabled, signInWith } from "@/lib/supabase";
 
 /** Mount once (root layout). Any component opens a dialog with `openModal("upgrade")`. */
 export function GlobalModals() {
@@ -213,10 +214,10 @@ function SettingsModal({ open, initialTab }: { open: boolean; initialTab?: strin
                 {(id, d) => <Input id={id} aria-describedby={d} type="email" placeholder="ad@nümunə.az" value={p.email} onChange={(e) => setPrefs({ email: e.target.value })} />}
               </Field>
               <div className="flex flex-wrap gap-2">
-                <Button variant="secondary" onClick={() => soon("Google ilə giriş")}>
+                <Button variant="secondary" onClick={() => (authEnabled() ? signInWith("google") : soon("Google ilə giriş"))}>
                   <GoogleIcon /> Google ilə bağla
                 </Button>
-                <Button variant="secondary" onClick={() => soon("GitHub ilə giriş")}>
+                <Button variant="secondary" onClick={() => (authEnabled() ? signInWith("github") : soon("GitHub ilə giriş"))}>
                   <Github className="size-4" /> GitHub ilə bağla
                 </Button>
               </div>

@@ -121,6 +121,10 @@ const D = {
   "auth.f1": ["Azərbaycan, Türk, Rus, İngilis dilləri", "Azerice, Türkçe, Rusça, İngilizce", "Азербайджанский, турецкий, русский, английский", "Azerbaijani, Turkish, Russian, English"],
   "auth.f2": ["Canlı önizləmə", "Canlı önizleme", "Живой предпросмотр", "Live preview"],
   "auth.f3": ["Bir kliklə yayım", "Tek tıkla yayın", "Публикация в один клик", "One-click publish"],
+  "auth.soonTitle": ["Hesablar tezliklə", "Hesaplar yakında", "Аккаунты скоро", "Accounts coming soon"],
+  "auth.soonBody": ["Hələlik qonaq kimi davam edin — layihələr bu brauzerdə saxlanılır.", "Şimdilik misafir olarak devam edin — projeler bu tarayıcıda saklanır.", "Пока продолжайте как гость — проекты хранятся в этом браузере.", "Continue as a guest for now — projects are kept in this browser."],
+  "auth.failed": ["Giriş alınmadı", "Giriş başarısız", "Не удалось войти", "Sign-in failed"],
+  "auth.logout": ["Çıxış", "Çıkış", "Выйти", "Log out"],
   "auth.terms": ["Davam etməklə İstifadə şərtləri və Məxfilik siyasəti ilə razılaşırsınız.", "Devam ederek Kullanım koşullarını ve Gizlilik politikasını kabul edersiniz.", "Продолжая, вы принимаете Условия использования и Политику конфиденциальности.", "By continuing you agree to the Terms of use and Privacy policy."],
 } as const satisfies Record<string, readonly [string, string, string, string]>;
 

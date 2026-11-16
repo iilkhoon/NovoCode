@@ -39,8 +39,8 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 21. ⏳ Yaradılan saytlara da avtomatik SEO (title, description, OG)
 
 ## D. Hesab və məlumat
-22. ⏳ Supabase: Google və GitHub ilə giriş
-23. ⏳ Layihələr və söhbətlər bulud bazasında (indi brauzerdə — IndexedDB); bir layihədə çoxlu söhbət, köhnə söhbətə qayıtmaq
+22. ✅ Supabase: Google və GitHub ilə giriş (açarlar `.env.local`-a yazılanda işləyir)
+23. ✅ Layihələr və söhbətlər bulud bazasında (indi brauzerdə — IndexedDB); bir layihədə çoxlu söhbət, köhnə söhbətə qayıtmaq
 24. ⏳ Profil, kredit balansı, istifadə tarixçəsi
 
 ## E. Import
@@ -102,3 +102,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (3) | Studio: Qur/Planla/Söhbət rejimləri, kontekst sayğacı + 80%-də avtomatik `/compact`, `/` əmrləri, cavabdan sonra təklif düymələri, saytda element seçib dəyişdirmək |
 | 2026-11-16 (4) | Bir kliklə yayım: build → serverə yükləmə → `ad.localhost` / `ad.novocode.app`; sahiblik açarı, versiya yeniləmə, SPA dəstəyi; layihə kartında “Canlı” nişanı |
 | 2026-11-16 (5) | 4 dil (AZ/TR/RU/EN): dil seçici, menyu, hero, panel, giriş, yazı qutusu; səsli yazı seçilmiş dildə; AI cavab dili ayarlardan |
+| 2026-11-16 (6) | Supabase: Google/GitHub/e-poçt linki ilə giriş, istifadəçi menyusu, çıxış; layihələrin bulud sinxronizasiyası (`supabase/schema.sql`, RLS); açar yoxdursa qonaq rejimi |

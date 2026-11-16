@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Github, GoogleIcon } from "./Modals";
 import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 import { useT } from "@/lib/i18n";
+import { authEnabled, sendMagicLink, signInWith } from "@/lib/supabase";
 import { LangSwitch } from "@/components/ui/LangSwitch";
 
 export function AuthScreen() {
@@ -20,14 +21,31 @@ export function AuthScreen() {
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const t = useT();
 
-  const send = (e: React.FormEvent) => {
+  const disabled = () =>
+    toast.info(t("auth.soonTitle"), t("auth.soonBody"));
+
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError(t("auth.badEmail"));
     setError("");
+    if (!authEnabled()) return disabled();
     setState("sending");
-    setTimeout(() => setState("sent"), 900);
+    try {
+      await sendMagicLink(email);
+      setState("sent");
+    } catch (err) {
+      setState("idle");
+      setError((err as Error).message);
+    }
   };
-  const oauth = (p: string) => toast.info(`${p} ilə giriş tezliklə`, "Hələlik qonaq kimi davam edə bilərsiniz — layihələr bu brauzerdə saxlanılır.");
+  const oauth = async (p: "google" | "github") => {
+    if (!authEnabled()) return disabled();
+    try {
+      await signInWith(p);
+    } catch (err) {
+      toast.error(t("auth.failed"), (err as Error).message);
+    }
+  };
 
   return (
     <div className="grid min-h-dvh bg-wool lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
@@ -61,10 +79,10 @@ export function AuthScreen() {
                 <p className="mt-2 text-[14.5px] text-ink-400">{mode === "login" ? t("auth.loginSub") : t("auth.signupSub")}</p>
 
                 <div className="mt-8 flex flex-col gap-2.5">
-                  <Button variant="secondary" size="lg" className="w-full" onClick={() => oauth("Google")}>
+                  <Button variant="secondary" size="lg" className="w-full" onClick={() => oauth("google")}>
                     <GoogleIcon /> {t("auth.google")}
                   </Button>
-                  <Button variant="secondary" size="lg" className="w-full" onClick={() => oauth("GitHub")}>
+                  <Button variant="secondary" size="lg" className="w-full" onClick={() => oauth("github")}>
                     <Github className="size-4" /> {t("auth.github")}
                   </Button>
                 </div>

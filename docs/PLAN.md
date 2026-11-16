@@ -57,8 +57,8 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 ## G. AI idarəsi və admin panel
 32. ✅ Admin panel: provayderlər serverdə, açarlar şifrəli (AES-GCM), NOVO_ADMIN_PASSWORD ilə qorunur: API provayder əlavə et (NVIDIA, OpenRouter, Anthropic, OpenAI…), açarlar serverdə şifrəli
 33. ✅ Hansı modellər istifadəçiyə görünsün, standart model, model başına kredit qiyməti
-34. 🔄 İstifadəçi model seçimi (Standart / Max)
-35. ⏳ Skill yükləmə (istifadəçi və admin) — markdown təlimatlar
+34. ✅ İstifadəçi model seçimi (admin hansı modelləri açıbsa) (Standart / Max)
+35. ✅ Skill yükləmə (admin): .md yüklə, aç/bağla, sil — dərhal qüvvəyə minir; istifadəçi skill-ləri sonra
 36. ✅ Xərc ölçümü: hər AI sorğusu loglanır (model, token, unikal istifadəçi), admin “Xərc” bölməsi; manat hesabı qiymətlər təyin olunanda
 37. 💤 Öz serverimizdə model (GPU alınanda)
 
@@ -107,3 +107,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (8) | İmport: saytın linkindən dizayn brifi (bölmələr, rənglər, şriftlər) → oxşar sayt; açıq GitHub reposunu gətirmək; SSRF qoruması |
 | 2026-11-16 (9) | AI xərc ölçümü (server logu + admin qrafiki); real gündəlik mesaj sayğacı (beta: gündə 50, pulsuz) |
 | 2026-11-16 (10) | Studio sürəti: node_modules snapshot keşi (IndexedDB), uğursuz keşdə avtomatik təmiz quraşdırma |
+| 2026-11-16 (11) | Skill-lər: admin yükləməsi və idarəsi; model seçimi sadə rejimdə də |

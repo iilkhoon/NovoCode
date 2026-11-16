@@ -527,7 +527,7 @@ export default function Studio({ id }: { id: string }) {
               Əmrlər <Kbd>Ctrl K</Kbd>
             </button>
           )}
-          {dev && <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />}
+          <ModelPicker models={models} value={model} onChange={setModel} error={modelError} />
           <button
             type="button"
             onClick={() => openModal("upgrade")}
@@ -747,14 +747,14 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
   const [open, setOpen] = useState(false);
   const current = models.find((m) => m.id === value);
   return (
-    <div className="relative hidden md:block">
+    <div className="relative hidden lg:block">
       <button
         onClick={() => setOpen((o) => !o)}
         title={error ?? "AI modeli"}
         className={`flex h-8 items-center gap-2 rounded-full px-3 text-xs ring-1 ring-inset transition ${error ? "text-danger ring-danger/30" : "text-ink-300 ring-ink-100/10 hover:ring-ink-100/20"}`}
       >
         <Cpu className="size-3.5" />
-        <span className="max-w-[140px] truncate">{error ? "API əlçatan deyil" : current?.label ?? "Modellər…"}</span>
+        <span className="max-w-[140px] truncate">{error ? "AI qoşulmayıb" : current?.label ?? "Modellər…"}</span>
         <ChevronDown className="size-3" />
       </button>
       <AnimatePresence>
@@ -768,7 +768,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
               transition={{ duration: 0.18 }}
               className="absolute right-0 top-10 z-50 bg-ink-1000 max-h-80 w-72 overflow-y-auto rounded-2xl border border-ink-100/10 p-1.5 shadow-[var(--shadow-panel)] scroll-thin"
             >
-              <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium text-ink-400">AI modeli · <span lang="en">build.nvidia.com</span></div>
+              <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium text-ink-400">AI modeli</div>
               {error && <div className="px-2.5 py-2 text-xs text-danger">{error}</div>}
               {models.map((m, i) => (
                 <button

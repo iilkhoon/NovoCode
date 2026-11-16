@@ -205,23 +205,7 @@ export function AdminPanel() {
 
           {tab === "models" && <ModelsTab cfg={cfg} update={update} />}
 
-          {tab === "skills" && (
-            <div className="flex flex-col gap-4">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {["core", "design-excellence", "azerbaijani-content", "ecommerce", "restaurant", "landing-page", "portfolio", "booking", "dashboard", "auth-and-data", "screenshot-to-code", "astryx-ui"].map((s) => (
-                  <div key={s} className="flex items-center gap-3 rounded-2xl border border-ink-100/8 bg-ink-1000 p-4">
-                    <BookOpen className="size-4 text-nar" />
-                    <span className="flex-1 font-mono text-[13px] text-ink-200">{s}.md</span>
-                  </div>
-                ))}
-              </div>
-              <button type="button" onClick={() => toast.info("Skill yükləmə tezliklə", "Hələlik skills/ qovluğuna .md faylı əlavə edin — avtomatik qoşulur.")} className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-ink-100/20 px-6 py-10 text-center transition-colors hover:border-nar/50 hover:bg-nar/[0.03]">
-                <Upload className="size-5 text-ink-400" />
-                <span className="text-[14px] font-medium text-ink-100">Skill yüklə</span>
-                <span className="text-[12.5px] text-ink-500">.md fayl: ad, təsvir, açar sözlər və təlimat</span>
-              </button>
-            </div>
-          )}
+          {tab === "skills" && <SkillsTab pass={api.pass} />}
 
           {tab === "users" && <EmptyState icon={<Users />} title="İstifadəçilər">Supabase qoşulanda istifadəçilər, planları və limitləri burada görünəcək.</EmptyState>}
           {tab === "usage" && <UsageTab pass={api.pass} />}
@@ -238,6 +222,89 @@ export function AdminPanel() {
           toast.info(`${p.name} əlavə olundu`, "Yadda saxlayın, sonra Modellər bölməsində istədiyiniz modelləri açın.");
         }}
       />
+    </div>
+  );
+}
+
+interface SkillRow {
+  name: string;
+  description: string;
+  triggers: string[];
+  always: boolean;
+  source: "builtin" | "custom";
+  enabled: boolean;
+  size: number;
+}
+
+/** Built-in and uploaded skills: switch on/off, upload .md, delete uploaded ones. */
+function SkillsTab({ pass }: { pass: string }) {
+  const [skills, setSkills] = useState<SkillRow[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const call = useCallback(
+    async (method: string, body?: unknown, query = "") => {
+      const r = await fetch(`/api/admin/skills${query}`, { method, headers: { "content-type": "application/json", "x-novo-admin": pass }, body: body ? JSON.stringify(body) : undefined });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Xəta");
+      setSkills(d.skills);
+    },
+    [pass]
+  );
+  useEffect(() => {
+    call("GET").catch((e) => setErr(e.message));
+  }, [call]);
+  const toggle = (name: string, on: boolean) => {
+    const disabled = (skills ?? []).filter((s) => (s.name === name ? !on : !s.enabled)).map((s) => s.name);
+    call("PUT", { disabled }).catch((e) => toast.error("Alınmadı", e.message));
+  };
+  const upload = async (file: File) => {
+    try {
+      await call("POST", { content: await file.text() });
+      toast.success("Skill yükləndi", file.name);
+    } catch (e) {
+      toast.error("Yükləmək alınmadı", (e as Error).message);
+    }
+  };
+  if (err) return <Alert tone="danger" title="Skill-lər alınmadı">{err}</Alert>;
+  if (!skills) return <p className="py-10 text-center text-[13px] text-ink-500">Yüklənir…</p>;
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {skills.map((s) => (
+          <div key={s.name} className={cn("flex flex-col gap-2 rounded-2xl border bg-ink-1000 p-4", s.enabled ? "border-ink-100/8" : "border-dashed border-ink-100/15 opacity-70")}>
+            <div className="flex items-center gap-2">
+              <BookOpen className="size-4 shrink-0 text-nar" />
+              <span className="min-w-0 flex-1 truncate font-mono text-[13px] font-medium text-ink-100">{s.name}</span>
+              {s.source === "custom" && (
+                <button type="button" aria-label="Sil" onClick={() => call("DELETE", undefined, `?name=${encodeURIComponent(s.name)}`).catch((e) => toast.error("Alınmadı", e.message))} className="grid size-7 place-items-center rounded-full text-ink-500 hover:bg-danger/10 hover:text-danger">
+                  <Trash2 className="size-3.5" />
+                </button>
+              )}
+              <input type="checkbox" role="switch" aria-label={`${s.name} aktiv`} className="nv-switch" checked={s.enabled} disabled={s.name === "core"} onChange={(e) => toggle(s.name, e.target.checked)} />
+            </div>
+            <p className="line-clamp-2 text-[12.5px] leading-relaxed text-ink-400">{s.description || "—"}</p>
+            <div className="flex flex-wrap gap-1.5 text-[11px]">
+              <span className="rounded-full bg-ink-100/[0.06] px-2 py-0.5 text-ink-400">{s.source === "custom" ? "yüklənib" : "daxili"}</span>
+              {s.always && <span className="rounded-full bg-nar/10 px-2 py-0.5 text-nar">həmişə aktiv</span>}
+              {!s.always && s.triggers.length > 0 && <span className="truncate rounded-full bg-ink-100/[0.06] px-2 py-0.5 text-ink-400">{s.triggers.slice(0, 3).join(", ")}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-3xl border border-dashed border-ink-100/20 px-6 py-10 text-center transition-colors hover:border-nar/50 hover:bg-nar/[0.03] focus-within:border-nar">
+        <Upload className="size-5 text-ink-400" />
+        <span className="text-[14px] font-medium text-ink-100">Skill yüklə (.md)</span>
+        <span className="max-w-md text-[12.5px] text-ink-500">Başlıqda name, description, triggers (vergüllə açar sözlər), always: true|false; aşağıda AI üçün təlimat.</span>
+        <input
+          type="file"
+          accept=".md,text/markdown"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload(f);
+            e.target.value = "";
+          }}
+        />
+      </label>
     </div>
   );
 }

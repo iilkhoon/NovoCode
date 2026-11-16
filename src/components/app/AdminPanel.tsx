@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Activity, BookOpen, Cpu, KeyRound, Plus, Server, Trash2, Upload, Users } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Activity, BookOpen, Cpu, KeyRound, Loader2, Lock, Plus, Save, Search, Server, Trash2, Upload, Users } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert, EmptyState, Field, Input, Modal, Select, Tabs } from "@/components/ui/kit";
@@ -9,53 +9,125 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/cn";
 
 /**
- * Admin panel (design + local config). Keys are only kept in this browser for now —
- * the server-side encrypted store arrives with accounts (roadmap G.32).
+ * Admin panel. Providers, keys and model settings live on the server (/api/admin/config,
+ * keys encrypted at rest) and are protected by NOVO_ADMIN_PASSWORD.
  */
 
-interface Provider { id: string; name: string; kind: string; baseUrl: string; key: string; enabled: boolean }
-interface ModelRow { id: string; provider: string; label: string; credits: number; visible: boolean; isDefault: boolean }
+interface Provider {
+  id: string;
+  name: string;
+  baseUrl: string;
+  key: string; // masked when it comes from the server
+  hasKey?: boolean;
+  enabled: boolean;
+}
+interface ModelSetting {
+  id: string;
+  label?: string;
+  credits?: number;
+  visible?: boolean;
+}
+interface Config {
+  providers: Provider[];
+  models: ModelSetting[];
+  defaultModel?: string;
+  nvidia: { configured: boolean };
+  catalog: { provider: string; ids: string[]; error?: string }[];
+}
 
 const KINDS = [
-  { id: "nvidia", name: "NVIDIA", url: "https://integrate.api.nvidia.com/v1" },
   { id: "openrouter", name: "OpenRouter", url: "https://openrouter.ai/api/v1" },
   { id: "anthropic", name: "Anthropic", url: "https://api.anthropic.com/v1" },
   { id: "openai", name: "OpenAI", url: "https://api.openai.com/v1" },
-  { id: "custom", name: "Öz serverim (OpenAI uyğun)", url: "http://" },
+  { id: "deepseek", name: "DeepSeek", url: "https://api.deepseek.com/v1" },
+  { id: "own", name: "Öz serverim (OpenAI uyğun)", url: "http://" },
 ];
 
-const SEED_PROVIDERS: Provider[] = [{ id: "p1", name: "NVIDIA", kind: "nvidia", baseUrl: KINDS[0].url, key: "server .env", enabled: true }];
-const SEED_MODELS: ModelRow[] = [
-  { id: "qwen/qwen3-coder-480b-a35b-instruct", provider: "NVIDIA", label: "Novo Standart", credits: 1, visible: true, isDefault: true },
-  { id: "mistralai/mistral-large-4-1t-a52b", provider: "NVIDIA", label: "Novo Vision (şəkil oxuyur)", credits: 2, visible: true, isDefault: false },
-  { id: "deepseek-ai/deepseek-v3.1", provider: "NVIDIA", label: "Novo Max", credits: 2, visible: true, isDefault: false },
-  { id: "meta/llama-3.3-70b-instruct", provider: "NVIDIA", label: "Novo Sürətli", credits: 1, visible: false, isDefault: false },
-];
+const PASS_KEY = "novo-admin-pass";
 
-function useLocal<T>(key: string, seed: T) {
-  const [v, setV] = useState<T>(seed);
+function useAdminApi() {
+  const [pass, setPass] = useState<string | null>(null);
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(key);
-      if (raw) setV(JSON.parse(raw));
+      setPass(sessionStorage.getItem(PASS_KEY));
     } catch {}
-  }, [key]);
-  const set = (next: T) => {
-    setV(next);
+  }, []);
+  const call = useCallback(
+    async (method: "GET" | "PUT", body?: unknown, p = pass) => {
+      const res = await fetch("/api/admin/config", { method, headers: { "content-type": "application/json", "x-novo-admin": p ?? "" }, body: body ? JSON.stringify(body) : undefined });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(d.error || `Xəta ${res.status}`), { status: res.status });
+      return d as Config;
+    },
+    [pass]
+  );
+  const login = (p: string) => {
+    setPass(p);
     try {
-      localStorage.setItem(key, JSON.stringify(next));
+      sessionStorage.setItem(PASS_KEY, p);
     } catch {}
   };
-  return [v, set] as const;
+  const logout = () => {
+    setPass(null);
+    try {
+      sessionStorage.removeItem(PASS_KEY);
+    } catch {}
+  };
+  return { pass, call, login, logout };
 }
 
-const mask = (k: string) => (k.length > 12 ? `${k.slice(0, 6)}••••••${k.slice(-4)}` : k);
-
 export function AdminPanel() {
+  const api = useAdminApi();
+  const [cfg, setCfg] = useState<Config | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState<"providers" | "models" | "skills" | "users" | "usage">("providers");
-  const [providers, setProviders] = useLocal("novo-admin-providers", SEED_PROVIDERS);
-  const [models, setModels] = useLocal("novo-admin-models", SEED_MODELS);
   const [adding, setAdding] = useState(false);
+
+  const load = useCallback(
+    async (p?: string) => {
+      setError(null);
+      try {
+        setCfg(await api.call("GET", undefined, p));
+        setDirty(false);
+        if (p) api.login(p);
+      } catch (e) {
+        const err = e as Error & { status?: number };
+        if (err.status === 401) api.logout();
+        setError(err.message);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [api.call]
+  );
+  useEffect(() => {
+    if (api.pass) load();
+  }, [api.pass, load]);
+
+  const update = (patch: Partial<Config>) => {
+    setCfg((c) => (c ? { ...c, ...patch } : c));
+    setDirty(true);
+  };
+
+  const save = async () => {
+    if (!cfg) return;
+    setSaving(true);
+    try {
+      await api.call("PUT", { providers: cfg.providers, models: cfg.models, defaultModel: cfg.defaultModel });
+      await load();
+      toast.success("Yadda saxlanıldı", "Dəyişikliklər dərhal qüvvəyə minir.");
+    } catch (e) {
+      toast.error("Saxlamaq alınmadı", (e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!api.pass || !cfg) return <Gate error={error} onLogin={(p) => load(p)} loading={!!api.pass && !cfg && !error} />;
+
+  const activeProviders = cfg.providers.filter((p) => p.enabled).length + (cfg.nvidia.configured ? 1 : 0);
+  const visibleModels = cfg.catalog.reduce((n, c) => n + c.ids.filter((id) => isVisible(cfg, c.provider, id)).length, 0);
 
   return (
     <div className="min-h-dvh bg-wool">
@@ -64,8 +136,16 @@ export function AdminPanel() {
           <Logo href="/app" />
           <span className="rounded-full bg-ink-100 px-2 py-0.5 font-label text-[9.5px] uppercase tracking-[0.08em] text-ink-1000">Admin</span>
           <div className="ml-auto flex items-center gap-2">
+            {dirty && (
+              <Button variant="white" size="sm" onClick={save} disabled={saving}>
+                {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />} Yadda saxla
+              </Button>
+            )}
             <ThemeToggle />
-            <ButtonLink href="/app" variant="secondary" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => (api.logout(), setCfg(null))}>
+              Çıxış
+            </Button>
+            <ButtonLink href="/app" variant="secondary" size="sm" className="hidden sm:inline-flex">
               Tətbiqə qayıt
             </ButtonLink>
           </div>
@@ -73,13 +153,13 @@ export function AdminPanel() {
       </header>
 
       <main className="mx-auto max-w-[1180px] px-4 py-10 sm:px-8">
-        <h1 className="font-display text-[36px] font-[650] tracking-[-0.025em] text-ink-100">İdarəetmə</h1>
+        <h1 className="font-display text-[36px] tracking-[-0.025em] text-ink-100">İdarəetmə</h1>
         <p className="mt-1 text-[14px] text-ink-400">AI provayderləri, modellər, skill-lər və xərclər.</p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat icon={<Server />} label="Aktiv provayder" value={String(providers.filter((p) => p.enabled).length)} />
-          <Stat icon={<Cpu />} label="Görünən model" value={String(models.filter((m) => m.visible).length)} />
-          <Stat icon={<Users />} label="İstifadəçi (bu gün)" value="—" note="Hesablar açılanda" />
+          <Stat icon={<Server />} label="Aktiv provayder" value={String(activeProviders)} />
+          <Stat icon={<Cpu />} label="İstifadəçiyə görünən model" value={String(visibleModels)} />
+          <Stat icon={<Users />} label="İstifadəçi (bu gün)" value="—" note="Hesablar qoşulanda" />
           <Stat icon={<Activity />} label="AI xərci (bu ay)" value="—" note="Ölçmə tezliklə" />
         </div>
 
@@ -88,8 +168,8 @@ export function AdminPanel() {
           value={tab}
           onChange={setTab}
           tabs={[
-            { value: "providers", label: "Provayderlər", count: providers.length },
-            { value: "models", label: "Modellər", count: models.length },
+            { value: "providers", label: "Provayderlər", count: activeProviders },
+            { value: "models", label: "Modellər", count: visibleModels },
             { value: "skills", label: "Skill-lər" },
             { value: "users", label: "İstifadəçilər" },
             { value: "usage", label: "Xərc" },
@@ -99,111 +179,196 @@ export function AdminPanel() {
         <div className="mt-6">
           {tab === "providers" && (
             <div className="flex flex-col gap-4">
-              <Alert tone="warning" title="Açarlar hələlik yalnız bu brauzerdə saxlanılır">
-                Əsl açar serverdəki <code className="font-mono text-[12px]">.env.local</code> faylındadır. Şifrəli server anbarı hesablarla birlikdə gələcək.
-              </Alert>
               <div className="overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000">
-                {providers.map((p, i) => (
-                  <div key={p.id} className={cn("flex flex-wrap items-center gap-4 px-5 py-4", i > 0 && "border-t border-ink-100/8")}>
-                    <span className="grid size-10 place-items-center rounded-xl bg-ink-100/[0.06] text-ink-300">
-                      <KeyRound className="size-[18px]" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[14.5px] font-medium text-ink-100">{p.name}</p>
-                      <p className="truncate font-mono text-[12px] text-ink-500">
-                        {p.baseUrl} · {mask(p.key)}
-                      </p>
-                    </div>
-                    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px]", p.enabled ? "bg-success/10 text-success" : "bg-ink-100/[0.06] text-ink-400")}>
-                      <span className={cn("size-1.5 rounded-full", p.enabled ? "bg-success" : "bg-ink-500")} />
-                      {p.enabled ? "Aktiv" : "Söndürülüb"}
-                    </span>
-                    <input type="checkbox" role="switch" aria-label={`${p.name} aktiv`} className="nv-switch" checked={p.enabled} onChange={(e) => setProviders(providers.map((x) => (x.id === p.id ? { ...x, enabled: e.target.checked } : x)))} />
-                    <button type="button" aria-label="Sil" onClick={() => setProviders(providers.filter((x) => x.id !== p.id))} className="grid size-8 place-items-center rounded-full text-ink-500 hover:bg-danger/10 hover:text-danger">
-                      <Trash2 className="size-4" />
-                    </button>
-                  </div>
+                <Row icon={<KeyRound />} title="NVIDIA" sub={`integrate.api.nvidia.com · ${cfg.nvidia.configured ? "açar serverin .env faylındadır" : "NVIDIA_API_KEY təyin edilməyib"}`} on={cfg.nvidia.configured} />
+                {cfg.providers.map((p) => (
+                  <Row
+                    key={p.id}
+                    icon={<KeyRound />}
+                    title={p.name}
+                    sub={`${p.baseUrl} · ${p.hasKey ? p.key : "açar yoxdur"}`}
+                    on={p.enabled}
+                    onToggle={(v) => update({ providers: cfg.providers.map((x) => (x.id === p.id ? { ...x, enabled: v } : x)) })}
+                    onDelete={() => update({ providers: cfg.providers.filter((x) => x.id !== p.id), models: cfg.models.filter((m) => !m.id.startsWith(p.id + "::")) })}
+                    error={cfg.catalog.find((c) => c.provider === p.id)?.error}
+                  />
                 ))}
               </div>
-              <div>
+              <div className="flex flex-wrap items-center gap-3">
                 <Button variant="primary" onClick={() => setAdding(true)}>
                   <Plus className="size-4" /> Provayder əlavə et
                 </Button>
+                <p className="text-[12.5px] text-ink-500">Açarlar serverdə şifrələnmiş saxlanılır və heç vaxt brauzerə qaytarılmır.</p>
               </div>
             </div>
           )}
 
-          {tab === "models" && (
-            <div className="overflow-x-auto rounded-3xl border border-ink-100/8 bg-ink-1000">
-              <table className="w-full min-w-[720px] text-left text-[13.5px]">
-                <thead className="border-b border-ink-100/8 text-[12px] text-ink-500">
-                  <tr>
-                    <th className="px-5 py-3 font-medium">İstifadəçiyə görünən ad</th>
-                    <th className="px-3 py-3 font-medium">Model</th>
-                    <th className="px-3 py-3 font-medium">Kredit / mesaj</th>
-                    <th className="px-3 py-3 font-medium">Standart</th>
-                    <th className="px-5 py-3 font-medium">Görünür</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {models.map((m) => (
-                    <tr key={m.id} className="border-t border-ink-100/8 first:border-t-0">
-                      <td className="px-5 py-3">
-                        <input aria-label="Ad" value={m.label} onChange={(e) => setModels(models.map((x) => (x.id === m.id ? { ...x, label: e.target.value } : x)))} className="w-full rounded-lg bg-transparent px-2 py-1 font-medium text-ink-100 hover:bg-ink-100/[0.04] focus:bg-ink-100/[0.06] focus:outline-none" />
-                      </td>
-                      <td className="px-3 py-3">
-                        <span className="font-mono text-[12px] text-ink-400">{m.id}</span>
-                        <span className="ml-2 rounded-full bg-ink-100/[0.06] px-2 py-0.5 text-[11px] text-ink-400">{m.provider}</span>
-                      </td>
-                      <td className="px-3 py-3">
-                        <input type="number" min={0} aria-label="Kredit" value={m.credits} onChange={(e) => setModels(models.map((x) => (x.id === m.id ? { ...x, credits: Number(e.target.value) } : x)))} className="w-16 rounded-lg border border-ink-100/12 bg-ink-1000 px-2 py-1 text-ink-100 focus:border-nar focus:outline-none" />
-                      </td>
-                      <td className="px-3 py-3">
-                        <input type="radio" name="default-model" aria-label="Standart model" className="nv-radio" checked={m.isDefault} onChange={() => setModels(models.map((x) => ({ ...x, isDefault: x.id === m.id })))} />
-                      </td>
-                      <td className="px-5 py-3">
-                        <input type="checkbox" role="switch" aria-label="Görünür" className="nv-switch" checked={m.visible} onChange={(e) => setModels(models.map((x) => (x.id === m.id ? { ...x, visible: e.target.checked } : x)))} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {tab === "models" && <ModelsTab cfg={cfg} update={update} />}
 
           {tab === "skills" && (
             <div className="flex flex-col gap-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {["core", "design-excellence", "azerbaijani-content", "ecommerce", "restaurant", "landing-page", "portfolio", "booking", "dashboard"].map((s) => (
+                {["core", "design-excellence", "azerbaijani-content", "ecommerce", "restaurant", "landing-page", "portfolio", "booking", "dashboard", "auth-and-data", "screenshot-to-code", "astryx-ui"].map((s) => (
                   <div key={s} className="flex items-center gap-3 rounded-2xl border border-ink-100/8 bg-ink-1000 p-4">
                     <BookOpen className="size-4 text-nar" />
                     <span className="flex-1 font-mono text-[13px] text-ink-200">{s}.md</span>
-                    <input type="checkbox" role="switch" aria-label={`${s} aktiv`} className="nv-switch" defaultChecked />
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={() => toast.info("Skill yükləmə tezliklə", "Markdown faylı: ad, təsvir, açar sözlər və təlimat.")} className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-ink-100/20 px-6 py-10 text-center transition-colors hover:border-nar/50 hover:bg-nar/[0.03]">
+              <button type="button" onClick={() => toast.info("Skill yükləmə tezliklə", "Hələlik skills/ qovluğuna .md faylı əlavə edin — avtomatik qoşulur.")} className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-ink-100/20 px-6 py-10 text-center transition-colors hover:border-nar/50 hover:bg-nar/[0.03]">
                 <Upload className="size-5 text-ink-400" />
                 <span className="text-[14px] font-medium text-ink-100">Skill yüklə</span>
-                <span className="text-[12.5px] text-ink-500">.md faylını bura atın və ya klikləyin</span>
+                <span className="text-[12.5px] text-ink-500">.md fayl: ad, təsvir, açar sözlər və təlimat</span>
               </button>
             </div>
           )}
 
-          {tab === "users" && <EmptyState icon={<Users />} title="Hələ istifadəçi yoxdur">Google/GitHub ilə giriş açılanda istifadəçilər, planları və limitləri burada görünəcək.</EmptyState>}
+          {tab === "users" && <EmptyState icon={<Users />} title="İstifadəçilər">Supabase qoşulanda istifadəçilər, planları və limitləri burada görünəcək.</EmptyState>}
           {tab === "usage" && <EmptyState icon={<Activity />} title="Xərc ölçümü hazırlanır">Hər istifadəçi və layihə üzrə token və manat xərci, model bölgüsü və gündəlik qrafik.</EmptyState>}
         </div>
       </main>
 
       <AddProvider
         open={adding}
+        taken={cfg.providers.map((p) => p.id)}
         onClose={() => setAdding(false)}
         onAdd={(p) => {
-          setProviders([...providers, p]);
+          update({ providers: [...cfg.providers, p] });
           setAdding(false);
-          toast.success(`${p.name} əlavə edildi`);
+          toast.info(`${p.name} əlavə olundu`, "Yadda saxlayın, sonra Modellər bölməsində istədiyiniz modelləri açın.");
         }}
       />
+    </div>
+  );
+}
+
+function isVisible(cfg: Config, provider: string, id: string) {
+  const s = cfg.models.find((m) => m.id === id);
+  return provider === "nvidia" ? s?.visible !== false : s?.visible === true;
+}
+
+function ModelsTab({ cfg, update }: { cfg: Config; update: (p: Partial<Config>) => void }) {
+  const [q, setQ] = useState("");
+  const setting = (id: string) => cfg.models.find((m) => m.id === id);
+  const patch = (id: string, p: Partial<ModelSetting>) => {
+    const exists = cfg.models.some((m) => m.id === id);
+    update({ models: exists ? cfg.models.map((m) => (m.id === id ? { ...m, ...p } : m)) : [...cfg.models, { id, ...p }] });
+  };
+  const rows = useMemo(
+    () =>
+      cfg.catalog.flatMap((c) =>
+        c.ids
+          .filter((id) => id.toLowerCase().includes(q.trim().toLowerCase()))
+          .slice(0, q ? 200 : c.provider === "nvidia" ? 60 : 40)
+          .map((id) => ({ id, provider: c.provider }))
+      ),
+    [cfg.catalog, q]
+  );
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <Input icon={<Search />} placeholder="Model axtar (məs. claude, gpt, qwen)" value={q} onChange={(e) => setQ(e.target.value)} className="w-full max-w-sm" aria-label="Model axtar" />
+        <p className="text-[12.5px] text-ink-500">NVIDIA modelləri standart olaraq görünür; digər provayderlərin modellərini özünüz açın.</p>
+      </div>
+      <div className="overflow-x-auto rounded-3xl border border-ink-100/8 bg-ink-1000">
+        <table className="w-full min-w-[760px] text-left text-[13.5px]">
+          <thead className="border-b border-ink-100/8 text-[12px] text-ink-500">
+            <tr>
+              <th className="px-5 py-3 font-medium">Model</th>
+              <th className="px-3 py-3 font-medium">İstifadəçiyə görünən ad</th>
+              <th className="px-3 py-3 font-medium">Kredit</th>
+              <th className="px-3 py-3 font-medium">Standart</th>
+              <th className="px-5 py-3 font-medium">Görünür</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ id, provider }) => {
+              const s = setting(id);
+              const visible = isVisible(cfg, provider, id);
+              return (
+                <tr key={id} className="border-t border-ink-100/8 first:border-t-0">
+                  <td className="px-5 py-2.5">
+                    <span className="font-mono text-[12px] text-ink-200">{id.replace(/^[a-z0-9-]+::/, "")}</span>
+                    <span className="ml-2 rounded-full bg-ink-100/[0.06] px-2 py-0.5 text-[11px] text-ink-400">{provider}</span>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <input aria-label="Görünən ad" placeholder="avtomatik" value={s?.label ?? ""} onChange={(e) => patch(id, { label: e.target.value || undefined })} className="w-full rounded-lg bg-transparent px-2 py-1 text-ink-100 placeholder:text-ink-500 hover:bg-ink-100/[0.04] focus:bg-ink-100/[0.06] focus:outline-none" />
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <input type="number" min={0} aria-label="Kredit" value={s?.credits ?? 1} onChange={(e) => patch(id, { credits: Number(e.target.value) })} className="w-16 rounded-lg border border-ink-100/12 bg-ink-1000 px-2 py-1 text-ink-100 focus:border-nar focus:outline-none" />
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <input type="radio" name="default-model" aria-label="Standart model" className="nv-radio" checked={cfg.defaultModel === id} onChange={() => update({ defaultModel: id })} />
+                  </td>
+                  <td className="px-5 py-2.5">
+                    <input type="checkbox" role="switch" aria-label="Görünür" className="nv-switch" checked={visible} onChange={(e) => patch(id, { visible: e.target.checked })} />
+                  </td>
+                </tr>
+              );
+            })}
+            {!rows.length && (
+              <tr>
+                <td colSpan={5} className="px-5 py-10 text-center text-ink-500">
+                  {q ? "Heç nə tapılmadı" : "Model siyahısı alınmadı — provayder açarlarını yoxlayın."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Gate({ onLogin, error, loading }: { onLogin: (p: string) => void; error: string | null; loading: boolean }) {
+  const [p, setP] = useState("");
+  return (
+    <main className="grid min-h-dvh place-items-center bg-wool px-5">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (p) onLogin(p);
+        }}
+        className="w-full max-w-[380px] rounded-[28px] border border-ink-100/10 bg-ink-1000 p-7 shadow-[var(--shadow-panel)]"
+      >
+        <span className="grid size-11 place-items-center rounded-2xl bg-nar/10 text-nar">
+          <Lock className="size-5" />
+        </span>
+        <h1 className="mt-5 font-display text-[26px] tracking-[-0.02em] text-ink-100">Admin panel</h1>
+        <p className="mt-1 text-[13.5px] text-ink-400">Serverdəki NOVO_ADMIN_PASSWORD şifrəsini daxil edin.</p>
+        <Field label="Şifrə" error={error ?? undefined} className="mt-6">
+          {(id, d) => <Input id={id} aria-describedby={d} aria-invalid={!!error} type="password" autoComplete="current-password" value={p} onChange={(e) => setP(e.target.value)} autoFocus />}
+        </Field>
+        <Button type="submit" variant="white" className="mt-4 w-full" disabled={!p || loading}>
+          {loading ? <Loader2 className="size-4 animate-spin" /> : null} Daxil ol
+        </Button>
+        <ButtonLink href="/app" variant="ghost" className="mt-2 w-full">
+          Tətbiqə qayıt
+        </ButtonLink>
+      </form>
+    </main>
+  );
+}
+
+function Row({ icon, title, sub, on, onToggle, onDelete, error }: { icon: React.ReactNode; title: string; sub: string; on: boolean; onToggle?: (v: boolean) => void; onDelete?: () => void; error?: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-4 border-t border-ink-100/8 px-5 py-4 first:border-t-0">
+      <span className="grid size-10 place-items-center rounded-xl bg-ink-100/[0.06] text-ink-300 [&>svg]:size-[18px]">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[14.5px] font-medium text-ink-100">{title}</p>
+        <p className="truncate font-mono text-[12px] text-ink-500">{sub}</p>
+        {error && <p className="mt-0.5 text-[12px] text-danger">{error}</p>}
+      </div>
+      <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px]", on ? "bg-success/10 text-success" : "bg-ink-100/[0.06] text-ink-400")}>
+        <span className={cn("size-1.5 rounded-full", on ? "bg-success" : "bg-ink-500")} />
+        {on ? "Aktiv" : "Söndürülüb"}
+      </span>
+      {onToggle && <input type="checkbox" role="switch" aria-label={`${title} aktiv`} className="nv-switch" checked={on} onChange={(e) => onToggle(e.target.checked)} />}
+      {onDelete && (
+        <button type="button" aria-label="Sil" onClick={onDelete} className="grid size-8 place-items-center rounded-full text-ink-500 hover:bg-danger/10 hover:text-danger">
+          <Trash2 className="size-4" />
+        </button>
+      )}
     </div>
   );
 }
@@ -212,18 +377,20 @@ function Stat({ icon, label, value, note }: { icon: React.ReactNode; label: stri
   return (
     <div className="rounded-3xl border border-ink-100/8 bg-ink-1000 p-5 shadow-[var(--shadow-card)]">
       <span className="grid size-9 place-items-center rounded-xl bg-nar/10 text-nar [&>svg]:size-[18px]">{icon}</span>
-      <p className="mt-4 font-display text-[30px] font-[650] leading-none tracking-[-0.02em] text-ink-100">{value}</p>
+      <p className="mt-4 font-display text-[30px] leading-none tracking-[-0.02em] text-ink-100">{value}</p>
       <p className="mt-1.5 text-[13px] text-ink-400">{label}</p>
       {note && <p className="text-[11.5px] text-ink-500">{note}</p>}
     </div>
   );
 }
 
-function AddProvider({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (p: Provider) => void }) {
+function AddProvider({ open, taken, onClose, onAdd }: { open: boolean; taken: string[]; onClose: () => void; onAdd: (p: Provider) => void }) {
   const [kind, setKind] = useState("openrouter");
-  const [url, setUrl] = useState(KINDS[1].url);
+  const [url, setUrl] = useState(KINDS[0].url);
   const [key, setKey] = useState("");
   const k = KINDS.find((x) => x.id === kind)!;
+  let id = kind;
+  for (let i = 2; taken.includes(id); i++) id = `${kind}-${i}`;
   return (
     <Modal
       open={open}
@@ -236,7 +403,14 @@ function AddProvider({ open, onClose, onAdd }: { open: boolean; onClose: () => v
           <Button variant="ghost" onClick={onClose}>
             Ləğv et
           </Button>
-          <Button variant="primary" disabled={!key.trim()} onClick={() => onAdd({ id: Math.random().toString(36).slice(2), name: k.name, kind, baseUrl: url, key: key.trim(), enabled: true })}>
+          <Button
+            variant="primary"
+            disabled={!key.trim() || !/^https?:\/\/.+/.test(url)}
+            onClick={() => {
+              onAdd({ id, name: k.name, baseUrl: url, key: key.trim(), enabled: true });
+              setKey("");
+            }}
+          >
             Əlavə et
           </Button>
         </>
@@ -244,9 +418,9 @@ function AddProvider({ open, onClose, onAdd }: { open: boolean; onClose: () => v
     >
       <div className="flex flex-col gap-4">
         <Field label="Provayder">
-          {(id) => (
+          {(fid) => (
             <Select
-              id={id}
+              id={fid}
               value={kind}
               onChange={(e) => {
                 setKind(e.target.value);
@@ -261,10 +435,15 @@ function AddProvider({ open, onClose, onAdd }: { open: boolean; onClose: () => v
             </Select>
           )}
         </Field>
-        <Field label="API ünvanı">{(id) => <Input id={id} value={url} onChange={(e) => setUrl(e.target.value)} className="font-mono" />}</Field>
-        <Field label="API açarı" hint="Açar heç vaxt istifadəçilərə göstərilmir.">
-          {(id, d) => <Input id={id} aria-describedby={d} type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-…" icon={<KeyRound />} />}
+        <Field label="API ünvanı" hint="OpenAI uyğun /v1 ünvanı (…/chat/completions və …/models olmalıdır).">
+          {(fid, d) => <Input id={fid} aria-describedby={d} value={url} onChange={(e) => setUrl(e.target.value)} className="font-mono" />}
         </Field>
+        <Field label="API açarı" hint="Serverdə şifrələnmiş saxlanılır, istifadəçilərə heç vaxt göstərilmir.">
+          {(fid, d) => <Input id={fid} aria-describedby={d} type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-…" icon={<KeyRound />} />}
+        </Field>
+        <Alert tone="info" title="Model id-si">
+          Bu provayderin modelləri “{id}::model-adı” kimi görünəcək.
+        </Alert>
       </div>
     </Modal>
   );

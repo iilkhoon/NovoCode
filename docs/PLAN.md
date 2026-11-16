@@ -55,9 +55,9 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 31. 💤 Yaradılan sayt üçün analitika
 
 ## G. AI idarəsi və admin panel
-32. 🔄 Admin panel (dizayn hazır, açarlar hələ brauzerdə): API provayder əlavə et (NVIDIA, OpenRouter, Anthropic, OpenAI…), açarlar serverdə şifrəli
-33. ⏳ Hansı modellər istifadəçiyə görünsün, standart model, model başına kredit qiyməti
-34. ⏳ İstifadəçi model seçimi (Standart / Max)
+32. ✅ Admin panel: provayderlər serverdə, açarlar şifrəli (AES-GCM), NOVO_ADMIN_PASSWORD ilə qorunur: API provayder əlavə et (NVIDIA, OpenRouter, Anthropic, OpenAI…), açarlar serverdə şifrəli
+33. ✅ Hansı modellər istifadəçiyə görünsün, standart model, model başına kredit qiyməti
+34. 🔄 İstifadəçi model seçimi (Standart / Max)
 35. ⏳ Skill yükləmə (istifadəçi və admin) — markdown təlimatlar
 36. ⏳ Xərc ölçümü: istifadəçi/layihə başına token və pul
 37. 💤 Öz serverimizdə model (GPU alınanda)
@@ -103,3 +103,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (4) | Bir kliklə yayım: build → serverə yükləmə → `ad.localhost` / `ad.novocode.app`; sahiblik açarı, versiya yeniləmə, SPA dəstəyi; layihə kartında “Canlı” nişanı |
 | 2026-11-16 (5) | 4 dil (AZ/TR/RU/EN): dil seçici, menyu, hero, panel, giriş, yazı qutusu; səsli yazı seçilmiş dildə; AI cavab dili ayarlardan |
 | 2026-11-16 (6) | Supabase: Google/GitHub/e-poçt linki ilə giriş, istifadəçi menyusu, çıxış; layihələrin bulud sinxronizasiyası (`supabase/schema.sql`, RLS); açar yoxdursa qonaq rejimi |
+| 2026-11-16 (7) | Admin panel işlək: şifrə ilə giriş, OpenAI-uyğun provayderlər (OpenRouter, Anthropic, OpenAI, DeepSeek, öz server), model görünürlüyü, adlar, standart model; AI şlüzü çox provayderli |

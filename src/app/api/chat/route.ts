@@ -1,4 +1,4 @@
-import { streamChat, listModels, type ChatMessage } from "@/lib/ai/nvidia";
+import { streamChat, listModels, preferredModel, type ChatMessage } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
 import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
     if (hasImages && !models.find((m) => m.id === model)?.vision) {
       model = pickDefault(models, process.env.NOVO_VISION_MODEL || undefined, true);
     }
-    model ??= pickDefault(models, process.env.NOVO_DEFAULT_MODEL || undefined);
+    model ??= pickDefault(models, await preferredModel());
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }

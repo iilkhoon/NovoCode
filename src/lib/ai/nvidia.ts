@@ -1,24 +1,101 @@
 import "server-only";
-import { rankModels, type ModelInfo } from "./models";
+import { isVisionModel, rankModels, type ModelInfo } from "./models";
+import { loadConfig } from "./config";
 
-const BASE = process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1";
+/**
+ * OpenAI-compatible model gateway. The built-in provider is NVIDIA (build.nvidia.com,
+ * NVIDIA_API_KEY); the admin panel can add more (OpenRouter, Anthropic, OpenAI, a self-hosted
+ * server…). Model ids of extra providers are qualified as "<providerId>::<model>".
+ */
+const NVIDIA = { id: "nvidia", name: "NVIDIA", baseUrl: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1", key: process.env.NVIDIA_API_KEY ?? "", enabled: true };
+const SEP = "::";
 
-function key(): string {
-  const k = process.env.NVIDIA_API_KEY;
-  if (!k) throw new Error("NVIDIA_API_KEY təyin edilməyib (.env.local faylına əlavə edin).");
-  return k;
+interface Endpoint {
+  id: string;
+  name: string;
+  baseUrl: string;
+  key: string;
+  enabled: boolean;
 }
 
-let modelCache: { at: number; models: ModelInfo[] } | null = null;
+async function providers(): Promise<Endpoint[]> {
+  const cfg = await loadConfig().catch(() => ({ providers: [] as Endpoint[] }));
+  return [...(NVIDIA.key ? [NVIDIA] : []), ...cfg.providers.filter((p) => p.enabled && p.key)];
+}
 
-export async function listModels(): Promise<ModelInfo[]> {
-  if (modelCache && Date.now() - modelCache.at < 10 * 60_000) return modelCache.models;
-  const res = await fetch(`${BASE}/models`, { headers: { Authorization: `Bearer ${key()}` }, cache: "no-store" });
-  if (!res.ok) throw new Error(`NVIDIA modelləri alınmadı: ${res.status}`);
+async function resolve(model: string): Promise<{ ep: Endpoint; model: string }> {
+  const list = await providers();
+  if (!list.length) throw new Error("NVIDIA_API_KEY təyin edilməyib (.env.local faylına əlavə edin) və ya admin paneldə provayder əlavə edin.");
+  const i = model.indexOf(SEP);
+  if (i > 0) {
+    const ep = list.find((p) => p.id === model.slice(0, i));
+    if (!ep) throw new Error(`Provayder tapılmadı: ${model.slice(0, i)}`);
+    return { ep, model: model.slice(i + SEP.length) };
+  }
+  return { ep: list.find((p) => p.id === "nvidia") ?? list[0], model };
+}
+
+const modelCache = new Map<string, { at: number; ids: string[] }>();
+
+async function fetchIds(ep: Endpoint): Promise<string[]> {
+  const c = modelCache.get(ep.id + ep.baseUrl);
+  if (c && Date.now() - c.at < 10 * 60_000) return c.ids;
+  const res = await fetch(`${ep.baseUrl.replace(/\/$/, "")}/models`, { headers: { Authorization: `Bearer ${ep.key}`, "x-api-key": ep.key, "anthropic-version": "2023-06-01" }, cache: "no-store", signal: AbortSignal.timeout(10_000) });
+  if (!res.ok) throw new Error(`${ep.name} modelləri alınmadı: ${res.status}`);
   const data = (await res.json()) as { data: { id: string }[] };
-  const models = rankModels(data.data.map((m) => m.id));
-  modelCache = { at: Date.now(), models };
-  return models;
+  const ids = data.data.map((m) => m.id);
+  modelCache.set(ep.id + ep.baseUrl, { at: Date.now(), ids });
+  return ids;
+}
+
+/** All models users may pick: ranked NVIDIA models + every model of extra providers, minus hidden ones. */
+export async function listModels(): Promise<ModelInfo[]> {
+  const [list, cfg] = await Promise.all([providers(), loadConfig().catch(() => ({ models: [] as { id: string; label?: string; visible?: boolean }[] }))]);
+  if (!list.length) throw new Error("NVIDIA_API_KEY təyin edilməyib (.env.local faylına əlavə edin).");
+  const out: ModelInfo[] = [];
+  const errors: string[] = [];
+  const settings = new Map(cfg.models.map((m) => [m.id, m]));
+  await Promise.all(
+    list.map(async (ep) => {
+      try {
+        const ids = await fetchIds(ep);
+        if (ep.id === "nvidia") out.push(...rankModels(ids));
+        // extra providers can list hundreds of models: only the ones the admin switched on
+        else
+          for (const id of ids) {
+            const q = `${ep.id}${SEP}${id}`;
+            if (settings.get(q)?.visible === true) out.push({ id: q, label: `${id.split("/").pop()} · ${ep.name}`, vision: isVisionModel(id), rank: -1 });
+          }
+      } catch (e) {
+        errors.push((e as Error).message);
+      }
+    })
+  );
+  if (!out.length && errors.length) throw new Error(errors.join("; "));
+  return out
+    .filter((m) => settings.get(m.id)?.visible !== false)
+    .map((m) => (settings.get(m.id)?.label ? { ...m, label: settings.get(m.id)!.label! } : m))
+    .sort((a, b) => a.rank - b.rank);
+}
+
+/** Default model: env override, then the admin's choice. */
+export async function preferredModel(): Promise<string | undefined> {
+  return process.env.NOVO_DEFAULT_MODEL || (await loadConfig().catch(() => null))?.defaultModel || undefined;
+}
+
+/** Raw model ids per provider, for the admin panel. */
+export async function listAllModelIds(): Promise<{ provider: string; ids: string[]; error?: string }[]> {
+  const list = await providers();
+  return Promise.all(
+    list.map(async (ep) => {
+      try {
+        const ids = await fetchIds(ep);
+        return { provider: ep.id, ids: ep.id === "nvidia" ? rankModels(ids).map((m) => m.id) : ids.map((id) => `${ep.id}${SEP}${id}`) };
+      } catch (e) {
+        return { provider: ep.id, ids: [], error: (e as Error).message };
+      }
+    })
+  );
 }
 
 export type ChatContent = string | ({ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } })[];
@@ -29,18 +106,19 @@ export interface ChatMessage {
 
 export type StreamEvent = { kind: "delta"; text: string } | { kind: "reasoning" } | { kind: "usage"; tokens: number };
 
-/** Streams a chat completion from build.nvidia.com (OpenAI-compatible SSE). */
+/** Streams a chat completion from the model's provider (OpenAI-compatible SSE). */
 export async function* streamChat(opts: {
   model: string;
   messages: ChatMessage[];
   signal?: AbortSignal;
   maxTokens?: number;
 }): AsyncGenerator<StreamEvent> {
-  const res = await fetch(`${BASE}/chat/completions`, {
+  const { ep, model } = await resolve(opts.model);
+  const res = await fetch(`${ep.baseUrl.replace(/\/$/, "")}/chat/completions`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${key()}`, "Content-Type": "application/json", Accept: "text/event-stream" },
+    headers: { Authorization: `Bearer ${ep.key}`, "Content-Type": "application/json", Accept: "text/event-stream" },
     body: JSON.stringify({
-      model: opts.model,
+      model,
       messages: opts.messages,
       stream: true,
       temperature: 0.4,
@@ -51,7 +129,7 @@ export async function* streamChat(opts: {
   });
   if (!res.ok || !res.body) {
     const body = await res.text().catch(() => "");
-    throw new Error(`NVIDIA API xətası ${res.status}: ${body.slice(0, 400)}`);
+    throw new Error(`${ep.name} API xətası ${res.status}: ${body.slice(0, 400)}`);
   }
   const reader = res.body.getReader();
   const dec = new TextDecoder();

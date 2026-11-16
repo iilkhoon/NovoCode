@@ -1,85 +1,100 @@
-# Novo Code — 1 aylıq plan
+# NovoCode — yol xəritəsi
 
-Başlanğıc: 2026-11-12 · Hədəf: investor turuna tam hazır məhsul (~4 həftə, hər gün iş)
+Müəllif: Nova Group Azerbaijan · İlkin Rızayev
+Məqsəd: Azərbaycanın ilk AI sayt/tətbiq qurucusu. Kod bilməyən də, developer da rahat işləsin. Görünüş və keyfiyyət Lovable / Bolt səviyyəsində, qiymət regiona uyğun.
 
-Məqsəd: kod bilməyən hər kəs **Bolt qədər rahat** sayt (sonra mobil tətbiq) qursun; developer üçün ayrıca güclü rejim olsun; görünüş dünya standartında və bazardan fərqli olsun; xərclər bizi heç vaxt ziyana salmasın.
+Prinsip: **əvvəl dizayn, sonra texniki.** Hər addım bitəndə işlək olmalıdır — yarımçıq ekran yoxdur.
+
+Status: ✅ hazır · 🔄 gedir · ⏳ növbədə · 💤 sonra (investordan sonra)
+
+---
+
+## A. Generasiya keyfiyyəti — "slop" görünməyən saytlar
+Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun real fotolar, bir vurğu rəngi, səliqəli kartlar, endirim/“Çox satan” nişanları, işlək filtr/səbət, çoxsəhifəli quruluş (kateqoriya səhifəsi, breadcrumb), güvən zolağı (çatdırılma, qaytarma, ödəniş).
+
+1. 🔄 Mövzuya uyğun real şəkillər (Pexels; açar yoxdursa açar sözlə pulsuz mənbə) — təsadüfi şəkil yox
+2. 🔄 Dizayn bacarığının (skill) yenilənməsi: "slop" siyahısı, sahə üzrə nümunə quruluşlar, nişanlar, güvən zolağı
+3. ⏳ Sahə şablonları: mağaza, restoran, klinika, avto, portfolio, landing, dashboard — hər biri çoxsəhifəli, işlək
+4. ⏳ İlk generasiyada "plan → icra" (Bolt kimi checklist addımları ekranda canlı)
+5. ⏳ Avtomatik vizual yoxlama: build sonrası ekran görüntüsü → model özü düzəliş təklif edir
+6. ⏳ Saytların altında "Made with Novo" nişanı (ödənişli planda silinir)
+
+## B. Platformanın dizaynı
+7. ⏳ Ana səhifə v2: Lovable kimi mərkəzdə böyük söhbət qutusu, canlı qradiyent fon, az mətn, aydın CTA
+8. ⏳ Söhbət qutusu: sayt növü (Website · Landing · Web app · +Backend), stil, şəkil/ekran görüntüsü, səs, GitHub/URL import
+9. ⏳ Daxil olmuş istifadəçi üçün tətbiq qabığı: solda ChatGPT kimi panel — Yeni layihə, Axtarış, Layihələr, Son baxılanlar, Profil/kredit
+10. ⏳ Studio v2: solda bağlanan söhbət, sağda önizləmə; üstdə Önizləmə · Kod · Fayllar; mobil/planşet/desktop; yeni tabda aç
+11. ⏳ Söhbətdə Plan / Build / Chat rejimləri; addım-addım canlı checklist; hər cavabdan sonra 2–3 təklif ("Yayımlayaq?", "Naviqasiyanı da düzəldim?")
+12. ⏳ Token sayğacı (kontekst dolulu­ğu), 80%-də avtomatik `/compact`, limitdə "Yeni söhbət"; əmrlər: `/compact`, `/new`, `/plan`, `/publish`, `/undo`
+13. ⏳ Saytda klikləyib seçmək → "bunu dəyiş" (element seçici)
+14. ⏳ Versiya tarixçəsi (hər cavab = bərpa nöqtəsi)
+15. ⏳ Upgrade pəncərəsi və qiymət kartları (ödəniş hələ yoxdur — yalnız görünüş)
+16. ⏳ Boş vəziyyətlər, yüklənmə skeletləri, xəta ekranları, 404 — hamısı eyni dizayn dilində
+17. ⏳ İkon dəsti və mikro-animasiyalar cilası (Bolt səviyyəsi)
+
+## C. Dillər və SEO
+18. ⏳ İnterfeys dilləri: Azərbaycan, Türk, Rus, İngilis (dil seçici, avtomatik aşkarlama)
+19. ⏳ AI cavab dili istifadəçinin dilinə uyğun
+20. ⏳ SEO: metadata, OG şəkilləri, sitemap, robots, hreflang, strukturlaşdırılmış data
+21. ⏳ Yaradılan saytlara da avtomatik SEO (title, description, OG)
+
+## D. Hesab və məlumat
+22. ⏳ Supabase: Google və GitHub ilə giriş
+23. ⏳ Layihələr və söhbətlər bulud bazasında (indi brauzerdə — IndexedDB); bir layihədə çoxlu söhbət, köhnə söhbətə qayıtmaq
+24. ⏳ Profil, kredit balansı, istifadə tarixçəsi
+
+## E. Import
+25. ⏳ GitHub-dan repo gətirmək, redaktə, geri push
+26. ⏳ URL-dən sayt oxumaq: HTML + ekran görüntüsü → oxşar dizayn və quruluş
+27. 💤 Figma-dan import
+
+## F. Yayım
+28. ⏳ Bir kliklə yayım: `ad.novocode.app` (Cloudflare)
+29. ⏳ Paylaşma linki, QR kod (telefonda yoxlamaq)
+30. ⏳ Öz domeni bağlamaq (DNS təlimatı + avtomatik SSL)
+31. 💤 Yaradılan sayt üçün analitika
+
+## G. AI idarəsi və admin panel
+32. ⏳ Admin panel: API provayder əlavə et (NVIDIA, OpenRouter, Anthropic, OpenAI…), açarlar serverdə şifrəli
+33. ⏳ Hansı modellər istifadəçiyə görünsün, standart model, model başına kredit qiyməti
+34. ⏳ İstifadəçi model seçimi (Standart / Max)
+35. ⏳ Skill yükləmə (istifadəçi və admin) — markdown təlimatlar
+36. ⏳ Xərc ölçümü: istifadəçi/layihə başına token və pul
+37. 💤 Öz serverimizdə model (GPU alınanda)
+
+## H. Backend imkanları
+38. ⏳ İstifadəçi öz Supabase-ini qoşur (verilənlər bazası, auth, storage)
+39. 💤 Ödəniş inteqrasiyası yaradılan saytlar üçün
+40. 💤 Konnektorlar (e-poçt, Telegram bot, Google Sheets)
+
+## I. Biznes
+41. 💤 Kredit sistemi və paketlər (ödəniş: yerli provayder — Payriff/Epoint)
+42. 💤 Komanda: dəvət et, eyni layihədə birgə iş
+43. 💤 Referal / promo kodlar
+
+## J. Platformalar
+44. 💤 Mobil tətbiq yaratmaq (Expo) + QR ilə telefonda sınaq
+45. 💤 Desktop tətbiq (Windows/macOS)
+46. 💤 Safari/iPhone üçün öz önizləmə mühərriki (WebContainers lisenziyasından asılılığı da aradan qaldırır)
+
+## K. Keyfiyyət və hazırlıq
+47. ⏳ Studiyanın ilk açılışı 20–40 s → 5–10 s
+48. ⏳ Testlər, xəta monitorinqi, sürət (Lighthouse 95+)
+49. ⏳ Investor demosu: ssenari, demo video, nümunə layihələr
 
 ---
 
-## 1. Dizayn istiqaməti — "ASCII + isti işıq"
+## Qərarlar
 
-Bazarda hamı eyni görünür: tünd fon, bənövşəyi qradiyent, şüşə kartlar. Biz başqa yolla gedirik.
-
-- **ASCII səhnə.** Ana ekranın fonu simvollardan (`. : * # @`) qurulmuş canlı, axan şəkildir. Kursor və ya barmaq yaxınlaşanda simvollar dalğalanır. İstifadəçi yazmağa başlayanda simvollar yazdığı sözə doğru "axır" — AI-ın düşündüyünü vizual göstərir.
-- **İsti qradiyentlər.** Anthropic/Claude stilindən **ilham** (kopya yox): krem/kağız fon, terrakota-narıncı, şaftalı və qum tonları, yavaş hərəkət edən yumşaq işıqlar. Rənglər və adlar öz brendimizdir — başqa brendə bənzəyən kimlik qlobal bazarda problem yaradar.
-- **Tipoqrafiya.** Başlıqlar: Fraunces (redaksiya serifi). Mətn: Onest. Etiketlər: Martian Mono. Inter və Geist Pixel çıxarıldı.
-- **İki tema.** Gündüz (krem fonda ASCII) və gecə (qara fonda isti işıqlı ASCII).
-- **Video fon** ASCII səhnə ilə əvəz olunur — daha unikal, dəfələrlə yüngül, pulsuz.
-
-## 2. İki rejim
-
-### Sadə rejim (standart, hamı üçün)
-- Yalnız **söhbət + canlı sayt**. "Terminal", "fayl", "kod" sözləri ekranda yoxdur.
-- Xəta olanda texniki mesaj yox: *"Kiçik problem tapdım, düzəldirəm…"* (animasiyalı).
-- Saytda istənilən yerə **klikləyib "bunu dəyiş"** demək.
-- Böyük **"Yayımla"** düyməsi — basanda link hazırdır.
-
-### Developer rejimi (bir düymə ilə açılır)
-- Kod redaktoru, fayl ağacı, terminal, model seçimi, ZIP yükləmə.
-- Sadə istifadəçi bu rejimə təsadüfən düşmür.
-
-## 3. Axıcılıq — ölçülən hədəflər
-
-| Hədəf | Dəyər |
-| --- | --- |
-| Ana ekranın açılması | ≤ 1.5 s, Lighthouse 95+ |
-| Animasiyalar | həmişə 60 fps, zəif telefonda da |
-| ASCII səhnə | canvas; zəif cihazda simvol sıxlığı avtomatik azalır |
-| Hərəkət | 150–400 ms, yumşaq, mənalı; heç nə istifadəçini gözlətmir; "azaldılmış hərəkət" dəstəklənir |
-| Studiyanın ilk açılışı | 20–40 s → 5–10 s (paketlər əvvəlcədən hazır) |
-
-## 4. Ucuz və ziyansız iş modeli
-
-Ən böyük xərc AI-dır; server xərci demək olar sıfırdır.
-
-| Xərc | Necə ucuz saxlayırıq |
-| --- | --- |
-| AI | Ucuz, güclü modellər (NVIDIA: DeepSeek, Qwen…); kiçik düzəlişlərə daha ucuz model; cavab ölçüsü və kontekst limiti |
-| Kvota | Hər planın gündəlik/aylıq mesaj limiti — pulsuz istifadəçi heç vaxt ziyana salmır |
-| Önizləmə | İstifadəçinin brauzerində işləyir — bizə xərc yoxdur |
-| Yayım | Statik hostinq (məs. Cloudflare), sayt başına qəpiklər |
-| Nəzarət | Hər istifadəçinin xərci ölçülür; plan qiyməti xərcdən 3–5× yuxarı |
-
-Dəqiq rəqəmlər real sınaqdan sonra ölçülür: bir sayt orta neçə mesaj və neçə tokenə başa gəlir.
-
-## 5. Həftəlik plan
-
-| Həftə | İş | Status |
-| --- | --- | --- |
-| 1 | Real sınaq problemləri · yeni dizayn sistemi (rəng, tema, tipoqrafiya) · ASCII səhnə | 🔄 dizayn sistemi, loqo, iki tema, zəif ASCII fon hazırdır |
-| 2 | Sadə / Developer rejimləri · insan dilində xəta bildirişləri · studiyanın sürətləndirilməsi | 🔄 rejimlər və xəta bildirişləri hazırdır; sürət qalır |
-| 3 | Saytda kliklə dəyişmək · bir kliklə yayım (`ad.novocode.az`) · Google ilə giriş | ⏳ |
-| 4 | Xərc ölçümü və kvotalar · iPhone/Safari dəstəyi · son cilalama · investor üçün demo video | ⏳ |
-
-Sonra: mobil tətbiq yaratma (Expo, telefonda QR ilə açılır).
-
-## 6. Bizdən asılı olmayanlar
-
-- **StackBlitz (WebContainers) lisenziyası** — kommersiya istifadəsi üçün. Alternativ: öz yüngül brauzer önizləməmiz (esbuild-wasm; lisenziyasız, Safari/iPhone-da işləyir) və ya öz server sandbox-umuz (Docker).
-- **Server hesabları** — AI API, domen, verilənlər bazası, hostinq.
-- **Ödəniş sistemi** — yerli provayder/bankla müqavilə.
-
-## 7. Açıq qərarlar (sahibkar)
-
-1. ~~ASCII səhnə~~ — qərar: çox az, yalnız hero kənarlarında zəif dalğalanan simvollar.
-2. ~~Əsas tema~~ — qərar: açıq (krem) əsas, gecə rejimi düymə ilə.
-3. Qiymət planları — xərc ölçüləndən sonra. Hələlik saytda "Beta dövründə pulsuz, qiymətlər tezliklə".
-
----
+- Canlı önizləmə: WebContainers pulsuz rejimdə qalır; lisenziya yayımdan əvvəl.
+- Ödəniş: inkişaf mərhələsində yoxdur.
+- Server: əsas tətbiq + yayım üçün ayrı; mövcud Windows server test/hostinq üçün istifadə oluna bilər.
+- Ad: hələlik NovoCode, sonra dəyişə bilər.
 
 ## Gündəlik qeyd
 
 | Tarix | Nə edildi |
 | --- | --- |
-| 2026-11-12 | "Nöqtə" redizaynı (video hero, dot-matrix başlıq, mobil menyu); runtime donması, hydration xətaları, API qoruması düzəldildi; plan yazıldı |
-| 2026-11-12 (2) | "Şəfəq" dizayn sistemi: krem/terrakota palitra, gündüz/gecə, Fraunces + Onest + Martian Mono; yeni loqo ("n" + kursor, "Novo**code**"); video yerinə isti işıqlar + zəif simvol sahəsi; studio yenidən dizayn; Sadə/Developer rejimləri; insan dilində xətalar və "Yenidən cəhd et"; qiymətlər gizlədildi |
+| 2026-11-12 | "Nöqtə" redizaynı; runtime, hydration, API qoruması düzəldildi; ilk plan |
+| 2026-11-12 (2) | "Şəfəq" dizayn sistemi, yeni loqo, iki tema, Sadə/Developer rejimləri, insan dilində xətalar |
+| 2026-11-16 | Tam yol xəritəsi; generasiya keyfiyyəti: real şəkillər və yeni dizayn bacarığı |

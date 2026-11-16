@@ -38,6 +38,8 @@ export interface Project {
   files: Record<string, string>;
   messages: ChatMessage[];
   pendingPrompt?: { text: string; images?: string[] };
+  /** last one-click publish: public URL and the owner token needed to update it */
+  publish?: { slug: string; url: string; token: string; at: number };
   createdAt: number;
   updatedAt: number;
 }

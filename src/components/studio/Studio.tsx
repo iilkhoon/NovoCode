@@ -535,7 +535,7 @@ export default function Studio({ id }: { id: string }) {
             {USAGE.limit - USAGE.used} mesaj qalıb
           </button>
           <ThemeToggle />
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => openModal("share", { name: project?.name, url: `https://${slug(project?.name ?? "layihe")}.novocode.app` })}>
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => openModal("share", { name: project?.name, url: project?.publish?.url ?? `https://${slug(project?.name ?? "layihe")}.novocode.app` })}>
             <Share2 className="size-3.5" /> Paylaş
           </Button>
           {dev && (
@@ -662,7 +662,20 @@ export default function Studio({ id }: { id: string }) {
         </section>
       </div>
 
-      <PublishModal open={publishOpen} onClose={() => setPublishOpen(false)} projectName={project?.name ?? "layihe"} runtime={runtime} files={files} dev={dev} />
+      <PublishModal
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        project={project}
+        runtime={runtime}
+        files={files}
+        dev={dev}
+        onPublished={(info) => {
+          if (!projectRef.current) return;
+          projectRef.current = { ...projectRef.current, publish: info };
+          setProject(projectRef.current);
+          persist();
+        }}
+      />
       <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} commands={commands} />
     </div>
     </AstryxTheme>

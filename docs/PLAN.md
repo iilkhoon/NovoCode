@@ -49,8 +49,8 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 27. 💤 Figma-dan import
 
 ## F. Yayım
-28. ⏳ Bir kliklə yayım: `ad.novocode.app` (Cloudflare)
-29. ⏳ Paylaşma linki, QR kod (telefonda yoxlamaq)
+28. ✅ Bir kliklə yayım: `ad.novocode.app` — öz serverimizdə (wildcard DNS `*.novocode.app` → server); Cloudflare sonra
+29. ✅ Paylaşma linki, QR kod (telefonda yoxlamaq)
 30. ⏳ Öz domeni bağlamaq (DNS təlimatı + avtomatik SSL)
 31. 💤 Yaradılan sayt üçün analitika
 
@@ -100,3 +100,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 | Tam yol xəritəsi; dizayn sistemi v3 (bənövşəyi + qradiyent, Bricolage Grotesque + Geist, canlı WebGL qradiyent); /app paneli, giriş, admin, bütün pəncərələr və bildirişlər; yeni slogan |
 | 2026-11-16 (2) | Generasiya keyfiyyəti: `img.novo` → real şəkillər (Pexels / açarsız ehtiyat), dizayn bacarığına peşəkar sayt nümunələri, "Made with Novo" nişanı |
 | 2026-11-16 (3) | Studio: Qur/Planla/Söhbət rejimləri, kontekst sayğacı + 80%-də avtomatik `/compact`, `/` əmrləri, cavabdan sonra təklif düymələri, saytda element seçib dəyişdirmək |
+| 2026-11-16 (4) | Bir kliklə yayım: build → serverə yükləmə → `ad.localhost` / `ad.novocode.app`; sahiblik açarı, versiya yeniləmə, SPA dəstəyi; layihə kartında “Canlı” nişanı |

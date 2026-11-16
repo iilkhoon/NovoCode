@@ -262,7 +262,14 @@ function ProjectCard({ p, onDelete, onDuplicate, onRename }: { p: Project; onDel
       <div className="flex items-center gap-2 p-4">
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[14.5px] font-medium text-ink-100">{p.name}</h3>
-          <p className="text-[12px] text-ink-500">Dəyişdirilib {timeAgo(p.updatedAt)}</p>
+          <p className="flex items-center gap-1.5 text-[12px] text-ink-500">
+            {p.publish && (
+              <a href={p.publish.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-success/10 px-1.5 py-px font-medium text-success hover:bg-success/15">
+                <span className="size-1.5 rounded-full bg-success" /> Canlı
+              </a>
+            )}
+            Dəyişdirilib {timeAgo(p.updatedAt)}
+          </p>
         </div>
         <CardMenu p={p} onDelete={onDelete} onDuplicate={onDuplicate} onRename={onRename} />
       </div>
@@ -288,7 +295,7 @@ function CardMenu({ p, onDelete, onDuplicate, onRename }: { p: Project; onDelete
         <MenuItem icon={<Copy />} onClick={run(onDuplicate)}>
           Surətini çıxar
         </MenuItem>
-        <MenuItem icon={<Share2 />} onClick={run(() => openModal("share", { name: p.name, url: `https://${slug(p.name)}.novocode.app` }))}>
+        <MenuItem icon={<Share2 />} onClick={run(() => openModal("share", { name: p.name, url: p.publish?.url ?? `https://${slug(p.name)}.novocode.app` }))}>
           Paylaş
         </MenuItem>
         <MenuSeparator />

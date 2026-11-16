@@ -7,7 +7,7 @@ import { Alert, Avatar, Checkbox, Field, Input, Modal, Progress, Radio, Segmente
 import { toast } from "@/components/ui/toast";
 import { PLANS } from "@/components/landing/data";
 import { setTheme, useTheme } from "@/lib/theme";
-import { LANGS, USAGE, closeModal, openModal, setPrefs, useModal, usePrefs } from "@/lib/ui-store";
+import { LANGS, closeModal, useDailyUsage, openModal, setPrefs, useModal, usePrefs } from "@/lib/ui-store";
 import { cn } from "@/lib/cn";
 import { authEnabled, signInWith } from "@/lib/supabase";
 import { createProject, createProjectFromFiles } from "@/lib/store/projects";
@@ -181,6 +181,7 @@ function SettingsModal({ open, initialTab }: { open: boolean; initialTab?: strin
   }, [open, initialTab]);
   const p = usePrefs();
   const { theme } = useTheme();
+  const usage = useDailyUsage();
 
   return (
     <Modal open={open} onClose={closeModal} size="lg" title="Parametrlər">
@@ -299,12 +300,12 @@ function SettingsModal({ open, initialTab }: { open: boolean; initialTab?: strin
             <Section title="Plan və kredit">
               <div className="rounded-3xl bg-brand p-5 text-white">
                 <p className="label-mono opacity-80">Hazırkı plan</p>
-                <p className="mt-1 font-display text-[28px] font-[650] tracking-[-0.02em]">{USAGE.plan}</p>
+                <p className="mt-1 font-display text-[28px] font-[650] tracking-[-0.02em]">Beta</p>
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/25">
-                  <div className="h-full rounded-full bg-white" style={{ width: `${(USAGE.used / USAGE.limit) * 100}%` }} />
+                  <div className="h-full rounded-full bg-white" style={{ width: `${Math.min(100, (usage.used / usage.limit) * 100)}%` }} />
                 </div>
                 <p className="mt-2 text-[13px] opacity-90">
-                  {USAGE.period} {USAGE.used} / {USAGE.limit} mesaj · {USAGE.resets}
+                  Bu gün {usage.used} / {usage.limit} mesaj · beta dövründə pulsuz
                 </p>
               </div>
               <Alert tone="info" title="Beta dövrü">

@@ -7,7 +7,7 @@ import { Download, FolderOpen, Home, LayoutTemplate, LogOut, Menu as MenuIcon, M
 import { LogoMark, Wordmark } from "@/components/Logo";
 import { Avatar, Kbd, Menu, MenuItem, MenuSeparator, Progress } from "@/components/ui/kit";
 import { useTheme } from "@/lib/theme";
-import { USAGE, openModal, usePrefs } from "@/lib/ui-store";
+import { openModal, useDailyUsage, usePrefs } from "@/lib/ui-store";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { useT } from "@/lib/i18n";
@@ -192,17 +192,18 @@ function NavItem({ href, onClick, icon, label, mini, count }: { href?: string; o
 
 function CreditCard() {
   const t = useT();
-  const low = USAGE.used / USAGE.limit >= 0.8;
+  const usage = useDailyUsage();
+  const low = usage.used / usage.limit >= 0.8;
   return (
     <div className="mb-2 mt-3 rounded-2xl border border-ink-100/8 bg-ink-1000 p-3.5 shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-medium text-ink-100">{t("app.plan", { plan: t("plan.free") })}</p>
+        <p className="text-[13px] font-medium text-ink-100">{t("app.plan", { plan: "Beta" })}</p>
         <p className="text-[12px] text-ink-400">
-          {USAGE.used}/{USAGE.limit}
+          {usage.used}/{usage.limit}
         </p>
       </div>
-      <Progress value={USAGE.used} max={USAGE.limit} tone={low ? "warning" : "nar"} className="mt-2.5" label="Bu günkü mesajlar" />
-      <p className="mt-2 text-[11.5px] text-ink-500">{t("app.resets")}</p>
+      <Progress value={usage.used} max={usage.limit} tone={low ? "warning" : "nar"} className="mt-2.5" label="Bu günkü mesajlar" />
+      <p className="mt-2 text-[11.5px] text-ink-500">{t("app.betaNote")}</p>
       <button type="button" onClick={() => openModal("upgrade")} className="mt-3 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg bg-brand text-[12.5px] font-medium text-white transition-[filter,transform] hover:brightness-105 active:scale-[0.98]">
         <Sparkles className="size-3.5" /> {t("app.upgrade")}
       </button>

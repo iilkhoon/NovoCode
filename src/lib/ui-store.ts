@@ -80,8 +80,44 @@ export function usePrefs(): Prefs {
   );
 }
 
-/** Demo usage numbers until billing exists. */
-export const USAGE = { plan: "Pulsuz", used: 3, limit: 5, period: "bu gün", resets: "gecə 00:00-da yenilənir" };
+/**
+ * Messages sent today, counted in this browser. During the beta there is no hard limit;
+ * DAILY_FAIR_USE is the soft daily allowance shown to users.
+ */
+export const DAILY_FAIR_USE = 50;
+const UKEY = "novo-usage";
+const today = () => new Date().toISOString().slice(0, 10);
+let usage = { day: "", used: 0 };
+const uListeners = new Set<() => void>();
+function loadUsage() {
+  if (typeof window === "undefined") return usage;
+  if (usage.day !== today()) {
+    try {
+      const u = JSON.parse(localStorage.getItem(UKEY) ?? "{}");
+      usage = u.day === today() ? u : { day: today(), used: 0 };
+    } catch {
+      usage = { day: today(), used: 0 };
+    }
+  }
+  return usage;
+}
+export function countMessage() {
+  const u = loadUsage();
+  usage = { day: u.day, used: u.used + 1 };
+  try {
+    localStorage.setItem(UKEY, JSON.stringify(usage));
+  } catch {}
+  uListeners.forEach((l) => l());
+}
+const SERVER_USAGE = { day: "", used: 0 };
+export function useDailyUsage() {
+  const u = useSyncExternalStore(
+    (cb) => (uListeners.add(cb), () => uListeners.delete(cb)),
+    loadUsage,
+    () => SERVER_USAGE
+  );
+  return { used: u.used, limit: DAILY_FAIR_USE, left: Math.max(0, DAILY_FAIR_USE - u.used) };
+}
 
 export const LANGS: { id: Lang; label: string; native: string }[] = [
   { id: "az", label: "Azərbaycan", native: "AZ" },

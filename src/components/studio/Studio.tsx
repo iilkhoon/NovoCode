@@ -12,7 +12,7 @@ import { AstryxTheme } from "@/components/AstryxTheme";
 import { Kbd } from "@/components/ui/badge";
 import { LogoMark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { USAGE, openModal } from "@/lib/ui-store";
+import { countMessage, openModal, useDailyUsage } from "@/lib/ui-store";
 import { slug } from "@/components/app/Workspace";
 import { friendlyFile, humanizeError } from "@/lib/humanize";
 import { apiResolver, resolveImages } from "@/lib/images";
@@ -71,6 +71,7 @@ export default function Studio({ id }: { id: string }) {
     setIntentState(i);
   }, []);
   const prefs = usePrefs();
+  const daily = useDailyUsage();
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<PickedElement | null>(null);
   const pickedRef = useRef<PickedElement | null>(null);
@@ -338,6 +339,7 @@ export default function Studio({ id }: { id: string }) {
       if (prefsRef.current.autoCompact && usage.ratio >= COMPACT_AT) await compact();
       const sel = pickedRef.current;
       if (sel) setPicked(null);
+      countMessage();
       const msg: ChatMessage = { id: uid(), role: "user", content: sel ? `${describePick(sel)}\n\n${text}` : text, images: images.length ? images : undefined, createdAt: Date.now() };
       const history = [...messagesRef.current.filter((m) => !m.pending), msg];
       commitMessages(history);
@@ -533,7 +535,7 @@ export default function Studio({ id }: { id: string }) {
             className="hidden h-8 items-center gap-1.5 rounded-full border border-ink-100/10 px-3 text-[12.5px] text-ink-300 transition-colors hover:border-nar/40 hover:text-ink-100 lg:inline-flex"
           >
             <Zap className="size-3.5 text-nar" />
-            {USAGE.limit - USAGE.used} mesaj qalıb
+            {daily.left} mesaj qalıb
           </button>
           <ThemeToggle />
           <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => openModal("share", { name: project?.name, url: project?.publish?.url ?? `https://${slug(project?.name ?? "layihe")}.novocode.app` })}>

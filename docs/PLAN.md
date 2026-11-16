@@ -59,7 +59,7 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 33. ✅ Hansı modellər istifadəçiyə görünsün, standart model, model başına kredit qiyməti
 34. 🔄 İstifadəçi model seçimi (Standart / Max)
 35. ⏳ Skill yükləmə (istifadəçi və admin) — markdown təlimatlar
-36. ⏳ Xərc ölçümü: istifadəçi/layihə başına token və pul
+36. ✅ Xərc ölçümü: hər AI sorğusu loglanır (model, token, unikal istifadəçi), admin “Xərc” bölməsi; manat hesabı qiymətlər təyin olunanda
 37. 💤 Öz serverimizdə model (GPU alınanda)
 
 ## H. Backend imkanları
@@ -105,3 +105,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (6) | Supabase: Google/GitHub/e-poçt linki ilə giriş, istifadəçi menyusu, çıxış; layihələrin bulud sinxronizasiyası (`supabase/schema.sql`, RLS); açar yoxdursa qonaq rejimi |
 | 2026-11-16 (7) | Admin panel işlək: şifrə ilə giriş, OpenAI-uyğun provayderlər (OpenRouter, Anthropic, OpenAI, DeepSeek, öz server), model görünürlüyü, adlar, standart model; AI şlüzü çox provayderli |
 | 2026-11-16 (8) | İmport: saytın linkindən dizayn brifi (bölmələr, rənglər, şriftlər) → oxşar sayt; açıq GitHub reposunu gətirmək; SSRF qoruması |
+| 2026-11-16 (9) | AI xərc ölçümü (server logu + admin qrafiki); real gündəlik mesaj sayğacı (beta: gündə 50, pulsuz) |

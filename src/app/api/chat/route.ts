@@ -3,6 +3,7 @@ import { pickDefault } from "@/lib/ai/models";
 import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
 import { selectSkills } from "@/lib/skills/select";
+import { recordUsage, userHash } from "@/lib/usage";
 import { assertSameOrigin, errorResponse, HttpError, isDataImage, rateLimit, readJson } from "@/lib/api/guard";
 
 export const dynamic = "force-dynamic";
@@ -106,17 +107,27 @@ export async function POST(req: Request) {
     async start(controller) {
       const send = (obj: unknown) => controller.enqueue(enc.encode(JSON.stringify(obj) + "\n"));
       send({ t: "meta", model, skills: skills.map((s) => s.name) });
+      let tokens = 0, chars = 0, ok = true;
       try {
         let thinking = 0;
         for await (const ev of streamChat({ model: model!, messages, signal: req.signal })) {
-          if (ev.kind === "delta") send({ t: "d", v: ev.text });
-          else if (ev.kind === "reasoning" && ++thinking % 20 === 1) send({ t: "thinking" });
-          else if (ev.kind === "usage") send({ t: "usage", v: ev.tokens });
+          if (ev.kind === "delta") {
+            chars += ev.text.length;
+            send({ t: "d", v: ev.text });
+          } else if (ev.kind === "reasoning" && ++thinking % 20 === 1) send({ t: "thinking" });
+          else if (ev.kind === "usage") {
+            tokens = ev.tokens;
+            send({ t: "usage", v: ev.tokens });
+          }
         }
         send({ t: "done" });
       } catch (e) {
+        ok = false;
         if (!req.signal.aborted) send({ t: "error", v: (e as Error).message });
       } finally {
+        // providers that don't report usage: estimate from prompt + reply size
+        const est = tokens || Math.ceil((JSON.stringify(messages).length + chars) / 3.5);
+        void recordUsage({ at: Date.now(), model: model!, intent: body.intent, tokens: est, ok, user: userHash(req) });
         try {
           controller.close();
         } catch {

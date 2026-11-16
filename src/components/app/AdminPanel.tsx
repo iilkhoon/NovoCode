@@ -224,7 +224,7 @@ export function AdminPanel() {
           )}
 
           {tab === "users" && <EmptyState icon={<Users />} title="İstifadəçilər">Supabase qoşulanda istifadəçilər, planları və limitləri burada görünəcək.</EmptyState>}
-          {tab === "usage" && <EmptyState icon={<Activity />} title="Xərc ölçümü hazırlanır">Hər istifadəçi və layihə üzrə token və manat xərci, model bölgüsü və gündəlik qrafik.</EmptyState>}
+          {tab === "usage" && <UsageTab pass={api.pass} />}
         </div>
       </main>
 
@@ -238,6 +238,86 @@ export function AdminPanel() {
           toast.info(`${p.name} əlavə olundu`, "Yadda saxlayın, sonra Modellər bölməsində istədiyiniz modelləri açın.");
         }}
       />
+    </div>
+  );
+}
+
+interface Usage {
+  month: string;
+  calls: number;
+  failed: number;
+  tokens: number;
+  users: number;
+  days: { day: string; calls: number; tokens: number }[];
+  models: { model: string; calls: number; tokens: number }[];
+}
+
+const fmt = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k` : String(n));
+
+/** Monthly AI usage from the server log: calls, tokens, unique users, per day and per model. */
+function UsageTab({ pass }: { pass: string }) {
+  const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [u, setU] = useState<Usage | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    setU(null);
+    fetch(`/api/admin/usage?month=${month}`, { headers: { "x-novo-admin": pass } })
+      .then(async (r) => ((await r.json()) as Usage & { error?: string }))
+      .then((d) => (d.error ? setErr(d.error) : setU(d)))
+      .catch((e) => setErr(String(e)));
+  }, [month, pass]);
+  if (err) return <Alert tone="danger" title="Statistika alınmadı">{err}</Alert>;
+  if (!u) return <p className="py-10 text-center text-[13px] text-ink-500">Yüklənir…</p>;
+  const max = Math.max(1, ...u.days.map((d) => d.tokens));
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <input type="month" value={month} onChange={(e) => e.target.value && setMonth(e.target.value)} aria-label="Ay" className="h-10 rounded-xl border border-ink-100/12 bg-ink-1000 px-3 text-[14px] text-ink-100 focus:border-nar focus:outline-none" />
+        <p className="text-[12.5px] text-ink-500">Token sayı provayderin hesabatından; hesabat verməyənlər üçün təxmini.</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat icon={<Activity />} label="AI sorğusu" value={fmt(u.calls)} note={u.failed ? `${u.failed} uğursuz` : undefined} />
+        <Stat icon={<Cpu />} label="Token" value={fmt(u.tokens)} />
+        <Stat icon={<Users />} label="Unikal istifadəçi" value={String(u.users)} />
+        <Stat icon={<Server />} label="Sorğu başına token" value={u.calls ? fmt(Math.round(u.tokens / u.calls)) : "—"} />
+      </div>
+      {u.calls === 0 ? (
+        <EmptyState icon={<Activity />} title="Bu ay hələ AI sorğusu yoxdur">Studio-da ilk mesaj göndəriləndə statistika burada görünəcək.</EmptyState>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+          <div className="rounded-3xl border border-ink-100/8 bg-ink-1000 p-5">
+            <p className="text-[14px] font-medium text-ink-100">Günlük token</p>
+            <div className="mt-5 flex h-40 items-end gap-1.5" role="img" aria-label="Günlük token qrafiki">
+              {u.days.map((d) => (
+                <div key={d.day} className="group relative flex h-full flex-1 flex-col justify-end">
+                  <div className="rounded-t-md bg-nar/80 transition-colors group-hover:bg-nar" style={{ height: `${Math.max(3, (d.tokens / max) * 100)}%` }} />
+                  <span className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-ink-100 px-2 py-1 text-[11px] text-ink-1000 opacity-0 group-hover:opacity-100">
+                    {d.day.slice(5)} · {fmt(d.tokens)} · {d.calls} sorğu
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex justify-between text-[11px] text-ink-500">
+              <span>{u.days[0]?.day.slice(5)}</span>
+              <span>{u.days[u.days.length - 1]?.day.slice(5)}</span>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000">
+            <p className="px-5 pt-5 text-[14px] font-medium text-ink-100">Modellər üzrə</p>
+            <table className="mt-3 w-full text-left text-[13px]">
+              <tbody>
+                {u.models.map((m) => (
+                  <tr key={m.model} className="border-t border-ink-100/8">
+                    <td className="max-w-0 truncate px-5 py-2.5 font-mono text-[12px] text-ink-200">{m.model}</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums text-ink-400">{m.calls}</td>
+                    <td className="px-5 py-2.5 text-right tabular-nums text-ink-100">{fmt(m.tokens)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

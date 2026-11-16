@@ -46,6 +46,7 @@ const D = {
   "app.notFound": ["Heç nə tapılmadı", "Sonuç yok", "Ничего не найдено", "Nothing found"],
   "app.plan": ["{plan} plan", "{plan} plan", "План «{plan}»", "{plan} plan"],
   "app.resets": ["Mesajlar gecə 00:00-da yenilənir", "Mesajlar gece 00:00'da yenilenir", "Сообщения обновляются в 00:00", "Messages reset at midnight"],
+  "app.betaNote": ["Beta dövründə pulsuz · gündəlik limit", "Beta süresince ücretsiz · günlük limit", "Бесплатно в бета-версии · дневной лимит", "Free during beta · daily allowance"],
   "app.upgrade": ["Yüksəlt", "Yükselt", "Улучшить", "Upgrade"],
   "app.settings": ["Parametrlər", "Ayarlar", "Настройки", "Settings"],
   "app.theme": ["Tema", "Tema", "Тема", "Theme"],

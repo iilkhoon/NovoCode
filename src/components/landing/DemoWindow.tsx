@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { Check, Loader2, Wrench } from "lucide-react";
 import { LogoMark } from "@/components/Logo";
+import { TemplatePreview } from "./TemplatePreview";
+import { TEMPLATES } from "./data";
 
 const PROMPT = "Dəmlə adlı kofe şopu üçün sayt qur: menyu, qiymətlər və masa rezervasiyası olsun.";
 const FILES = ["src/index.css", "src/components/Header.jsx", "src/components/Hero.jsx", "src/components/Menu.jsx", "src/components/Reservation.jsx", "src/App.jsx"];
@@ -12,8 +14,8 @@ const ROWS = 14; // the preview is revealed in 14 steps
 export function DemoWindow() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: "-120px" });
-  const [t, setT] = useState(0);
-  const [typed, setTyped] = useState("");
+  const [t, setT] = useState(26); // start on the finished site so the frame is never empty
+  const [typed, setTyped] = useState(PROMPT);
 
   useEffect(() => {
     if (!inView) return;
@@ -43,7 +45,11 @@ export function DemoWindow() {
       }
       timer = setTimeout(run, step < 8 ? 450 : 260);
     };
-    timer = setTimeout(run, 400);
+    timer = setTimeout(() => {
+      setT(0);
+      setTyped("");
+      run();
+    }, 2200);
     return () => clearTimeout(timer);
   }, [inView]);
 
@@ -96,37 +102,11 @@ export function DemoWindow() {
           )}
         </div>
 
-        <div className="relative h-[400px] overflow-hidden p-3 sm:h-[460px]">
-          <div className="relative h-full overflow-hidden rounded-xl bg-[#f6eee4] text-[#2b1d14]">
+        <div className="relative overflow-hidden p-3">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#f5ede3] text-[#2b1d14]">
             {/* the site, woven from the bottom up */}
             <div className="h-full transition-[clip-path] duration-300 ease-out" style={{ clipPath: `inset(${100 - (woven / ROWS) * 100}% 0 0 0)` }}>
-              <div className="flex items-center justify-between px-5 py-3 text-[10px]">
-                <span style={{ fontFamily: "var(--font-display)" }} className="text-[15px] font-semibold italic">dəmlə.</span>
-                <span className="hidden gap-4 opacity-70 sm:flex"><span>Menyu</span><span>Haqqımızda</span><span>Əlaqə</span></span>
-                <span className="bg-[#2b1d14] px-3 py-1 text-[#f6eee4]">Rezerv et</span>
-              </div>
-              <div className="grid grid-cols-5 gap-4 px-5 pt-4">
-                <div className="col-span-3 space-y-2.5">
-                  <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#b4532a]">Bakı · 2019-dan</div>
-                  <div style={{ fontFamily: "var(--font-display)" }} className="text-[26px] leading-[1.02] sm:text-[34px]">
-                    Hər qurtumda <em className="text-[#b4532a]">isti</em> bir hekayə.
-                  </div>
-                  <div className="max-w-[260px] text-[10px] leading-relaxed text-[#8c7464]">Təzə qovrulmuş dənələr, ev şirniyyatları və rahat künclər — Nizami küçəsində.</div>
-                  <div className="flex gap-2 pt-1 text-[9px]">
-                    <span className="bg-[#2b1d14] px-3 py-1.5 text-[#f6eee4]">Menyuya bax</span>
-                    <span className="border border-[#2b1d14]/30 px-3 py-1.5">Masa sifarişi</span>
-                  </div>
-                </div>
-                <div className="col-span-2 aspect-[4/5] bg-[#7a3b1d]" style={{ backgroundImage: "repeating-linear-gradient(45deg, rgb(0 0 0 / .08) 0 6px, transparent 6px 12px)" }} />
-              </div>
-              <div className="mt-5 grid grid-cols-3 gap-2.5 px-5">
-                {[["Kapuçino", "5,50"], ["Flat white", "6,00"], ["Paxlava", "4,00"]].map(([n, p], i) => (
-                  <div key={n} className="bg-[#fffaf3] p-2.5">
-                    <div className="mb-2 aspect-[4/3]" style={{ background: ["#c98a5b", "#a0663f", "#d9b26b"][i] }} />
-                    <div className="flex justify-between text-[10px] font-medium"><span>{n}</span><span className="text-[#b4532a]">{p} ₼</span></div>
-                  </div>
-                ))}
-              </div>
+              <TemplatePreview t={TEMPLATES[0]} />
             </div>
             {/* the "shuttle" line */}
             {woven > 0 && woven < ROWS && (

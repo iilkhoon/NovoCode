@@ -11,7 +11,7 @@ export function SectionHead({ no, label, lines, text, className, center = false 
         <span className="h-px w-8 bg-ink-100/20" />
         {label}
       </Reveal>
-      <SplitTitle lines={lines} className={cn("mt-6 text-[clamp(2.3rem,5.2vw,4.6rem)] leading-[1.02] text-ink-100", center && "mx-auto")} />
+      <SplitTitle lines={lines} className={cn("mt-6 text-[clamp(2.1rem,4.4vw,3.75rem)] leading-[1.04] text-ink-100", center && "mx-auto")} />
       {text && (
         <Reveal delay={0.2} className={cn("mt-6 max-w-xl text-[17px] leading-relaxed text-ink-400", center && "mx-auto")}>
           {text}

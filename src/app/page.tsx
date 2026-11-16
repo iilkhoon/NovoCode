@@ -30,10 +30,10 @@ export default function Home() {
       <main id="main" tabIndex={-1} className="relative outline-none">
         <Hero />
         <Projects projects={projects} onChange={setProjects} />
+        <Templates />
         <HowItWorks />
         <StudioShowcase />
         <Capabilities />
-        <Templates />
         <Compare />
         <Pricing />
         <Faq />

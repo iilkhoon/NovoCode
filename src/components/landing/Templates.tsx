@@ -17,10 +17,10 @@ export function Templates() {
   const list = TEMPLATES.filter((t) => cat === "Hamısı" || t.category === cat);
 
   return (
-    <section id="nümunələr" className="relative scroll-mt-20 py-36">
+    <section id="nümunələr" className="relative scroll-mt-20 py-24 sm:py-28">
       <Container>
         <div className="lg:w-[60%]">
-          <SectionHead key={c.templates.label} no="05" label={c.templates.label} lines={c.templates.lines} text={c.templates.text} />
+          <SectionHead key={c.templates.label} no="02" label={c.templates.label} lines={c.templates.lines} text={c.templates.text} />
         </div>
         <div className="surface mt-14 flex w-fit max-w-full gap-1 overflow-x-auto rounded-full border border-ink-100/[0.08] p-1">
           {TEMPLATE_CATEGORIES.map((c) => (

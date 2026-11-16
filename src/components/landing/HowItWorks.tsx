@@ -5,10 +5,10 @@ import { Container, Glass, SectionHead } from "./Section";
 export function HowItWorks() {
   const c = useCopy();
   return (
-    <section id="necə-işləyir" className="relative scroll-mt-20 py-36">
+    <section id="necə-işləyir" className="relative scroll-mt-20 py-24 sm:py-28">
       <Container>
         <div className="lg:w-[60%]">
-          <SectionHead key={c.how.label} no="02" label={c.how.label} lines={c.how.lines} text={c.how.text} />
+          <SectionHead key={c.how.label} no="03" label={c.how.label} lines={c.how.lines} text={c.how.text} />
         </div>
         <Glass className="mt-16 grid overflow-hidden sm:grid-cols-2 lg:grid-cols-4">
           {c.steps.map((s, i) => (

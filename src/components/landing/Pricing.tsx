@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 export function Pricing() {
   const c = useCopy();
   return (
-    <section id="qiymətlər" className="relative scroll-mt-20 py-36">
+    <section id="qiymətlər" className="relative scroll-mt-20 py-24 sm:py-28">
       <Container>
         <div className="lg:w-[60%]">
           <SectionHead key={c.pricing.label} no="07" label={c.pricing.label} lines={c.pricing.lines} text={c.pricing.text} />

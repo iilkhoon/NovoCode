@@ -9,7 +9,7 @@ export function Faq() {
   const c = useCopy();
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="suallar" className="relative scroll-mt-20 py-36">
+    <section id="suallar" className="relative scroll-mt-20 py-24 sm:py-28">
       <Container className="grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <SectionHead key={c.faq.label} no="08" label={c.faq.label} lines={c.faq.lines} />

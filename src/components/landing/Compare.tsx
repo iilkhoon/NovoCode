@@ -13,7 +13,7 @@ function Cell({ v, hi }: { v: string | boolean; hi?: boolean }) {
 export function Compare() {
   const c = useCopy();
   return (
-    <section className="relative py-36">
+    <section className="relative py-24 sm:py-28">
       <Container>
         <div className="lg:w-[60%]">
           <SectionHead key={c.compare.label} no="06" label={c.compare.label} lines={c.compare.lines} />

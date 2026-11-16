@@ -44,7 +44,7 @@ export function SplitTitle({ lines, as: Tag = "h2", className, immediate = false
           <span key={li} className="block" aria-hidden>
             {words.map(({ w, em }, wi) => (
               <span key={wi}>
-                <span className={cn("inline-block whitespace-nowrap", em && "italic text-ink-400")}>
+                <span className={cn("inline-block whitespace-nowrap", em && "text-ink-400")}>
                   {w.split("").map((ch) => {
                     const d = n++ * 28;
                     return (

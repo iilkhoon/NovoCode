@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
-import { Bell, Check, Copy, CreditCard, Download, Globe2, Link2, Lock, Palette, Sparkles, User, Wand2, Zap } from "lucide-react";
+import { Bell, Check, Copy, CreditCard, Download, Loader2, Globe2, Link2, Lock, Palette, Sparkles, User, Wand2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, Avatar, Checkbox, Field, Input, Modal, Progress, Radio, Segmented, Select, Switch } from "@/components/ui/kit";
 import { toast } from "@/components/ui/toast";
@@ -10,6 +10,7 @@ import { setTheme, useTheme } from "@/lib/theme";
 import { LANGS, USAGE, closeModal, openModal, setPrefs, useModal, usePrefs } from "@/lib/ui-store";
 import { cn } from "@/lib/cn";
 import { authEnabled, signInWith } from "@/lib/supabase";
+import { createProject, createProjectFromFiles } from "@/lib/store/projects";
 
 /** Mount once (root layout). Any component opens a dialog with `openModal("upgrade")`. */
 export function GlobalModals() {
@@ -336,10 +337,46 @@ function Section({ title, desc, children }: { title: string; desc?: string; chil
 
 function ImportModal({ open, initialTab }: { open: boolean; initialTab?: string }) {
   const [tab, setTab] = useState<"github" | "url" | "figma">("github");
-  useEffect(() => {
-    if (open) setTab((initialTab as typeof tab) ?? "github");
-  }, [open, initialTab]);
   const [url, setUrl] = useState("");
+  const [repo, setRepo] = useState("");
+  const [copyText, setCopyText] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (open) {
+      setTab((initialTab as typeof tab) ?? "github");
+      setError(null);
+    }
+  }, [open, initialTab]);
+
+  const go = async () => {
+    setError(null);
+    if (tab === "figma") return soon("Figma importu");
+    setBusy(true);
+    try {
+      const isUrl = tab === "url";
+      const res = await fetch(isUrl ? "/api/import/url" : "/api/import/github", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(isUrl ? { url, copyText } : { repo }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Alınmadı");
+      if (isUrl) {
+        const p = await createProject(d.prompt);
+        location.assign(`/studio/${p.id}`);
+      } else {
+        const p = await createProjectFromFiles(d.name, d.files);
+        toast.success(`${Object.keys(d.files).length} fayl gətirildi`, d.skipped ? `${d.skipped} fayl (şəkil, kitabxana, böyük fayl) ötürüldü.` : undefined);
+        location.assign(`/studio/${p.id}`);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+      setBusy(false);
+    }
+  };
+  const ready = tab === "url" ? url.trim().length > 3 : tab === "github" ? repo.trim().length > 2 : true;
+
   return (
     <Modal
       open={open}
@@ -352,23 +389,24 @@ function ImportModal({ open, initialTab }: { open: boolean; initialTab?: string 
           <Button variant="ghost" onClick={closeModal}>
             Ləğv et
           </Button>
-          <Button
-            variant="white"
-            onClick={() => {
-              closeModal();
-              soon(tab === "github" ? "GitHub importu" : tab === "url" ? "Saytdan kopyalama" : "Figma importu");
-            }}
-          >
-            Gətir
+          <Button variant="white" onClick={go} disabled={busy || !ready}>
+            {busy && <Loader2 className="size-4 animate-spin" />}
+            {busy ? (tab === "url" ? "Sayt oxunur…" : "Fayllar gətirilir…") : "Gətir"}
           </Button>
         </>
       }
     >
-      <div className="flex flex-col gap-5">
+      <form
+        className="flex flex-col gap-5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (ready && !busy) go();
+        }}
+      >
         <Segmented
           label="Mənbə"
           value={tab}
-          onChange={setTab}
+          onChange={(v) => (setTab(v), setError(null))}
           options={[
             { value: "github", label: "GitHub", icon: <Github /> },
             { value: "url", label: "Sayt linki", icon: <Globe2 /> },
@@ -376,35 +414,24 @@ function ImportModal({ open, initialTab }: { open: boolean; initialTab?: string 
           ]}
         />
         {tab === "github" && (
-          <>
-            <button type="button" onClick={() => soon("GitHub hesabı")} className="flex items-center gap-3 rounded-2xl border border-ink-100/10 p-4 text-left transition-colors hover:border-ink-100/25">
-              <span className="grid size-10 place-items-center rounded-xl bg-ink-100 text-ink-1000">
-                <Github className="size-5" />
-              </span>
-              <span className="flex-1">
-                <span className="block text-[14.5px] font-medium text-ink-100">GitHub hesabını qoş</span>
-                <span className="block text-[12.5px] text-ink-400">Repolarınızı seçin, dəyişiklikləri geri göndərin.</span>
-              </span>
-            </button>
-            <Field label="və ya repo linki" hint="Açıq (public) repolar hesab qoşmadan da gətirilə bilər.">
-              {(id, d) => <Input id={id} aria-describedby={d} placeholder="https://github.com/ad/layihə" icon={<Github />} />}
-            </Field>
-          </>
+          <Field label="Repo linki" hint="Açıq (public) repolar. Mətn faylları gətirilir; şəkillər və kitabxanalar ötürülür.">
+            {(id, d) => <Input id={id} aria-describedby={d} value={repo} onChange={(e) => setRepo(e.target.value)} placeholder="https://github.com/ad/layihə" icon={<Github />} />}
+          </Field>
         )}
         {tab === "url" && (
           <>
-            <Field label="Saytın ünvanı" hint="Novo saytı açıb oxuyur və oxşar dizaynla sizin üçün yenisini qurur.">
+            <Field label="Saytın ünvanı" hint="Novo səhifəni oxuyur: bölmələr, rənglər, şriftlər — və oxşar dizaynla sizin üçün yenisini qurur.">
               {(id, d) => <Input id={id} aria-describedby={d} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://nümunə.az" icon={<Globe2 />} />}
             </Field>
             <div className="flex flex-col gap-3 rounded-2xl border border-ink-100/10 p-4">
-              <Checkbox defaultChecked label="Dizayn və rəngləri götür" />
-              <Checkbox defaultChecked label="Bölmələrin quruluşunu götür" />
-              <Checkbox label="Mətnləri də köçür" description="Yalnız öz saytınız üçün — başqasının mətnini köçürməyin." />
+              <Checkbox checked disabled label="Dizayn, rənglər və bölmələrin quruluşu" />
+              <Checkbox checked={copyText} onChange={(e) => setCopyText(e.target.checked)} label="Mətnləri də köçür" description="Yalnız öz saytınız üçün — başqasının mətnini və brendini köçürməyin." />
             </div>
           </>
         )}
-        {tab === "figma" && <Alert tone="info" title="Figma importu hazırlanır">Figma faylının linkini yapışdıracaqsınız — dizayn işlək koda çevriləcək.</Alert>}
-      </div>
+        {tab === "figma" && <Alert tone="info" title="Figma importu hazırlanır">Hələlik Figma-dan ekran görüntüsü çəkib yazı qutusuna atın — Novo dizaynı şəkildən qurur.</Alert>}
+        {error && <Alert tone="danger" title="Alınmadı">{error}</Alert>}
+      </form>
     </Modal>
   );
 }

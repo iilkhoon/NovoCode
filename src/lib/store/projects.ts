@@ -37,6 +37,16 @@ export async function createProject(prompt: string, images?: string[]): Promise<
   return p;
 }
 
+/** A project from existing files (GitHub import). Missing template files are filled in. */
+export async function createProjectFromFiles(name: string, files: Record<string, string>): Promise<Project> {
+  const now = Date.now();
+  const runnable = "package.json" in files;
+  const p: Project = { id: uid(), name: name.slice(0, 40) || "Gətirilmiş layihə", files: runnable ? files : { ...TEMPLATE_FILES, ...files }, messages: [], createdAt: now, updatedAt: now };
+  await set(K(p.id), p);
+  pushRemote(p);
+  return p;
+}
+
 export const getProject = (id: string) => get<Project>(K(id));
 
 export async function saveProject(p: Project) {

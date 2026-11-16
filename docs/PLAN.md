@@ -44,8 +44,8 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 24. ⏳ Profil, kredit balansı, istifadə tarixçəsi
 
 ## E. Import
-25. ⏳ GitHub-dan repo gətirmək, redaktə, geri push
-26. ⏳ URL-dən sayt oxumaq: HTML + ekran görüntüsü → oxşar dizayn və quruluş
+25. 🔄 GitHub-dan repo gətirmək (açıq repolar ✅), redaktə; geri push — GitHub hesabı qoşulanda
+26. ✅ URL-dən sayt oxumaq: HTML + ekran görüntüsü → oxşar dizayn və quruluş
 27. 💤 Figma-dan import
 
 ## F. Yayım
@@ -104,3 +104,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (5) | 4 dil (AZ/TR/RU/EN): dil seçici, menyu, hero, panel, giriş, yazı qutusu; səsli yazı seçilmiş dildə; AI cavab dili ayarlardan |
 | 2026-11-16 (6) | Supabase: Google/GitHub/e-poçt linki ilə giriş, istifadəçi menyusu, çıxış; layihələrin bulud sinxronizasiyası (`supabase/schema.sql`, RLS); açar yoxdursa qonaq rejimi |
 | 2026-11-16 (7) | Admin panel işlək: şifrə ilə giriş, OpenAI-uyğun provayderlər (OpenRouter, Anthropic, OpenAI, DeepSeek, öz server), model görünürlüyü, adlar, standart model; AI şlüzü çox provayderli |
+| 2026-11-16 (8) | İmport: saytın linkindən dizayn brifi (bölmələr, rənglər, şriftlər) → oxşar sayt; açıq GitHub reposunu gətirmək; SSRF qoruması |

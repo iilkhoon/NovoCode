@@ -2,6 +2,22 @@
 import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
 import { toFileSystemTree } from "./tree";
 import { extractErrors } from "./errors";
+import { del, get, keys, set } from "idb-keyval";
+
+/* ---------- node_modules cache: install once, boot in seconds afterwards ---------- */
+const NM_PREFIX = "nm-cache:";
+export function depsKey(pkgJson?: string): string | null {
+  if (!pkgJson) return null;
+  try {
+    const p = JSON.parse(pkgJson);
+    const deps = JSON.stringify([p.dependencies ?? {}, p.devDependencies ?? {}]);
+    let h = 0;
+    for (const c of deps) h = (Math.imul(h, 31) + c.charCodeAt(0)) | 0;
+    return NM_PREFIX + (h >>> 0).toString(36);
+  } catch {
+    return null;
+  }
+}
 
 export type RuntimeStatus = "idle" | "booting" | "installing" | "starting" | "ready" | "error";
 
@@ -27,6 +43,7 @@ export class ProjectRuntime {
   private previewErrors: string[] = [];
   private installedPkgJson = "";
   private devDead = false;
+  private fromCache: string | null = null;
 
   private mounted: Promise<void>;
   private resolveMounted!: () => void;
@@ -102,7 +119,18 @@ export class ProjectRuntime {
     });
     this.wc.on("error", (e) => this.emit(`\r\n[runtime] ${e.message}\r\n`));
     try {
-      await this.install(files["package.json"]);
+      const key = depsKey(files["package.json"]);
+      const snap = key ? await get<Uint8Array>(key).catch(() => undefined) : undefined;
+      if (key && snap) {
+        this.setStatus("installing");
+        this.emit("\r\n\x1b[2m$ paketlər keşdən bərpa olunur…\x1b[0m\r\n");
+        await this.wc.mount(snap, { mountPoint: "node_modules" });
+        this.installedPkgJson = files["package.json"];
+        this.fromCache = key;
+      } else {
+        const code = await this.install(files["package.json"]);
+        if (code === 0 && key) void this.saveCache(key);
+      }
       await this.startDev();
     } catch (e) {
       this.emit(`\r\n\x1b[31m${(e as Error).message}\x1b[0m\r\n`);
@@ -126,6 +154,19 @@ export class ProjectRuntime {
     return code;
   }
 
+  /** Snapshot node_modules into IndexedDB (keeps only the latest two dependency sets). */
+  private async saveCache(key: string) {
+    try {
+      if (!this.wc) return;
+      const snap = await this.wc.export("node_modules", { format: "binary" });
+      const old = (await keys()).filter((k) => String(k).startsWith(NM_PREFIX) && k !== key);
+      for (const k of old.slice(0, Math.max(0, old.length - 1))) await del(k);
+      await set(key, snap);
+    } catch {
+      /* quota or unsupported — next boot just installs again */
+    }
+  }
+
   async startDev() {
     if (!this.wc) return;
     this.dev?.kill();
@@ -134,8 +175,21 @@ export class ProjectRuntime {
     const dev = await this.wc.spawn("npm", ["run", "dev"]);
     this.dev = dev;
     this.pipe(dev);
-    dev.exit.then((code) => {
+    dev.exit.then(async (code) => {
       if (this.dev !== dev) return; // replaced by a restart
+      if (this.fromCache && this.status !== "ready") {
+        // the cached packages didn't work: drop the cache and do a clean install once
+        const key = this.fromCache;
+        this.fromCache = null;
+        await del(key).catch(() => {});
+        this.emit("\r\n\x1b[33mKeş işləmədi — paketlər yenidən yüklənir…\x1b[0m\r\n");
+        const c = await this.install(this.installedPkgJson);
+        if (c === 0) {
+          void this.saveCache(key);
+          await this.startDev();
+          return;
+        }
+      }
       this.emit(`\r\n\x1b[31mDev server dayandı (kod ${code})\x1b[0m\r\n`);
       this.devDead = true;
       this.setStatus("error");
@@ -150,7 +204,9 @@ export class ProjectRuntime {
     if (dir) await this.wc.fs.mkdir(dir, { recursive: true });
     await this.wc.fs.writeFile(path, contents);
     if (path === "package.json" && contents !== this.installedPkgJson) {
-      await this.install(contents);
+      const code = await this.install(contents);
+      const key = depsKey(contents);
+      if (code === 0 && key) void this.saveCache(key);
       await this.startDev();
     } else if (this.devDead) {
       this.devDead = false;

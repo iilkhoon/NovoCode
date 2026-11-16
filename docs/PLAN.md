@@ -78,7 +78,7 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 46. 💤 Safari/iPhone üçün öz önizləmə mühərriki (WebContainers lisenziyasından asılılığı da aradan qaldırır)
 
 ## K. Keyfiyyət və hazırlıq
-47. ⏳ Studiyanın ilk açılışı 20–40 s → 5–10 s
+47. 🔄 Studiyanın açılışı: paketlər bir dəfə yüklənib brauzerdə keşlənir (node_modules snapshot) — sonrakı açılışlar npm install-siz; real ölçmə Chrome-da
 48. ⏳ Testlər, xəta monitorinqi, sürət (Lighthouse 95+)
 49. ⏳ Investor demosu: ssenari, demo video, nümunə layihələr
 
@@ -106,3 +106,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (7) | Admin panel işlək: şifrə ilə giriş, OpenAI-uyğun provayderlər (OpenRouter, Anthropic, OpenAI, DeepSeek, öz server), model görünürlüyü, adlar, standart model; AI şlüzü çox provayderli |
 | 2026-11-16 (8) | İmport: saytın linkindən dizayn brifi (bölmələr, rənglər, şriftlər) → oxşar sayt; açıq GitHub reposunu gətirmək; SSRF qoruması |
 | 2026-11-16 (9) | AI xərc ölçümü (server logu + admin qrafiki); real gündəlik mesaj sayğacı (beta: gündə 50, pulsuz) |
+| 2026-11-16 (10) | Studio sürəti: node_modules snapshot keşi (IndexedDB), uğursuz keşdə avtomatik təmiz quraşdırma |

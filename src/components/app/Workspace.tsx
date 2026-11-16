@@ -13,19 +13,22 @@ import type { Project } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { Sidebar, projectHue } from "./Sidebar";
 import { Github } from "./Modals";
+import { EXAMPLES_I18N, useT, type TKey } from "@/lib/i18n";
+import { LangSwitch } from "@/components/ui/LangSwitch";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
 
 type Kind = "site" | "landing" | "app" | "full";
-const KINDS: { value: Kind; label: string; icon: React.ReactNode; hint: string }[] = [
-  { value: "site", label: "Sayt", icon: <Globe2 />, hint: "" },
-  { value: "landing", label: "Landing", icon: <PanelsTopLeft />, hint: "Build a single conversion-focused landing page." },
-  { value: "app", label: "Web tətbiq", icon: <AppWindow />, hint: "Build an interactive web app (dashboard / tool), not a marketing site." },
-  { value: "full", label: "+ Backend", icon: <Database />, hint: "Include a real data layer: auth, persistent collections and an admin view." },
+const KINDS: { value: Kind; label: TKey; icon: React.ReactNode; hint: string }[] = [
+  { value: "site", label: "kind.site", icon: <Globe2 />, hint: "" },
+  { value: "landing", label: "kind.landing", icon: <PanelsTopLeft />, hint: "Build a single conversion-focused landing page." },
+  { value: "app", label: "kind.app", icon: <AppWindow />, hint: "Build an interactive web app (dashboard / tool), not a marketing site." },
+  { value: "full", label: "kind.full", icon: <Database />, hint: "Include a real data layer: auth, persistent collections and an admin view." },
 ];
 
-function greeting() {
+function greeting(): TKey {
   const h = new Date().getHours();
-  return h < 5 ? "Gecəniz xeyrə" : h < 12 ? "Sabahınız xeyir" : h < 18 ? "Günortanız xeyir" : "Axşamınız xeyir";
+  return h < 5 ? "greet.night" : h < 12 ? "greet.morning" : h < 18 ? "greet.day" : "greet.evening";
 }
 
 export function timeAgo(ts: number) {
@@ -46,6 +49,8 @@ export function Workspace() {
   const { start, starting } = useStartProject();
   const prefs = usePrefs();
   const top = useRef<HTMLDivElement>(null);
+  const t = useT();
+  const examples = t.lang === "az" ? EXAMPLES : EXAMPLES_I18N[t.lang];
 
   useEffect(() => {
     listProjects()
@@ -99,30 +104,34 @@ export function Workspace() {
         <section ref={top} className="paper relative isolate overflow-hidden px-4 pb-16 pt-16 sm:px-8 md:pt-24">
           <GradientBackdrop className="-z-10 [mask-image:linear-gradient(to_bottom,black_55%,transparent)]" intensity={0.9} reach={1.05} />
           <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-b from-transparent to-wool" />
+          <div className="absolute right-4 top-4 hidden items-center gap-1 md:flex">
+            <LangSwitch />
+            <ThemeToggle />
+          </div>
           <div className="mx-auto flex max-w-[720px] flex-col items-center text-center">
             <h1 className="nv-anim font-display text-[clamp(32px,5vw,52px)] font-[650] leading-[1.05] tracking-[-0.03em] text-ink-100 ">
-              {greeting()}
+              {t(greeting())}
               {firstName && firstName !== "Qonaq" ? `, ${firstName}` : ""}.
               <br />
-              <span className=" text-brand">Bu gün nə quraq?</span>
+              <span className="text-brand">{t("app.ask")}</span>
             </h1>
             <div id="workspace-prompt" className="nv-anim mt-8 w-full text-left" style={{ "--d": "0.12s" } as React.CSSProperties}>
               <div className="mb-3 flex justify-center">
-                <Segmented size="sm" label="Layihə növü" value={kind} onChange={setKind} options={KINDS.map(({ value, label, icon }) => ({ value, label, icon }))} />
+                <Segmented size="sm" label="Layihə növü" value={kind} onChange={setKind} options={KINDS.map(({ value, label, icon }) => ({ value, label: t(label), icon }))} />
               </div>
-              <PromptBox size="lg" typewriter={TYPEWRITER} value={value} onValueChange={setValue} busy={starting} onSubmit={({ text, images, styleId }) => submit(text, images, styleId)} />
+              <PromptBox key={t.lang} size="lg" typewriter={t.lang === "az" ? TYPEWRITER : examples.map((e) => e.prompt.split(":")[0] + "…")} value={value} onValueChange={setValue} busy={starting} onSubmit={({ text, images, styleId }) => submit(text, images, styleId)} />
               <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                {EXAMPLES.slice(0, 4).map((ex) => (
+                {examples.slice(0, 4).map((ex) => (
                   <button key={ex.label} type="button" onClick={() => setValue(ex.prompt)} className="rounded-full border border-ink-100/10 bg-ink-1000/70 px-3.5 py-1.5 text-[13px] text-ink-300 backdrop-blur-sm transition-[color,border-color,transform] hover:-translate-y-px hover:border-nar/40 hover:text-ink-100">
                     {ex.label}
                   </button>
                 ))}
                 <span className="mx-1 h-4 w-px bg-ink-100/15" />
                 <button type="button" onClick={() => openModal("import", { tab: "github" })} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-ink-400 transition-colors hover:text-ink-100">
-                  <Github className="size-3.5" /> GitHub-dan
+                  <Github className="size-3.5" /> {t("app.fromGithub")}
                 </button>
                 <button type="button" onClick={() => openModal("import", { tab: "url" })} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-ink-400 transition-colors hover:text-ink-100">
-                  <Globe2 className="size-3.5" /> Saytdan kopyala
+                  <Globe2 className="size-3.5" /> {t("app.cloneSite")}
                 </button>
               </div>
             </div>
@@ -133,8 +142,8 @@ export function Workspace() {
         <section id="layihələr" className="mx-auto max-w-[1180px] scroll-mt-6 px-4 pb-24 sm:px-8">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-[26px] font-[650] tracking-[-0.02em] text-ink-100">Layihələrim</h2>
-              <p className="text-[13px] text-ink-400">{projects ? `${projects.length} layihə · bu brauzerdə saxlanılır` : "Yüklənir…"}</p>
+              <h2 className="font-display text-[26px] font-[650] tracking-[-0.02em] text-ink-100">{t("app.myProjects")}</h2>
+              <p className="text-[13px] text-ink-400">{projects ? t("app.count", { n: projects.length }) : t("app.loading")}</p>
             </div>
             <Segmented
               size="sm"
@@ -163,14 +172,14 @@ export function Workspace() {
           ) : projects.length === 0 ? (
             <EmptyState
               icon={<FolderOpen />}
-              title="İlk layihənizi yaradın"
+              title={t("app.emptyTitle")}
               action={
                 <Button variant="white" onClick={focusPrompt}>
-                  Yazmağa başla
+                  {t("app.startTyping")}
                 </Button>
               }
             >
-              Yuxarıdakı qutuya biznesinizi bir-iki cümlə ilə yazın — Novo dizaynı, mətnləri və kodu özü hazırlayacaq.
+              {t("app.emptyBody")}
             </EmptyState>
           ) : view === "grid" ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -232,6 +241,7 @@ export function Workspace() {
 }
 
 function ProjectCard({ p, onDelete, onDuplicate, onRename }: { p: Project; onDelete: () => void; onDuplicate: () => void; onRename: () => void }) {
+  const t = useT();
   const hue = projectHue(p.id);
   return (
     <article className="group relative overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000 shadow-[var(--shadow-card)] transition-[transform,box-shadow] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-panel)]">
@@ -265,10 +275,10 @@ function ProjectCard({ p, onDelete, onDuplicate, onRename }: { p: Project; onDel
           <p className="flex items-center gap-1.5 text-[12px] text-ink-500">
             {p.publish && (
               <a href={p.publish.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-success/10 px-1.5 py-px font-medium text-success hover:bg-success/15">
-                <span className="size-1.5 rounded-full bg-success" /> Canlı
+                <span className="size-1.5 rounded-full bg-success" /> {t("app.live")}
               </a>
             )}
-            Dəyişdirilib {timeAgo(p.updatedAt)}
+            {t("app.edited", { t: timeAgo(p.updatedAt) })}
           </p>
         </div>
         <CardMenu p={p} onDelete={onDelete} onDuplicate={onDuplicate} onRename={onRename} />
@@ -279,6 +289,7 @@ function ProjectCard({ p, onDelete, onDuplicate, onRename }: { p: Project; onDel
 
 function CardMenu({ p, onDelete, onDuplicate, onRename }: { p: Project; onDelete: () => void; onDuplicate: () => void; onRename: () => void }) {
   const [open, setOpen] = useState(false);
+  const t = useT();
   const run = (fn: () => void) => () => (setOpen(false), fn());
   return (
     <div className="relative">
@@ -287,20 +298,20 @@ function CardMenu({ p, onDelete, onDuplicate, onRename }: { p: Project; onDelete
       </button>
       <Menu open={open} onClose={() => setOpen(false)}>
         <MenuItem icon={<ArrowUpRight />} onClick={run(() => (window.location.href = `/studio/${p.id}`))}>
-          Studioda aç
+          {t("menu.open")}
         </MenuItem>
         <MenuItem icon={<Pencil />} onClick={run(onRename)}>
-          Adını dəyiş
+          {t("menu.rename")}
         </MenuItem>
         <MenuItem icon={<Copy />} onClick={run(onDuplicate)}>
-          Surətini çıxar
+          {t("menu.duplicate")}
         </MenuItem>
         <MenuItem icon={<Share2 />} onClick={run(() => openModal("share", { name: p.name, url: p.publish?.url ?? `https://${slug(p.name)}.novocode.app` }))}>
-          Paylaş
+          {t("menu.share")}
         </MenuItem>
         <MenuSeparator />
         <MenuItem icon={<Trash2 />} danger onClick={run(onDelete)}>
-          Sil
+          {t("menu.delete")}
         </MenuItem>
       </Menu>
     </div>

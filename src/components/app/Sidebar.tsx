@@ -10,6 +10,7 @@ import { useTheme } from "@/lib/theme";
 import { USAGE, openModal, usePrefs } from "@/lib/ui-store";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/cn";
+import { useT } from "@/lib/i18n";
 
 /** Deterministic warm hue per project, for thumbnails and dots. */
 export function projectHue(id: string) {
@@ -23,6 +24,7 @@ export function Sidebar({ projects, onNew }: { projects: Project[]; onNew: () =>
   const [mobile, setMobile] = useState(false);
   const [q, setQ] = useState("");
   const search = useRef<HTMLInputElement>(null);
+  const t = useT();
 
   useEffect(() => {
     try {
@@ -59,19 +61,19 @@ export function Sidebar({ projects, onNew }: { projects: Project[]; onNew: () =>
             {!mini && <Wordmark caret={false} />}
           </Link>
           {isMobile ? (
-            <IconBtn label="Menyunu bağla" onClick={() => setMobile(false)}>
+            <IconBtn label={t("nav.closeMenu")} onClick={() => setMobile(false)}>
               <X />
             </IconBtn>
           ) : (
             !mini && (
-              <IconBtn label="Paneli yığ" onClick={toggle}>
+              <IconBtn label={t("app.collapse")} onClick={toggle}>
                 <PanelLeftClose />
               </IconBtn>
             )
           )}
         </div>
         {mini && (
-          <IconBtn label="Paneli aç" onClick={toggle} className="mx-auto">
+          <IconBtn label={t("app.expand")} onClick={toggle} className="mx-auto">
             <PanelLeftOpen />
           </IconBtn>
         )}
@@ -80,32 +82,32 @@ export function Sidebar({ projects, onNew }: { projects: Project[]; onNew: () =>
           type="button"
           onClick={() => (setMobile(false), onNew())}
           className={cn("mt-2 flex h-10 items-center gap-2 rounded-xl bg-pill text-[14px] font-medium text-wool transition-[transform,box-shadow] hover:shadow-[var(--shadow-nav)] active:scale-[0.98]", mini ? "mx-auto w-10 justify-center" : "px-3")}
-          aria-label="Yeni layihə"
+          aria-label={t("app.new")}
         >
           <Plus className="size-4" />
-          {!mini && <span className="flex-1 text-left">Yeni layihə</span>}
+          {!mini && <span className="flex-1 text-left">{t("app.new")}</span>}
         </button>
 
         {!mini && (
           <label className="relative mt-2 block">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-500" />
-            <input ref={search} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Axtar" aria-label="Layihələrdə axtar" className="h-9 w-full rounded-xl bg-ink-100/[0.05] pl-9 pr-12 text-[13.5px] text-ink-100 placeholder:text-ink-500 focus:bg-ink-1000 focus:outline-none focus:ring-2 focus:ring-nar/30" />
+            <input ref={search} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("app.search")} aria-label={t("app.search")} className="h-9 w-full rounded-xl bg-ink-100/[0.05] pl-9 pr-12 text-[13.5px] text-ink-100 placeholder:text-ink-500 focus:bg-ink-1000 focus:outline-none focus:ring-2 focus:ring-nar/30" />
             <Kbd className="absolute right-2 top-1/2 -translate-y-1/2">⌘K</Kbd>
           </label>
         )}
 
         <nav aria-label="Tətbiq" className="mt-2 flex flex-col gap-0.5">
-          <NavItem href="/app" icon={<Home />} label="Ana səhifə" mini={mini} />
-          <NavItem href="/app#layihələr" icon={<FolderOpen />} label="Layihələr" mini={mini} count={projects.length} />
-          <NavItem href="/#nümunələr" icon={<LayoutTemplate />} label="Şablonlar" mini={mini} />
-          <NavItem onClick={() => openModal("import")} icon={<Download />} label="Layihə gətir" mini={mini} />
+          <NavItem href="/app" icon={<Home />} label={t("app.home")} mini={mini} />
+          <NavItem href="/app#layihələr" icon={<FolderOpen />} label={t("app.projects")} mini={mini} count={projects.length} />
+          <NavItem href="/#nümunələr" icon={<LayoutTemplate />} label={t("app.templates")} mini={mini} />
+          <NavItem onClick={() => openModal("import")} icon={<Download />} label={t("app.import")} mini={mini} />
         </nav>
 
         {!mini && (
           <div className="mt-4 flex min-h-0 flex-1 flex-col">
-            <p className="label-mono px-2.5 pb-2 text-ink-500">Son layihələr</p>
+            <p className="label-mono px-2.5 pb-2 text-ink-500">{t("app.recent")}</p>
             <div className="scroll-thin -mx-1 min-h-0 flex-1 overflow-y-auto px-1">
-              {list.length === 0 && <p className="px-2.5 py-2 text-[13px] text-ink-500">{q ? "Heç nə tapılmadı" : "Hələ layihə yoxdur"}</p>}
+              {list.length === 0 && <p className="px-2.5 py-2 text-[13px] text-ink-500">{q ? t("app.notFound") : t("app.noProjects")}</p>}
               {list.slice(0, 30).map((p) => (
                 <a key={p.id} href={`/studio/${p.id}`} className="group flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13.5px] text-ink-300 transition-colors hover:bg-ink-100/[0.05] hover:text-ink-100">
                   <span className="size-2 shrink-0 rounded-full" style={{ background: `hsl(${projectHue(p.id)} 70% 55%)` }} />
@@ -132,14 +134,14 @@ export function Sidebar({ projects, onNew }: { projects: Project[]; onNew: () =>
 
       {/* mobile top bar + drawer */}
       <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-ink-100/8 bg-wool/85 px-3 backdrop-blur-md md:hidden">
-        <IconBtn label="Menyunu aç" onClick={() => setMobile(true)}>
+        <IconBtn label={t("nav.openMenu")} onClick={() => setMobile(true)}>
           <MenuIcon />
         </IconBtn>
         <Link href="/" className="flex items-center gap-2 text-[15px]">
           <LogoMark className="size-6" />
           <Wordmark caret={false} />
         </Link>
-        <IconBtn label="Yeni layihə" onClick={onNew}>
+        <IconBtn label={t("app.new")} onClick={onNew}>
           <Plus />
         </IconBtn>
       </div>
@@ -188,19 +190,20 @@ function NavItem({ href, onClick, icon, label, mini, count }: { href?: string; o
 }
 
 function CreditCard() {
+  const t = useT();
   const low = USAGE.used / USAGE.limit >= 0.8;
   return (
     <div className="mb-2 mt-3 rounded-2xl border border-ink-100/8 bg-ink-1000 p-3.5 shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-medium text-ink-100">{USAGE.plan} plan</p>
+        <p className="text-[13px] font-medium text-ink-100">{t("app.plan", { plan: t("plan.free") })}</p>
         <p className="text-[12px] text-ink-400">
           {USAGE.used}/{USAGE.limit}
         </p>
       </div>
       <Progress value={USAGE.used} max={USAGE.limit} tone={low ? "warning" : "nar"} className="mt-2.5" label="Bu günkü mesajlar" />
-      <p className="mt-2 text-[11.5px] text-ink-500">Mesajlar {USAGE.resets}</p>
+      <p className="mt-2 text-[11.5px] text-ink-500">{t("app.resets")}</p>
       <button type="button" onClick={() => openModal("upgrade")} className="mt-3 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg bg-brand text-[12.5px] font-medium text-white transition-[filter,transform] hover:brightness-105 active:scale-[0.98]">
-        <Sparkles className="size-3.5" /> Yüksəlt
+        <Sparkles className="size-3.5" /> {t("app.upgrade")}
       </button>
     </div>
   );
@@ -210,14 +213,16 @@ function UserRow({ mini }: { mini: boolean }) {
   const [open, setOpen] = useState(false);
   const p = usePrefs();
   const { theme, toggle } = useTheme();
+  const t = useT();
+  const name = p.name && p.name !== "Qonaq" ? p.name : t("app.guest");
   return (
     <div className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} className={cn("flex w-full items-center gap-2.5 rounded-xl p-1.5 text-left transition-colors hover:bg-ink-100/[0.05]", mini && "justify-center")}>
-        <Avatar name={p.name || "Qonaq"} size={30} />
+            <button type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} className={cn("flex w-full items-center gap-2.5 rounded-xl p-1.5 text-left transition-colors hover:bg-ink-100/[0.05]", mini && "justify-center")}>
+        <Avatar name={name} size={30} />
         {!mini && (
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13.5px] font-medium text-ink-100">{p.name || "Qonaq"}</span>
-            <span className="block truncate text-[11.5px] text-ink-500">{p.email || "Qonaq rejimi"}</span>
+            <span className="block truncate text-[13.5px] font-medium text-ink-100">{name}</span>
+            <span className="block truncate text-[11.5px] text-ink-500">{p.email || t("app.guestMode")}</span>
           </span>
         )}
         {!mini && <Settings className="size-4 text-ink-500" />}
@@ -225,20 +230,20 @@ function UserRow({ mini }: { mini: boolean }) {
       <div className="absolute bottom-full left-0 mb-2 w-[232px]">
         <Menu open={open} onClose={() => setOpen(false)} align="start" className="!top-auto bottom-0 !mt-0">
           <MenuItem icon={<Settings />} onClick={() => (setOpen(false), openModal("settings"))}>
-            Parametrlər
+            {t("app.settings")}
           </MenuItem>
           <MenuItem icon={theme === "dark" ? <Sun /> : <Moon />} onClick={toggle} hint={theme === "dark" ? "Gecə" : "Gündüz"}>
-            Tema
+            {t("app.theme")}
           </MenuItem>
           <MenuItem icon={<Sparkles />} onClick={() => (setOpen(false), openModal("upgrade"))}>
-            Planı yüksəlt
+            {t("app.upgradePlan")}
           </MenuItem>
           <MenuSeparator />
           <MenuItem icon={<Shield />} onClick={() => (window.location.href = "/admin")}>
-            Admin panel
+            {t("app.admin")}
           </MenuItem>
           <MenuItem icon={<LogOut />} onClick={() => (window.location.href = "/giris")}>
-            Daxil ol
+            {t("nav.login")}
           </MenuItem>
         </Menu>
       </div>

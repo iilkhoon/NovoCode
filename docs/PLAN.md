@@ -33,8 +33,8 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 17. ⏳ İkon dəsti və mikro-animasiyalar cilası (Bolt səviyyəsi)
 
 ## C. Dillər və SEO
-18. ⏳ İnterfeys dilləri: Azərbaycan, Türk, Rus, İngilis (dil seçici, avtomatik aşkarlama)
-19. ⏳ AI cavab dili istifadəçinin dilinə uyğun
+18. 🔄 İnterfeys dilləri: Azərbaycan, Türk, Rus, İngilis (dil seçici hazır; menyu, hero, panel, giriş, yazı qutusu tərcümə olunub — landing-in qalan bölmələri və studio növbədə)
+19. ✅ AI cavab dili istifadəçinin dilinə uyğun
 20. ⏳ SEO: metadata, OG şəkilləri, sitemap, robots, hreflang, strukturlaşdırılmış data
 21. ⏳ Yaradılan saytlara da avtomatik SEO (title, description, OG)
 
@@ -101,3 +101,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (2) | Generasiya keyfiyyəti: `img.novo` → real şəkillər (Pexels / açarsız ehtiyat), dizayn bacarığına peşəkar sayt nümunələri, "Made with Novo" nişanı |
 | 2026-11-16 (3) | Studio: Qur/Planla/Söhbət rejimləri, kontekst sayğacı + 80%-də avtomatik `/compact`, `/` əmrləri, cavabdan sonra təklif düymələri, saytda element seçib dəyişdirmək |
 | 2026-11-16 (4) | Bir kliklə yayım: build → serverə yükləmə → `ad.localhost` / `ad.novocode.app`; sahiblik açarı, versiya yeniləmə, SPA dəstəyi; layihə kartında “Canlı” nişanı |
+| 2026-11-16 (5) | 4 dil (AZ/TR/RU/EN): dil seçici, menyu, hero, panel, giriş, yazı qutusu; səsli yazı seçilmiş dildə; AI cavab dili ayarlardan |

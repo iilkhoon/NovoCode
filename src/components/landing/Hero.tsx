@@ -4,6 +4,9 @@ import { PromptBox } from "@/components/PromptBox";
 import { EXAMPLES, HERO_STATS, TYPEWRITER } from "./data";
 import { useStartProject } from "./useStart";
 import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
+import { EXAMPLES_I18N, useT, type TKey } from "@/lib/i18n";
+
+const STAT_KEYS: TKey[] = ["stat.fix", "stat.skills", "stat.styles", "stat.own"];
 
 /** Counts up from 0 once the value scrolls into view (easeOutCubic). */
 function CountUp({ target, decimals, suffix, index }: { target: number; decimals: number; suffix: string; index: number }) {
@@ -53,6 +56,9 @@ function CountUp({ target, decimals, suffix, index }: { target: number; decimals
 export function Hero() {
   const { start, starting } = useStartProject();
   const [value, setValue] = useState("");
+  const t = useT();
+  const examples = t.lang === "az" ? EXAMPLES : EXAMPLES_I18N[t.lang];
+  const typewriter = t.lang === "az" ? TYPEWRITER : examples.map((e) => e.prompt.split(":")[0] + "…");
 
   return (
     <section id="başla" className="paper relative isolate flex min-h-svh flex-col items-center overflow-hidden px-4 pb-8 pt-28 sm:px-8">
@@ -66,26 +72,26 @@ export function Hero() {
       <div className="relative flex w-full max-w-[860px] flex-1 flex-col items-center justify-center py-6 text-center">
         <div className="nv-anim inline-flex items-center gap-2.5 rounded-full border border-ink-100/10 bg-ink-1000/70 py-1.5 pl-2 pr-4 shadow-[var(--shadow-card)] backdrop-blur-md" style={{ "--d": "0.05s" } as React.CSSProperties}>
           <span className="rounded-full bg-ink-100 px-2 py-0.5 font-label text-[9.5px] font-medium uppercase tracking-[0.08em] text-ink-1000">Beta</span>
-          <span className="text-[13px] text-ink-300">Azərbaycan dilində AI sayt qurucusu</span>
+          <span className="text-[13px] text-ink-300">{t("hero.badge")}</span>
         </div>
 
         <h1 className="mt-7 font-display text-[clamp(34px,5.2vw,68px)] font-[600] leading-[1.04] tracking-[-0.03em] text-ink-100 ">
           <span className="nv-line" style={{ "--d": "0.12s" } as React.CSSProperties}>
-            Bir cümlə yaz,
+            {t("hero.title1")}
           </span>
           <span className="nv-line" style={{ "--d": "0.28s" } as React.CSSProperties}>
-            <em className="not-italic text-brand pr-[0.04em]">sayt hazırdır.</em>
+            <em className="not-italic text-brand pr-[0.04em]">{t("hero.title2")}</em>
           </span>
         </h1>
 
         <p className="nv-anim mt-6 max-w-[540px] text-[clamp(15.5px,1.5vw,18px)] leading-[1.6] text-ink-400" style={{ "--d": "0.4s" } as React.CSSProperties}>
-          Fikrinizi yazın, deyin və ya şəklini atın. NovoCode dizaynı, kodu və məlumat bazasını qurur — xətaları özü tapıb düzəldir.
+          {t("hero.sub")}
         </p>
 
         <div className="nv-anim mt-9 w-full max-w-[660px] text-left" style={{ "--d": "0.5s" } as React.CSSProperties}>
-          <PromptBox size="lg" typewriter={TYPEWRITER} value={value} onValueChange={setValue} busy={starting} onSubmit={({ text, images, styleId }) => start(text, images, styleId)} />
+          <PromptBox key={t.lang} size="lg" typewriter={typewriter} value={value} onValueChange={setValue} busy={starting} onSubmit={({ text, images, styleId }) => start(text, images, styleId)} />
           <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {EXAMPLES.map((ex) => (
+            {examples.map((ex) => (
               <button
                 key={ex.label}
                 type="button"
@@ -102,8 +108,8 @@ export function Hero() {
       <ul aria-label="NovoCode rəqəmlərlə" className="relative grid w-full max-w-[880px] shrink-0 grid-cols-4 border-t border-ink-100/10 pt-6 max-[720px]:grid-cols-2 max-[720px]:gap-y-6">
         {HERO_STATS.map((s, i) => (
           <li key={s.label} className="nv-anim flex flex-col items-center gap-2 text-center" style={{ "--d": `${0.6 + i * 0.07}s` } as React.CSSProperties}>
-            <CountUp target={s.target} decimals={s.decimals} suffix={s.suffix} index={i} />
-            <span className="label-mono whitespace-nowrap text-ink-400">{s.label}</span>
+            <CountUp target={s.target} decimals={s.decimals} suffix={s.suffix === " cəhd" ? t("stat.tries") : s.suffix} index={i} />
+            <span className="label-mono whitespace-nowrap text-ink-400">{t(STAT_KEYS[i])}</span>
           </li>
         ))}
       </ul>

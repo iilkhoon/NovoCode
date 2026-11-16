@@ -13,8 +13,10 @@ interface SR extends EventTarget {
   onerror: ((e: { error: string }) => void) | null;
 }
 
-/** Azerbaijani voice dictation via the browser's speech recognition. */
-export function useSpeech(onText: (text: string, final: boolean) => void) {
+const LOCALE: Record<string, string> = { az: "az-AZ", tr: "tr-TR", ru: "ru-RU", en: "en-US" };
+
+/** Voice dictation via the browser's speech recognition, in the interface language. */
+export function useSpeech(onText: (text: string, final: boolean) => void, lang = "az") {
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
   const rec = useRef<SR | null>(null);
@@ -27,7 +29,7 @@ export function useSpeech(onText: (text: string, final: boolean) => void) {
     if (!Ctor) return;
     setSupported(true);
     const r = new Ctor();
-    r.lang = "az-AZ";
+    r.lang = LOCALE[lang] ?? "az-AZ";
     r.interimResults = true;
     r.continuous = true;
     r.onresult = (e) => {
@@ -43,7 +45,7 @@ export function useSpeech(onText: (text: string, final: boolean) => void) {
     r.onerror = () => setListening(false);
     rec.current = r;
     return () => r.stop();
-  }, []);
+  }, [lang]);
 
   const toggle = useCallback(() => {
     if (!rec.current) return;

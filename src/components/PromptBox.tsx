@@ -7,6 +7,7 @@ import { useSpeech } from "@/lib/useSpeech";
 import { STYLE_PRESETS } from "@/lib/styles";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
+import { useT } from "@/lib/i18n";
 
 export interface PromptSubmit {
   text: string;
@@ -57,6 +58,7 @@ function useTypewriter(lines: string[] | undefined, active: boolean) {
 }
 
 export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, autoFocus, size = "md", value, onValueChange }: Props) {
+  const t = useT();
   const [inner, setInner] = useState("");
   const text = value ?? inner;
   const setText = (v: string) => (onValueChange ? onValueChange(v) : setInner(v));
@@ -70,11 +72,11 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
   const baseText = useRef("");
 
   const typed = useTypewriter(typewriter, !text && !focused);
-  const speech = useSpeech((t, final) => {
-    const next = (baseText.current ? baseText.current + " " : "") + t;
+  const speech = useSpeech((said, final) => {
+    const next = (baseText.current ? baseText.current + " " : "") + said;
     setText(next);
     if (final) baseText.current = next;
-  });
+  }, t.lang);
 
   // auto-grow
   useEffect(() => {
@@ -177,7 +179,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                 submit();
               }
             }}
-            placeholder={typewriter ? "" : placeholder ?? "Necə sayt istəyirsiniz?"}
+            placeholder={typewriter ? "" : placeholder ?? t("pb.placeholder")}
             rows={lg ? 3 : 2}
             aria-label="Sayt təsviri"
             className={cn(
@@ -195,11 +197,11 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
 
         <div className="flex items-center gap-1 px-3 pb-3 pt-1">
           <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(e) => e.target.files && addFiles(e.target.files)} />
-          <ToolButton label="Şəkil / eskiz əlavə et" onClick={() => fileRef.current?.click()}>
+          <ToolButton label={t("pb.addImage")} onClick={() => fileRef.current?.click()}>
             <ImagePlus className="size-4" />
           </ToolButton>
           {speech.supported && (
-            <ToolButton label={speech.listening ? "Dinləməni dayandır" : "Səslə yaz (Azərbaycan dili)"} onClick={speech.toggle} active={speech.listening}>
+            <ToolButton label={speech.listening ? t("pb.stopVoice") : t("pb.voice")} onClick={speech.toggle} active={speech.listening}>
               <span className="relative grid place-items-center">
                 {speech.listening && <span className="absolute size-6 animate-pulse-ring rounded-full bg-nar/40" />}
                 <Mic className="relative size-4" />
@@ -211,14 +213,14 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               type="button"
               onClick={() => setStyleOpen((o) => !o)}
               className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-ink-100"
-              aria-label="Dizayn üslubu"
+              aria-label={t("pb.style")}
             >
               <span className="flex -space-x-1">
                 {style.swatch.map((c, i) => (
                   <span key={i} className="size-3 rounded-full ring-1 ring-ink-100/20" style={{ background: c }} />
                 ))}
               </span>
-              <span className="hidden sm:inline">{style.name}</span>
+              <span className="hidden sm:inline">{style.id === "auto" ? t("pb.auto") : style.name}</span>
               <Palette className="size-3.5 sm:hidden" />
             </button>
             <AnimatePresence>
@@ -232,7 +234,7 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
                     transition={{ duration: 0.2 }}
                     className="absolute bottom-10 left-0 z-50 w-64 origin-bottom-left rounded-2xl border border-ink-100/12 bg-ink-1000 p-1.5 shadow-[var(--shadow-panel)]"
                   >
-                    <div className="px-2.5 pb-1.5 pt-1 label-mono text-ink-400">Dizayn üslubu</div>
+                    <div className="px-2.5 pb-1.5 pt-1 label-mono text-ink-400">{t("pb.style")}</div>
                     {STYLE_PRESETS.map((s) => (
                       <button
                         key={s.id}
@@ -266,24 +268,24 @@ export function PromptBox({ onSubmit, onStop, busy, placeholder, typewriter, aut
               onClick={enhance}
               disabled={!text.trim() || enhancing}
               className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs text-ink-300 transition hover:bg-ink-100/5 hover:text-nar-600 disabled:opacity-40"
-              title="Sorğunu AI ilə təkmilləşdir"
+              title={t("pb.enhanceTitle")}
             >
               {enhancing ? <Loader2 className="size-3.5 animate-spin" /> : <PenLine className="size-3.5" />}
-              <span className="hidden sm:inline">Təkmilləşdir</span>
+              <span className="hidden sm:inline">{t("pb.enhance")}</span>
             </button>
             {busy && !onStop ? (
               <span role="status" aria-label="Hazırlanır" className="grid size-9 place-items-center rounded-full bg-nar text-white">
                 <Loader2 className="size-4 animate-spin" />
               </span>
             ) : busy ? (
-              <button onClick={onStop} aria-label="Dayandır" className="grid size-9 place-items-center rounded-full bg-ink-100 text-ink-1000 transition hover:opacity-85">
+              <button onClick={onStop} aria-label={t("pb.stop")} className="grid size-9 place-items-center rounded-full bg-ink-100 text-ink-1000 transition hover:opacity-85">
                 <Square className="size-3.5 fill-current" />
               </button>
             ) : (
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={submit}
-                aria-label="Göndər"
+                aria-label={t("pb.send")}
                 disabled={!text.trim() && images.length === 0}
                 className="grid size-9 place-items-center rounded-full bg-nar text-white shadow-[var(--shadow-glow)] transition-[transform,background-color,box-shadow,opacity] duration-200 hover:-translate-y-px hover:shadow-[var(--shadow-glow-strong)] active:scale-[0.95] disabled:bg-ink-850 disabled:text-ink-500 disabled:shadow-none"
               >

@@ -4,13 +4,15 @@ import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/cn";
+import { useT } from "@/lib/i18n";
+import { LangSwitch } from "@/components/ui/LangSwitch";
 
 const LINKS = [
-  { href: "#necə-işləyir", label: "Necə işləyir" },
-  { href: "#studio", label: "Studio" },
-  { href: "#nümunələr", label: "Nümunələr" },
-  { href: "#qiymətlər", label: "Qiymətlər" },
-];
+  { href: "#necə-işləyir", key: "nav.how" },
+  { href: "#studio", key: "nav.studio" },
+  { href: "#nümunələr", key: "nav.examples" },
+  { href: "#qiymətlər", key: "nav.pricing" },
+] as const;
 
 /** Highlights the link whose section is currently in view. */
 function useActiveSection() {
@@ -35,6 +37,7 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const active = useActiveSection();
+  const t = useT();
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 24);
@@ -57,8 +60,8 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
     };
   }, [open]);
 
-  const mobileLinks = [...LINKS, ...(hasProjects ? [{ href: "/app", label: "Layihələrim" }] : []), { href: "/giris", label: "Daxil ol" }];
-  const cta = hasProjects ? { href: "/app", label: "Layihələrim" } : { href: "#başla", label: "Pulsuz başla" };
+  const mobileLinks = [...LINKS.map((l) => ({ href: l.href, label: t(l.key) })), ...(hasProjects ? [{ href: "/app", label: t("nav.projects") }] : []), { href: "/giris", label: t("nav.login") }];
+  const cta = hasProjects ? { href: "/app", label: t("nav.projects") } : { href: "#başla", label: t("nav.start") };
 
   return (
     <>
@@ -84,14 +87,15 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
                 )}
               >
                 {active === l.href && <span className="absolute inset-0 -z-10 rounded-full bg-ink-100/[0.06] [animation:nv-fade_0.3s_ease_both]" />}
-                {l.label}
+                {t(l.key)}
               </a>
             ))}
           </div>
 
+          <LangSwitch className="hidden min-[821px]:block" />
           <ThemeToggle />
           <a href="/giris" className="hidden h-10 items-center rounded-full px-3.5 text-[14px] text-ink-300 transition-colors hover:text-ink-100 min-[821px]:inline-flex">
-            Daxil ol
+            {t("nav.login")}
           </a>
           <a
             href={cta.href}
@@ -104,7 +108,7 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            aria-label={open ? "Menyunu bağla" : "Menyunu aç"}
+            aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
             aria-expanded={open}
             aria-controls="mobil-menyu"
             className="relative grid size-10 place-items-center rounded-full bg-pill min-[821px]:hidden"
@@ -149,7 +153,7 @@ export function Navbar({ hasProjects }: { hasProjects: boolean }) {
               style={{ animation: `nv-line 0.45s var(--ease-out-expo) ${0.05 + mobileLinks.length * 0.045}s forwards` }}
               className="mt-2 flex h-12 items-center justify-center gap-2 rounded-full bg-pill text-[15px] font-medium text-wool opacity-0"
             >
-              Sayt qurmağa başla <ArrowRight className="size-4" />
+              {t("nav.startBuilding")} <ArrowRight className="size-4" />
             </a>
           </nav>
         </>

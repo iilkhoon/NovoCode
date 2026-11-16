@@ -100,7 +100,7 @@ export function Sidebar({ projects, onNew }: { projects: Project[]; onNew: () =>
         <nav aria-label="Tətbiq" className="mt-2 flex flex-col gap-0.5">
           <NavItem href="/app" icon={<Home />} label={t("app.home")} mini={mini} />
           <NavItem href="/app#layihələr" icon={<FolderOpen />} label={t("app.projects")} mini={mini} count={projects.length} />
-          <NavItem href="/#nümunələr" icon={<LayoutTemplate />} label={t("app.templates")} mini={mini} />
+          <NavItem href="/app#şablonlar" icon={<LayoutTemplate />} label={t("app.templates")} mini={mini} />
           <NavItem onClick={() => openModal("import")} icon={<Download />} label={t("app.import")} mini={mini} />
         </nav>
 

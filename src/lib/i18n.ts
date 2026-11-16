@@ -41,6 +41,8 @@ const D = {
   "app.home": ["Ana səhifə", "Ana sayfa", "Главная", "Home"],
   "app.projects": ["Layihələr", "Projeler", "Проекты", "Projects"],
   "app.templates": ["Şablonlar", "Şablonlar", "Шаблоны", "Templates"],
+  "app.templatesSub": ["Bir kliklə başlayın, sonra söhbətlə öz biznesinizə uyğunlaşdırın", "Tek tıkla başlayın, sonra sohbetle işinize uyarlayın", "Начните в один клик, затем адаптируйте под свой бизнес в чате", "Start in one click, then tailor it to your business by chatting"],
+  "app.useTemplate": ["İstifadə et", "Kullan", "Использовать", "Use"],
   "app.import": ["Layihə gətir", "Proje içe aktar", "Импорт проекта", "Import project"],
   "app.recent": ["Son layihələr", "Son projeler", "Недавние", "Recent"],
   "app.noProjects": ["Hələ layihə yoxdur", "Henüz proje yok", "Проектов пока нет", "No projects yet"],

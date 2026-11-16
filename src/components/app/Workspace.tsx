@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { AppWindow, ArrowUpRight, Copy, Database, FolderOpen, Globe2, LayoutGrid, List, MoreHorizontal, PanelsTopLeft, Pencil, Share2, Trash2 } from "lucide-react";
 import { PromptBox } from "@/components/PromptBox";
 import { useStartProject } from "@/components/landing/useStart";
-import { EXAMPLES, TYPEWRITER } from "@/components/landing/data";
+import { EXAMPLES, TEMPLATES, TYPEWRITER } from "@/components/landing/data";
+import { TemplatePreview } from "@/components/landing/TemplatePreview";
+import { LiveFrame } from "@/components/ui/LiveFrame";
 import { Button } from "@/components/ui/button";
 import { EmptyState, Menu, MenuItem, MenuSeparator, Modal, Segmented, Skeleton } from "@/components/ui/kit";
 import { toast } from "@/components/ui/toast";
@@ -204,6 +206,38 @@ export function Workspace() {
             </div>
           )}
         </section>
+
+        {/* templates — a ready-made start for every kind of business */}
+        <section id="şablonlar" className="mx-auto max-w-[1180px] scroll-mt-6 px-4 pb-24 sm:px-8">
+          <div className="mb-5">
+            <h2 className="font-display text-[26px] font-[650] tracking-[-0.02em] text-ink-100">{t("app.templates")}</h2>
+            <p className="text-[13px] text-ink-400">{t("app.templatesSub")}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {TEMPLATES.map((tpl) => (
+              <button
+                key={tpl.name}
+                type="button"
+                disabled={starting}
+                onClick={() => start(tpl.prompt)}
+                className="group overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000 text-left shadow-[var(--shadow-card)] transition-[transform,box-shadow] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-panel)] disabled:opacity-60"
+              >
+                <span className="block aspect-[16/10] overflow-hidden">
+                  <span className="block h-full transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.04]">
+                    <TemplatePreview t={tpl} />
+                  </span>
+                </span>
+                <span className="flex items-center justify-between gap-2 p-4">
+                  <span className="min-w-0">
+                    <span className="block truncate text-[14.5px] font-medium text-ink-100">{tpl.name}</span>
+                    <span className="block truncate text-[12px] text-ink-500">{tpl.tagline}</span>
+                  </span>
+                  <span className="shrink-0 rounded-full bg-ink-900 px-3 py-1 text-[12px] font-medium text-ink-200 transition-colors group-hover:bg-nar group-hover:text-white">{t("app.useTemplate")}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
       </main>
 
       <Modal
@@ -247,7 +281,12 @@ function ProjectCard({ p, onDelete, onDuplicate, onRename }: { p: Project; onDel
     <article className="group relative overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000 shadow-[var(--shadow-card)] transition-[transform,box-shadow] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-panel)]">
       <a href={`/studio/${p.id}`} className="block" aria-label={`${p.name} — studioda aç`}>
         <div className="relative aspect-[16/10] overflow-hidden" style={{ background: `linear-gradient(140deg, hsl(${hue} 85% 92%), hsl(${hue + 25} 70% 80%))` }}>
-          {/* a miniature "website" sketch */}
+          {p.publish ? (
+            <div className="absolute inset-x-5 top-5 bottom-0 overflow-hidden rounded-t-xl bg-white shadow-[0_10px_30px_-10px_rgb(0_0_0/0.25)] transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5">
+              <LiveFrame src={p.publish.url} title={p.name} />
+            </div>
+          ) : (
+          /* a miniature "website" sketch */
           <div className="absolute inset-x-5 top-5 bottom-0 rounded-t-xl bg-white/85 p-3 shadow-[0_10px_30px_-10px_rgb(0_0_0/0.25)] transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5">
             <div className="flex items-center gap-1.5">
               <span className="h-1.5 w-8 rounded-full" style={{ background: `hsl(${hue} 70% 45%)` }} />
@@ -264,6 +303,7 @@ function ProjectCard({ p, onDelete, onDuplicate, onRename }: { p: Project; onDel
               ))}
             </div>
           </div>
+          )}
           <span className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-white/90 text-ink-100 opacity-0 shadow transition-opacity group-hover:opacity-100">
             <ArrowUpRight className="size-4" />
           </span>

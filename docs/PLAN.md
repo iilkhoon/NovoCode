@@ -88,7 +88,7 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 
 - Canlı önizləmə: WebContainers pulsuz rejimdə qalır; lisenziya yayımdan əvvəl.
 - Ödəniş: inkişaf mərhələsində yoxdur.
-- Server: əsas tətbiq + yayım üçün ayrı; mövcud Windows server test/hostinq üçün istifadə oluna bilər.
+- Server: Linux VPS (Ubuntu) — əsas tətbiq və yayımlanan saytlar eyni VPS-də; böyüdükcə yayım ayrıca serverə/R2-yə köçür. Windows server istifadə olunmur.
 - Ad: hələlik NovoCode, sonra dəyişə bilər.
 
 ## Gündəlik qeyd

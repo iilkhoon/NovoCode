@@ -1,6 +1,6 @@
-# NovoCode — serverə qurmaq
+# NovoCode — VPS-ə qurmaq
 
-Bu təlimat bir serverdə (məs. 96 GB RAM-lı Windows server) NovoCode-u işə salmaq üçündür.
+Bu təlimat NovoCode-u Linux VPS-də (Ubuntu 24.04) işə salmaq üçündür.
 Yayımlanan saytlar da eyni serverdə, `ad.novocode.app` ünvanlarında açılır.
 
 ## 1. Nə lazımdır
@@ -13,7 +13,14 @@ Yayımlanan saytlar da eyni serverdə, `ad.novocode.app` ünvanlarında açılı
 | NVIDIA API açarı | AI (build.nvidia.com, pulsuz) |
 | İstəyə bağlı: Pexels açarı, Supabase layihəsi | Real şəkillər; hesablar və bulud sinxronizasiyası |
 
-Windows-da ən rahat yol **WSL2 (Ubuntu)** içində işlətməkdir; aşağıdakı əmrlər Ubuntu üçündür.
+**VPS ölçüsü:** başlanğıc üçün 2 vCPU, 4 GB RAM, 40–80 GB SSD kifayətdir (məs. Hetzner CX22/CPX21, DigitalOcean, Contabo — ayda ~5–15 €).
+AI və canlı önizləmə serverə yük salmır (AI API-dən gəlir, önizləmə istifadəçinin brauzerində işləyir); server əsasən saytı və yayımlanan saytları verir.
+
+Node.js 20 quraşdırmaq:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs git
+```
 
 ## 2. Kodu qurmaq
 

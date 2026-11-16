@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { MousePointerClick, X } from "lucide-react";
 import { AlertTriangle, Check, ChevronDown, FileCode2, History, Loader2, Package, RotateCcw, Terminal, Trash, Wrench } from "lucide-react";
 import type { ChatMessage, Part } from "@/lib/types";
 import { PromptBox } from "@/components/PromptBox";
@@ -12,6 +13,7 @@ import { friendlyFile, humanizeError } from "@/lib/humanize";
 import { COMPACT_AT, extractNext, matchCommands, stripMeta, type Intent } from "@/lib/chat";
 import { Segmented } from "@/components/ui/kit";
 import { usePrefs } from "@/lib/ui-store";
+import type { PickedElement } from "@/lib/runtime/picker";
 
 interface Props {
   messages: ChatMessage[];
@@ -25,6 +27,8 @@ interface Props {
   onIntent: (i: Intent) => void;
   usage: { tokens: number; ratio: number; measured: boolean };
   onPublish: () => void;
+  selection: PickedElement | null;
+  onClearSelection: () => void;
   onStop: () => void;
   onOpenFile: (path: string) => void;
   onRestore: (messageId: string) => void;
@@ -33,7 +37,7 @@ interface Props {
 
 const SUGGESTIONS = ["Dizaynı daha premium et", "Qeydiyyat və giriş əlavə et", "Rəylər bölməsi əlavə et", "Mobil görünüşü təkmilləşdir", "Tünd rejim əlavə et"];
 
-export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRetry, onOpenFile, onRestore, currentVersionId, intent, onIntent, usage, onPublish }: Props) {
+export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRetry, onOpenFile, onRestore, currentVersionId, intent, onIntent, usage, onPublish, selection, onClearSelection }: Props) {
   const scroller = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState("");
   const prefs = usePrefs();
@@ -133,6 +137,18 @@ export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRet
             </motion.div>
           )}
         </AnimatePresence>
+        <AnimatePresence>
+          {selection && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="mb-2 flex items-center gap-2 rounded-2xl border border-nar/25 bg-nar/[0.06] py-1.5 pl-3 pr-1.5 text-[12.5px]">
+              <MousePointerClick className="size-3.5 shrink-0 text-nar" />
+              <span className="shrink-0 font-medium text-ink-100">{selection.label}</span>
+              <span className="min-w-0 flex-1 truncate text-ink-400">{selection.text || selection.selector}</span>
+              <button type="button" onClick={onClearSelection} aria-label="Seçimi ləğv et" className="grid size-6 shrink-0 place-items-center rounded-full text-ink-400 hover:bg-ink-100/[0.06] hover:text-ink-100">
+                <X className="size-3.5" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <PromptBox
           busy={busy}
           value={draft}
@@ -142,7 +158,7 @@ export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRet
             onSend(applyStyle(text, styleId), images);
           }}
           onStop={onStop}
-          placeholder={intent === "plan" ? "Nə planlayaq? Əvvəl plan, sonra təsdiq…" : intent === "chat" ? "Sual verin — kod dəyişməyəcək…" : "Dəyişiklik istəyin… ( / — əmrlər)"}
+          placeholder={selection ? `Bu ${selection.label.toLowerCase()} ilə nə edək?` : intent === "plan" ? "Nə planlayaq? Əvvəl plan, sonra təsdiq…" : intent === "chat" ? "Sual verin — kod dəyişməyəcək…" : "Dəyişiklik istəyin… ( / — əmrlər)"}
         />
         <div className="mt-2 flex items-center justify-between gap-2">
           <Segmented
@@ -164,9 +180,19 @@ export function ChatPanel({ messages, busy, thinking, dev, onSend, onStop, onRet
 }
 
 function UserBubble({ m }: { m: ChatMessage }) {
-  const [text, style] = m.content.split(/\n\n\[(?=[^\]]+ üslub\])/);
+  const sel = m.content.match(/^\[Selected element[^\n]*\]\ntag: <(\w+)>(?:\ntext: "([^"]*)")?[\s\S]*?\n\n/);
+  const body = sel ? m.content.slice(sel[0].length) : m.content;
+  const [text, style] = body.split(/\n\n\[(?=[^\]]+ üslub\])/);
   return (
     <div className="flex flex-col items-end gap-2">
+      {sel && (
+        <span className="inline-flex max-w-[88%] items-center gap-1.5 rounded-full border border-nar/25 bg-nar/[0.06] px-2.5 py-1 text-[11.5px] text-ink-300">
+          <MousePointerClick className="size-3 shrink-0 text-nar" />
+          <span className="truncate">
+            &lt;{sel[1]}&gt; {sel[2] ? `“${sel[2]}”` : ""}
+          </span>
+        </span>
+      )}
       {m.images?.length ? (
         <div className="flex gap-2">
           {m.images.map((src, i) => (

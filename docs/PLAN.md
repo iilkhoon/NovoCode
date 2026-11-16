@@ -24,10 +24,10 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 8. ⏳ Söhbət qutusu: sayt növü (Website · Landing · Web app · +Backend), stil, şəkil/ekran görüntüsü, səs, GitHub/URL import
 9. ✅ Daxil olmuş istifadəçi üçün tətbiq qabığı: solda ChatGPT kimi panel — Yeni layihə, Axtarış, Layihələr, Son baxılanlar, Profil/kredit
 10. ⏳ Studio v2: solda bağlanan söhbət, sağda önizləmə; üstdə Önizləmə · Kod · Fayllar; mobil/planşet/desktop; yeni tabda aç
-11. ⏳ Söhbətdə Plan / Build / Chat rejimləri; addım-addım canlı checklist; hər cavabdan sonra 2–3 təklif ("Yayımlayaq?", "Naviqasiyanı da düzəldim?")
-12. ⏳ Token sayğacı (kontekst dolulu­ğu), 80%-də avtomatik `/compact`, limitdə "Yeni söhbət"; əmrlər: `/compact`, `/new`, `/plan`, `/publish`, `/undo`
-13. ⏳ Saytda klikləyib seçmək → "bunu dəyiş" (element seçici)
-14. ⏳ Versiya tarixçəsi (hər cavab = bərpa nöqtəsi)
+11. ✅ Söhbətdə Plan / Build / Chat rejimləri; addım-addım canlı checklist; hər cavabdan sonra 2–3 təklif ("Yayımlayaq?", "Naviqasiyanı da düzəldim?")
+12. ✅ Token sayğacı (kontekst dolulu­ğu), 80%-də avtomatik `/compact`, limitdə "Yeni söhbət"; əmrlər: `/compact`, `/new`, `/plan`, `/publish`, `/undo`
+13. ✅ Saytda klikləyib seçmək → "bunu dəyiş" (element seçici)
+14. ✅ Versiya tarixçəsi (hər cavab = bərpa nöqtəsi)
 15. ✅ Upgrade pəncərəsi və qiymət kartları (ödəniş hələ yoxdur — yalnız görünüş)
 16. ✅ Boş vəziyyətlər, yüklənmə skeletləri, xəta ekranları, 404 — hamısı eyni dizayn dilində
 17. ⏳ İkon dəsti və mikro-animasiyalar cilası (Bolt səviyyəsi)
@@ -99,3 +99,4 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-12 (2) | "Şəfəq" dizayn sistemi, yeni loqo, iki tema, Sadə/Developer rejimləri, insan dilində xətalar |
 | 2026-11-16 | Tam yol xəritəsi; dizayn sistemi v3 (bənövşəyi + qradiyent, Bricolage Grotesque + Geist, canlı WebGL qradiyent); /app paneli, giriş, admin, bütün pəncərələr və bildirişlər; yeni slogan |
 | 2026-11-16 (2) | Generasiya keyfiyyəti: `img.novo` → real şəkillər (Pexels / açarsız ehtiyat), dizayn bacarığına peşəkar sayt nümunələri, "Made with Novo" nişanı |
+| 2026-11-16 (3) | Studio: Qur/Planla/Söhbət rejimləri, kontekst sayğacı + 80%-də avtomatik `/compact`, `/` əmrləri, cavabdan sonra təklif düymələri, saytda element seçib dəyişdirmək |

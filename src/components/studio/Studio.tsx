@@ -18,6 +18,7 @@ import { friendlyFile, humanizeError } from "@/lib/humanize";
 import { apiResolver, resolveImages } from "@/lib/images";
 import { COMMANDS, COMPACT_AT, contextOf, contextUsage, parseCommand, stripMeta, type Intent } from "@/lib/chat";
 import { usePrefs } from "@/lib/ui-store";
+import { describePick, ensurePicker, type PickedElement } from "@/lib/runtime/picker";
 import { cn } from "@/lib/cn";
 import { ChatPanel } from "./ChatPanel";
 import { PreviewPanel } from "./PreviewPanel";
@@ -70,6 +71,10 @@ export default function Studio({ id }: { id: string }) {
     setIntentState(i);
   }, []);
   const prefs = usePrefs();
+  const [picking, setPicking] = useState(false);
+  const [picked, setPicked] = useState<PickedElement | null>(null);
+  const pickedRef = useRef<PickedElement | null>(null);
+  pickedRef.current = picked;
   const prefsRef = useRef(prefs);
   prefsRef.current = prefs;
   const dev = mode === "dev";
@@ -330,7 +335,9 @@ export default function Studio({ id }: { id: string }) {
       // keep the context window healthy before a long conversation overflows
       const usage = contextUsage(messagesRef.current, Object.values(filesRef.current).reduce((n, c) => n + c.length, 0));
       if (prefsRef.current.autoCompact && usage.ratio >= COMPACT_AT) await compact();
-      const msg: ChatMessage = { id: uid(), role: "user", content: text, images: images.length ? images : undefined, createdAt: Date.now() };
+      const sel = pickedRef.current;
+      if (sel) setPicked(null);
+      const msg: ChatMessage = { id: uid(), role: "user", content: sel ? `${describePick(sel)}\n\n${text}` : text, images: images.length ? images : undefined, createdAt: Date.now() };
       const history = [...messagesRef.current.filter((m) => !m.pending), msg];
       commitMessages(history);
       setMobileView("chat");
@@ -365,6 +372,8 @@ export default function Studio({ id }: { id: string }) {
       }
       projectRef.current = p;
       setProject(p);
+      // older projects get the element picker too
+      if (p.files["index.html"]) p.files = { ...p.files, "index.html": ensurePicker(p.files["index.html"]) };
       commitFiles(p.files);
       commitMessages(p.messages);
       setCurrentVersion([...p.messages].reverse().find((m) => m.snapshot)?.id ?? null);
@@ -460,6 +469,12 @@ export default function Studio({ id }: { id: string }) {
     { t: "terminal", icon: SquareTerminal, label: "Terminal", key: "3" },
   ];
 
+  const onPicked = useCallback((el: PickedElement) => {
+    setPicked(el);
+    setPicking(false);
+    setMobileView("chat");
+    requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>("aside textarea")?.focus());
+  }, []);
   const usage = useMemo(() => contextUsage(messages, Object.values(files).reduce((n, c) => n + c.length, 0)), [messages, files]);
   const lastSnapshot = [...messages].reverse().find((m) => m.snapshot && m.id !== currentVersion);
   const allCommands: Command[] = [
@@ -555,6 +570,8 @@ export default function Studio({ id }: { id: string }) {
             thinking={thinking}
             dev={dev}
             onSend={send}
+            selection={picked}
+            onClearSelection={() => setPicked(null)}
             intent={intent}
             onIntent={setIntent}
             usage={usage}
@@ -601,7 +618,17 @@ export default function Studio({ id }: { id: string }) {
           )}
           <div className="relative min-h-0 flex-1">
             <div className={`absolute inset-0 ${effectiveTab === "preview" ? "" : "invisible"}`}>
-              <PreviewPanel url={url} status={status} dev={dev} onPreviewError={onPreviewError} fullscreen={fullscreen} onToggleFullscreen={() => setFullscreen((f) => !f)} />
+              <PreviewPanel
+                url={url}
+                status={status}
+                dev={dev}
+                onPreviewError={onPreviewError}
+                fullscreen={fullscreen}
+                onToggleFullscreen={() => setFullscreen((f) => !f)}
+                picking={picking}
+                onPicking={setPicking}
+                onPicked={onPicked}
+              />
               <AnimatePresence>
                 {!dev && busy && status === "ready" && (
                   <motion.div

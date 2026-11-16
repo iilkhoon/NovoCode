@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, ExternalLink, Loader2, Lock, Maximize2, Minimize2, Monitor, RotateCw, Smartphone, Tablet, TriangleAlert } from "lucide-react";
+import { Check, ExternalLink, Loader2, Lock, Maximize2, Minimize2, Monitor, MousePointerClick, RotateCw, Smartphone, Tablet, TriangleAlert } from "lucide-react";
+import { useRef } from "react";
+import type { PickedElement } from "@/lib/runtime/picker";
 import type { RuntimeStatus } from "@/lib/runtime/webcontainer";
 import { LogoMark } from "@/components/Logo";
 import { cn } from "@/lib/cn";
@@ -26,6 +28,9 @@ export function PreviewPanel({
   onPreviewError,
   fullscreen,
   onToggleFullscreen,
+  picking,
+  onPicking,
+  onPicked,
 }: {
   url: string | null;
   status: RuntimeStatus;
@@ -33,7 +38,11 @@ export function PreviewPanel({
   onPreviewError: (msg: string) => void;
   fullscreen: boolean;
   onToggleFullscreen: () => void;
+  picking: boolean;
+  onPicking: (on: boolean) => void;
+  onPicked: (el: PickedElement) => void;
 }) {
+  const frame = useRef<HTMLIFrameElement>(null);
   const [device, setDevice] = useState<keyof typeof DEVICES>("desktop");
   const [path, setPath] = useState("/");
   const [nonce, setNonce] = useState(0);
@@ -43,10 +52,17 @@ export function PreviewPanel({
     const onMsg = (e: MessageEvent) => {
       if (e.data?.source !== "novo-preview") return;
       if (e.data.type === "error") onPreviewError([e.data.message, e.data.stack].filter(Boolean).join("\n"));
+      if (e.data.type === "picked" && e.data.el) onPicked(e.data.el as PickedElement);
+      if (e.data.type === "pick-cancel") onPicking(false);
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [onPreviewError]);
+  }, [onPreviewError, onPicked, onPicking]);
+
+  // tell the site to enter / leave pick mode (also after a reload of the frame)
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage({ source: "novo-studio", type: "pick", on: picking }, "*");
+  }, [picking]);
 
   const src = url ? url.replace(/\/$/, "") + (path.startsWith("/") ? path : "/" + path) : undefined;
   const idx = ORDER.indexOf(status);
@@ -90,6 +106,17 @@ export function PreviewPanel({
             );
           })}
         </div>
+        {url && (
+          <button
+            onClick={() => onPicking(!picking)}
+            aria-pressed={picking}
+            title="Saytda element seç və dəyişdir"
+            className={cn("inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition", picking ? "bg-nar text-white shadow-[var(--shadow-glow)]" : "text-ink-300 hover:bg-ink-100/5 hover:text-ink-100")}
+          >
+            <MousePointerClick className="size-4" />
+            <span className="hidden lg:inline">{picking ? "Seçin…" : "Seç"}</span>
+          </button>
+        )}
         <button onClick={onToggleFullscreen} aria-label="Tam ekran" title="Tam ekran" className="grid size-8 place-items-center rounded-lg text-ink-300 transition hover:bg-ink-100/5 hover:text-ink-100">
           {fullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
         </button>
@@ -103,6 +130,8 @@ export function PreviewPanel({
         {url ? (
           <motion.div layout transition={{ type: "spring", stiffness: 200, damping: 26 }} className="mx-auto h-full" style={{ width: DEVICES[device].w, maxWidth: "100%" }}>
             <iframe
+              ref={frame}
+              onLoad={() => picking && frame.current?.contentWindow?.postMessage({ source: "novo-studio", type: "pick", on: true }, "*")}
               key={nonce}
               src={src}
               title="Önizləmə"
@@ -111,6 +140,18 @@ export function PreviewPanel({
             />
           </motion.div>
         ) : null}
+        <AnimatePresence>
+          {picking && status === "ready" && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="pointer-events-none absolute left-1/2 top-6 z-10 -translate-x-1/2 rounded-full bg-ink-100 px-4 py-2 text-[12.5px] font-medium text-ink-1000 shadow-[var(--shadow-panel)]"
+            >
+              Dəyişmək istədiyiniz yerə klikləyin · Esc — ləğv
+            </motion.div>
+          )}
+        </AnimatePresence>
         <AnimatePresence>
           {status !== "ready" && (
             <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.02 }} transition={{ duration: 0.5 }} className="absolute inset-0 grid place-items-center bg-ink-950">

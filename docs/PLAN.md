@@ -12,24 +12,24 @@ Status: ✅ hazır · 🔄 gedir · ⏳ növbədə · 💤 sonra (investordan so
 ## A. Generasiya keyfiyyəti — "slop" görünməyən saytlar
 Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun real fotolar, bir vurğu rəngi, səliqəli kartlar, endirim/“Çox satan” nişanları, işlək filtr/səbət, çoxsəhifəli quruluş (kateqoriya səhifəsi, breadcrumb), güvən zolağı (çatdırılma, qaytarma, ödəniş).
 
-1. 🔄 Mövzuya uyğun real şəkillər (Pexels; açar yoxdursa açar sözlə pulsuz mənbə) — təsadüfi şəkil yox
-2. 🔄 Dizayn bacarığının (skill) yenilənməsi: "slop" siyahısı, sahə üzrə nümunə quruluşlar, nişanlar, güvən zolağı
+1. ✅ Mövzuya uyğun real şəkillər (Pexels; açar yoxdursa açar sözlə pulsuz mənbə) — təsadüfi şəkil yox
+2. ✅ Dizayn bacarığının (skill) yenilənməsi: "slop" siyahısı, sahə üzrə nümunə quruluşlar, nişanlar, güvən zolağı
 3. ⏳ Sahə şablonları: mağaza, restoran, klinika, avto, portfolio, landing, dashboard — hər biri çoxsəhifəli, işlək
 4. ⏳ İlk generasiyada "plan → icra" (Bolt kimi checklist addımları ekranda canlı)
 5. ⏳ Avtomatik vizual yoxlama: build sonrası ekran görüntüsü → model özü düzəliş təklif edir
-6. ⏳ Saytların altında "Made with Novo" nişanı (ödənişli planda silinir)
+6. ✅ Saytların altında "Made with Novo" nişanı (ödənişli planda silinir)
 
 ## B. Platformanın dizaynı
-7. ⏳ Ana səhifə v2: Lovable kimi mərkəzdə böyük söhbət qutusu, canlı qradiyent fon, az mətn, aydın CTA
+7. ✅ Ana səhifə v2: Lovable kimi mərkəzdə böyük söhbət qutusu, canlı qradiyent fon, az mətn, aydın CTA
 8. ⏳ Söhbət qutusu: sayt növü (Website · Landing · Web app · +Backend), stil, şəkil/ekran görüntüsü, səs, GitHub/URL import
-9. ⏳ Daxil olmuş istifadəçi üçün tətbiq qabığı: solda ChatGPT kimi panel — Yeni layihə, Axtarış, Layihələr, Son baxılanlar, Profil/kredit
+9. ✅ Daxil olmuş istifadəçi üçün tətbiq qabığı: solda ChatGPT kimi panel — Yeni layihə, Axtarış, Layihələr, Son baxılanlar, Profil/kredit
 10. ⏳ Studio v2: solda bağlanan söhbət, sağda önizləmə; üstdə Önizləmə · Kod · Fayllar; mobil/planşet/desktop; yeni tabda aç
 11. ⏳ Söhbətdə Plan / Build / Chat rejimləri; addım-addım canlı checklist; hər cavabdan sonra 2–3 təklif ("Yayımlayaq?", "Naviqasiyanı da düzəldim?")
 12. ⏳ Token sayğacı (kontekst dolulu­ğu), 80%-də avtomatik `/compact`, limitdə "Yeni söhbət"; əmrlər: `/compact`, `/new`, `/plan`, `/publish`, `/undo`
 13. ⏳ Saytda klikləyib seçmək → "bunu dəyiş" (element seçici)
 14. ⏳ Versiya tarixçəsi (hər cavab = bərpa nöqtəsi)
-15. ⏳ Upgrade pəncərəsi və qiymət kartları (ödəniş hələ yoxdur — yalnız görünüş)
-16. ⏳ Boş vəziyyətlər, yüklənmə skeletləri, xəta ekranları, 404 — hamısı eyni dizayn dilində
+15. ✅ Upgrade pəncərəsi və qiymət kartları (ödəniş hələ yoxdur — yalnız görünüş)
+16. ✅ Boş vəziyyətlər, yüklənmə skeletləri, xəta ekranları, 404 — hamısı eyni dizayn dilində
 17. ⏳ İkon dəsti və mikro-animasiyalar cilası (Bolt səviyyəsi)
 
 ## C. Dillər və SEO
@@ -55,7 +55,7 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 31. 💤 Yaradılan sayt üçün analitika
 
 ## G. AI idarəsi və admin panel
-32. ⏳ Admin panel: API provayder əlavə et (NVIDIA, OpenRouter, Anthropic, OpenAI…), açarlar serverdə şifrəli
+32. 🔄 Admin panel (dizayn hazır, açarlar hələ brauzerdə): API provayder əlavə et (NVIDIA, OpenRouter, Anthropic, OpenAI…), açarlar serverdə şifrəli
 33. ⏳ Hansı modellər istifadəçiyə görünsün, standart model, model başına kredit qiyməti
 34. ⏳ İstifadəçi model seçimi (Standart / Max)
 35. ⏳ Skill yükləmə (istifadəçi və admin) — markdown təlimatlar
@@ -97,4 +97,5 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | --- | --- |
 | 2026-11-12 | "Nöqtə" redizaynı; runtime, hydration, API qoruması düzəldildi; ilk plan |
 | 2026-11-12 (2) | "Şəfəq" dizayn sistemi, yeni loqo, iki tema, Sadə/Developer rejimləri, insan dilində xətalar |
-| 2026-11-16 | Tam yol xəritəsi; generasiya keyfiyyəti: real şəkillər və yeni dizayn bacarığı |
+| 2026-11-16 | Tam yol xəritəsi; dizayn sistemi v3 (bənövşəyi + qradiyent, Bricolage Grotesque + Geist, canlı WebGL qradiyent); /app paneli, giriş, admin, bütün pəncərələr və bildirişlər; yeni slogan |
+| 2026-11-16 (2) | Generasiya keyfiyyəti: `img.novo` → real şəkillər (Pexels / açarsız ehtiyat), dizayn bacarığına peşəkar sayt nümunələri, "Made with Novo" nişanı |

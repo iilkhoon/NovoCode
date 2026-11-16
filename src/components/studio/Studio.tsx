@@ -15,6 +15,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { USAGE, openModal } from "@/lib/ui-store";
 import { slug } from "@/components/app/Workspace";
 import { friendlyFile } from "@/lib/humanize";
+import { apiResolver, resolveImages } from "@/lib/images";
 import { cn } from "@/lib/cn";
 import { ChatPanel } from "./ChatPanel";
 import { PreviewPanel } from "./PreviewPanel";
@@ -142,7 +143,12 @@ export default function Studio({ id }: { id: string }) {
                   case "file-close":
                     commitFiles({ ...filesRef.current, [e.path]: e.content });
                     setStreaming(null);
-                    queue(() => runtime.writeFile(e.path, e.content));
+                    queue(async () => {
+                      // swap img.novo placeholders for real, on-topic photos before the preview sees them
+                      const content = await resolveImages(e.content, apiResolver);
+                      if (content !== e.content && filesRef.current[e.path] === e.content) commitFiles({ ...filesRef.current, [e.path]: content });
+                      await runtime.writeFile(e.path, content);
+                    });
                     break;
                   case "delete": {
                     actions++;

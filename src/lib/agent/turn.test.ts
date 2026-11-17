@@ -91,8 +91,8 @@ describe("automatic output-limit continuation", () => {
     const { streamTurn } = await import("./turn"); const { vi } = await import("vitest");
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => response([{ t: "length" }, { t: "done" }]));
     try {
-      await expect(streamTurn({ messages: [], files: {}, onEvent: () => {} })).rejects.toThrow("iki avtomatik");
-      expect(fetchMock).toHaveBeenCalledTimes(3);
+      await expect(streamTurn({ messages: [], files: {}, onEvent: () => {} })).rejects.toThrow("iki ardıcıl");
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     } finally { fetchMock.mockRestore(); }
   });
   it("does not continue after user cancellation", async () => {

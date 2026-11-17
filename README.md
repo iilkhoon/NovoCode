@@ -54,7 +54,7 @@ Model seçicisində DeepSeek mətn modelləri `Novo Flash`, Pro/reasoning modell
 
 Alternativ: `NOVO_ADMIN_PASSWORD` təyin edib `/admin` → Provayderlər → Provayder əlavə et → DeepSeek seçin, açarı daxil edin və yadda saxlayın. Sonra Modellər bölməsindən standart modeli seçin. Admin açarları serverdə şifrələyərək saxlayır; bu yol üçün yazıla bilən, daimi `.data` qovluğu lazımdır. Eyni provayder üçün admin qeydi `.env.local` açarından üstün tutulur.
 
-Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192, V4 modelləri üçün 16384 tokendir. Sayt qurularkən çıxış limitinə çatıldıqda ən çox iki əlavə avtomatik sorğu ilə davam edilir. Bağlanmış fayllar saxlanılır, yarımçıq fayl isə yaddaşa yazılmadan bütöv şəkildə yenidən istənilir. Bu əlavə sorğular provayderdə token istifadəsinə daxildir; iki davamdan sonra da bitməzsə xəta göstərilir. İstifadəçi prosesi dayandıranda davam sorğusu göndərilmir.
+Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192, V4 modelləri üçün 16384 tokendir. V4 sorğularında düşünmə rejimi açıq şəkildə söndürülür (`thinking.type=disabled`), çıxış büdcəsi kod üçün saxlanılır. Sayt kiçik, tamamlanmış fayl paketləri ilə qurulur; `<novo-continue>` qalan işləri növbəti sorğuya ötürür. İlk paket işlək səhifə yaratmalıdır. Ən çox 12 paket işlənir; iki ardıcıl paketdə heç bir fayl dəyişikliyi yoxdursa proses dayandırılır. Bağlanmış fayllar saxlanılır, token limitində yarımçıq qalan fayl isə yaddaşa yazılmadan bütöv şəkildə yenidən istənilir. Paketlər provayderdə ayrıca sorğu və token istifadəsi yaradır. İstifadəçi prosesi dayandıranda davam sorğusu göndərilmir.
 
 Sənədlər: https://api-docs.deepseek.com/ · Platforma: https://platform.deepseek.com/
 
@@ -111,6 +111,13 @@ always: false
 ```bash
 npm test        # parser, skill seçimi, xəta aşkarlama, prompt, model reytinqi
 npm run build
+```
+
+Generasiya axınının deterministik sınaqları hər iki V4 model ID-si üçün paketlərdən sayt qurur (canlı provayder testi deyil). Lokal Chromium və Node axtarış yolunda `playwright` varsa, brauzer smoke testi:
+
+```bash
+NOVO_GENERATION_OUT=/tmp/novo-generation-smoke npm test
+node scripts/check-generation.mjs
 ```
 
 ## Yol xəritəsi

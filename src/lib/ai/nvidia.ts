@@ -130,6 +130,7 @@ export async function* streamChat(opts: {
       model,
       messages: opts.messages,
       stream: true,
+      ...(isDeepSeek(ep.baseUrl) && /v4/i.test(model) ? { thinking: { type: "disabled" } } : {}),
       temperature: 0.4,
       top_p: 0.95,
       max_tokens: isDeepSeek(ep.baseUrl) ? Math.min(opts.maxTokens ?? (/v4/i.test(model) ? 16384 : 8192), /v4/i.test(model) ? 16384 : 8192) : opts.maxTokens ?? 16384,

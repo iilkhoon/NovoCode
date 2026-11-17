@@ -72,7 +72,7 @@ it("allows a larger V4 output budget while respecting an explicit smaller reques
   const fetch = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response('data: [DONE]\n\n'));
   const { streamChat } = await import("./nvidia");
   for await (const _ of streamChat({ model: "deepseek::deepseek-v4-flash", messages: [] })) {}
-  expect(JSON.parse(fetch.mock.calls[0][1]!.body as string).max_tokens).toBe(16384);
+  expect(JSON.parse(fetch.mock.calls[0][1]!.body as string)).toMatchObject({ max_tokens: 16384, thinking: { type: "disabled" } });
   for await (const _ of streamChat({ model: "deepseek::deepseek-v4-pro", messages: [], maxTokens: 600 })) {}
-  expect(JSON.parse(fetch.mock.calls[1][1]!.body as string).max_tokens).toBe(600);
+  expect(JSON.parse(fetch.mock.calls[1][1]!.body as string)).toMatchObject({ max_tokens: 600, thinking: { type: "disabled" } });
 });

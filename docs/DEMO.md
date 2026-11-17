@@ -9,10 +9,13 @@ Məqsəd: “kod bilməyən adam 5 dəqiqəyə işlək, gözəl sayt qurur və y
 - [ ] Bir dəfə layihə yaradıb önizləməni açın — paketlər keşə düşür, demoda studiya saniyələrə açılır
 - [ ] 2–3 hazır layihə: kofe şop, ayaqqabı mağazası, klinika (biri yayımlanmış, “Canlı” nişanı ilə)
 - [ ] Telefonda QR kodu oxuda bilmək üçün eyni Wi-Fi / yayım domeni işləyir
+- [ ] `.env.local`-a `NOVO_DEMO=fallback` yazın — AI cavab verməsə, studiya hazır ssenari ilə davam edir (kofe şopu saytı, sonra “Rəylər bölməsi”). İnternetsiz məşq üçün: `NOVO_DEMO=always`
+- [ ] Təqdimat: `/pitch` — ← → ilə keçid, **F** tam ekran, **P** PDF. Rəqəmlər `src/lib/pitch.ts`-dədir; `[məbləğ]` və `[SAFE / pay]` sahələrini doldurun
 - [ ] Ehtiyat: internet kəsilsə, hazır layihələrin ekran videosu
 
 ## Ssenari
 
+0. **Təqdimat (3 dəq).** `/pitch` — problem, həll, bazar (slayderləri investorun gözü qarşısında dəyişin), biznes modeli, sərmayə. Son slayddakı “Canlı demoya keç” düyməsi studiyaya aparır.
 1. **Problem (30 san).** Azərbaycanda kiçik biznesin saytı ya bahadır (500–3000 ₼), ya da həftələrlə çəkir. Rəqib AI alətləri ingilis dilindədir və bahadır.
 2. **Ana səhifə (30 san).** Canlı qradiyent, “Bir cümlə yaz, sayt hazırdır”. Dil seçicidə AZ → RU → EN keçin.
 3. **Sayt qurmaq (2 dəq).** Yazın: *“Bakıda ‘Dəmlə’ kofe şopu üçün sayt: menyu, qiymətlər manatla, masa rezervasiyası”*.

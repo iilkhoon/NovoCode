@@ -4,6 +4,7 @@ import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
 import { selectSkills } from "@/lib/skills/select";
 import { recordUsage, userHash } from "@/lib/usage";
+import { chunks, demoMode, demoReply } from "@/lib/demo/script";
 import { assertSameOrigin, errorResponse, HttpError, isDataImage, rateLimit, readJson } from "@/lib/api/guard";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +71,14 @@ export async function POST(req: Request) {
   const userText = history.filter((m) => m.role === "user").map((m) => m.content).join("\n");
   const skills = selectSkills(loadSkills(), userText + (hasImages ? " screenshot" : ""));
 
+  const mode = demoMode();
+  const demo = () =>
+    demoStream(
+      demoReply({ intent: body.intent, prompt: last.content, firstPrompt: body.messages.find((m) => m.role === "user")?.content ?? last.content, files: body.files }),
+      req.signal
+    );
+  if (mode === "always") return demo();
+
   let model = body.model;
   try {
     const models = await listModels();
@@ -80,6 +89,7 @@ export async function POST(req: Request) {
     }
     model ??= pickDefault(models, await preferredModel());
   } catch (e) {
+    if (mode === "fallback") return demo();
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 
@@ -123,7 +133,15 @@ export async function POST(req: Request) {
         send({ t: "done" });
       } catch (e) {
         ok = false;
-        if (!req.signal.aborted) send({ t: "error", v: (e as Error).message });
+        if (mode === "fallback" && chars === 0 && !req.signal.aborted) {
+          // the provider failed before saying anything — finish the turn from the demo script
+          for (const c of chunks(demoReply({ intent: body.intent, prompt: last.content, firstPrompt: body.messages.find((m) => m.role === "user")?.content ?? last.content, files: body.files }))) {
+            if (req.signal.aborted) break;
+            send({ t: "d", v: c });
+            await sleep(18);
+          }
+          send({ t: "done" });
+        } else if (!req.signal.aborted) send({ t: "error", v: (e as Error).message });
       } finally {
         // providers that don't report usage: estimate from prompt + reply size
         const est = tokens || Math.ceil((JSON.stringify(messages).length + chars) / 3.5);
@@ -134,6 +152,29 @@ export async function POST(req: Request) {
           /* client already went away */
         }
       }
+    },
+  });
+  return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Streams a scripted reply in the same NDJSON shape as a real model. */
+function demoStream(text: string, signal: AbortSignal) {
+  const enc = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (obj: unknown) => controller.enqueue(enc.encode(JSON.stringify(obj) + "\n"));
+      send({ t: "meta", model: "novo-demo", skills: [] });
+      await sleep(700);
+      for (const c of chunks(text)) {
+        if (signal.aborted) break;
+        send({ t: "d", v: c });
+        await sleep(18);
+      }
+      send({ t: "usage", v: Math.ceil(text.length / 3.5) });
+      send({ t: "done" });
+      controller.close();
     },
   });
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });

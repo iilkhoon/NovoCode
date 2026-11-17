@@ -73,3 +73,20 @@ describe("orderByHealth", () => {
     expect(orderByHealth(["x", "y", "z"], 1_000 + 11 * 60_000)).toEqual(["x", "y", "z"]);
   });
 });
+
+it("switches away from endless reasoning before any answer text", async () => {
+  const out = await collect(withFallback({
+    models: ["thinking", "answering"],
+    firstEventMs: 30,
+    isAnswer: (e: { kind: string }) => e.kind === "delta",
+    stream: async function* (model, signal) {
+      if (model === "thinking") {
+        yield { kind: "reasoning" };
+        await sleep(5_000, signal);
+      }
+      yield { kind: "delta" };
+    },
+  }));
+  expect(out).toContainEqual(expect.objectContaining({ kind: "switch", model: "answering" }));
+  expect(out.at(-1)).toEqual({ kind: "event", event: { kind: "delta" } });
+});

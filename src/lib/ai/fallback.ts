@@ -13,6 +13,8 @@ export async function* withFallback<E>(opts: {
   stream: (model: string, signal: AbortSignal) => AsyncIterable<E>;
   signal?: AbortSignal;
   firstEventMs?: number;
+  /** Reasoning/usage do not count as visible output. */
+  isAnswer?: (event: E) => boolean;
 }): AsyncGenerator<FallbackEvent<E>> {
   const { models, stream, signal, onFail, firstEventMs = 25_000 } = opts;
   let lastError: unknown = new Error("Heç bir model mövcud deyil");
@@ -30,7 +32,7 @@ export async function* withFallback<E>(opts: {
     }, firstEventMs);
     try {
       for await (const event of stream(model, ac.signal)) {
-        if (!started) {
+        if (!started && (opts.isAnswer?.(event) ?? true)) {
           started = true;
           clearTimeout(timer);
         }

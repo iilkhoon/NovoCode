@@ -35,6 +35,15 @@ npm run dev                  # http://localhost:3000
 
 > Studiya **Chrome, Edge və ya Brave** brauzerində ən yaxşı işləyir (WebContainers üçün cross-origin isolation lazımdır).
 
+### Önizləmə açılmırsa
+
+- Lokal kompüterdə brauzerin ünvan sətrində `http://localhost:3000` açın. `http://192.168.x.x:3000` kimi HTTP şəbəkə ünvanları təhlükəsiz kontekst sayılmır; başqa cihazdan giriş üçün HTTPS lazımdır.
+- `next.config.ts` COOP (`same-origin`) və COEP (`credentialless`) başlıqlarını verir. Proksi bu başlıqları silməməlidir. Konfiqurasiya dəyişdikdə dev serveri yenidən başladın və səhifəni tam yeniləyin.
+- Brauzer konsolunda `window.isSecureContext` və `window.crossOriginIsolated` hər ikisi `true` olmalıdır. Müasir masaüstü Chrome və ya Edge istifadə edin.
+- Layihələr brauzerdə ünvan üzrə saxlanılır: IP ünvanından `localhost`-a keçdikdə köhnə layihə görünməyə bilər. Keçməzdən əvvəl layihənin kodunu ixrac edin.
+
+AI modelindən görünən cavab gəlmirsə, yalnız düşünmə siqnalları vaxt limitini söndürmür: 25 saniyədən sonra mövcud ehtiyat model sınanır. İlk cavab mətni gəldikdən sonra model dəyişdirilmir. Provayderin növbəsi və cavab sürəti ayrıca gecikmə yarada bilər.
+
 ### Pulsuz yayım (Vercel)
 1. Repo-nu Vercel-ə qoşun → *Environment Variables* bölməsinə `NVIDIA_API_KEY` əlavə edin.
 2. Deploy. Server xərci yoxdur: AI çağırışları Vercel funksiyasından, saytların işə salınması isə istifadəçinin brauzerində olur.

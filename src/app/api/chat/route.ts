@@ -1,4 +1,5 @@
-import { streamChat, listModels, preferredModel, type ChatMessage } from "@/lib/ai/nvidia";
+import { isGreeting, greetingPrompt } from "@/lib/ai/request-profile";
+import { streamChat, listModels, preferredModel, type ChatMessage, type StreamEvent } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
 import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
   const last = history[history.length - 1];
   if (!last || last.role !== "user") return Response.json({ error: "Son mesaj istifadəçidən olmalıdır" }, { status: 400 });
 
+  const greeting = body.intent !== "compact" && !last.images?.length && isGreeting(last.content);
   const hasImages = history.some((m) => m.images?.length);
   const userText = history.filter((m) => m.role === "user").map((m) => m.content).join("\n");
   const skills = selectSkills(loadSkills(), userText + (hasImages ? " screenshot" : ""));
@@ -97,7 +99,7 @@ export async function POST(req: Request) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 
-  const system =
+  const system = greeting ? greetingPrompt() :
     body.intent === "compact"
       ? `${COMPACT_PROMPT}${body.summary ? `\n\nEarlier summary:\n${body.summary}` : ""}`
       : buildSystemPrompt({ skills, files: body.files ?? {}, intent: body.intent, summary: body.summary, lang: body.lang });
@@ -124,7 +126,13 @@ export async function POST(req: Request) {
       let tokens = 0, chars = 0, ok = true;
       try {
         let thinking = 0;
-        for await (const step of withFallback({ models: orderByHealth([model!, ...backups]), onFail: markDown, signal: req.signal, stream: (m, signal) => streamChat({ model: m, messages, signal }) })) {
+        for await (const step of withFallback<StreamEvent>({
+          models: orderByHealth([model!, ...backups]),
+          onFail: markDown,
+          signal: req.signal,
+          isAnswer: (event) => event.kind === "delta" && event.text.length > 0,
+          stream: (m, signal) => streamChat({ model: m, messages, signal }),
+        })) {
           if (step.kind === "switch") {
             model = step.model;
             send({ t: "meta", model, skills: skills.map((s) => s.name) });

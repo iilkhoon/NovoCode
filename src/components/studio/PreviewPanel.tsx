@@ -1,4 +1,5 @@
 "use client";
+import { previewSupport } from "@/lib/runtime/support";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, ExternalLink, Loader2, Lock, Maximize2, Minimize2, Monitor, MousePointerClick, RotateCw, Smartphone, Tablet, TriangleAlert } from "lucide-react";
@@ -66,8 +67,8 @@ export function PreviewPanel({
 
   const src = url ? url.replace(/\/$/, "") + (path.startsWith("/") ? path : "/" + path) : undefined;
   const idx = ORDER.indexOf(status);
-  const [isolated, setIsolated] = useState(true);
-  useEffect(() => setIsolated(typeof window === "undefined" || window.crossOriginIsolated), []);
+  const [unsupported, setUnsupported] = useState<ReturnType<typeof previewSupport>>(null);
+  useEffect(() => setUnsupported(previewSupport(window)), []);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -158,13 +159,11 @@ export function PreviewPanel({
               {status === "error" ? (
                 <div className="max-w-sm px-6 text-center">
                   <TriangleAlert className="mx-auto size-8 text-danger" />
-                  <p className="mt-3 font-display text-xl">{isolated ? "Önizləmə işə düşmədi" : "Bu brauzer önizləməni dəstəkləmir"}</p>
+                  <p className="mt-3 font-display text-xl">{unsupported?.title ?? "Önizləmə işə düşmədi"}</p>
                   <p className="mt-2 text-sm leading-relaxed text-ink-400">
-                    {isolated
-                      ? dev
-                        ? "Səbəbi Terminal bölməsindədir. Səhifəni yeniləyib yenidən cəhd edin."
-                        : "Səhifəni yeniləyib yenidən cəhd edin. Saytınız və söhbətiniz yadda saxlanılıb."
-                      : "Canlı önizləmə üçün kompüterdə Chrome, Edge və ya Brave istifadə edin. Söhbət və kod burada da işləyir."}
+                    {unsupported?.message ?? (dev
+                      ? "Səbəbi Terminal bölməsindədir. Səhifəni yeniləyib yenidən cəhd edin."
+                      : "Səhifəni yeniləyib yenidən cəhd edin. Saytınız və söhbətiniz yadda saxlanılıb.")}
                   </p>
                   <button onClick={() => location.reload()} className="mt-5 inline-flex h-9 items-center gap-1.5 rounded-full bg-pill px-4 text-[13px] font-medium text-wool transition hover:-translate-y-px">
                     <RotateCw className="size-3.5" /> Yenilə

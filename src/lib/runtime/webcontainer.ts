@@ -2,6 +2,7 @@
 import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
 import { toFileSystemTree } from "./tree";
 import { extractErrors } from "./errors";
+import { previewSupport } from "./support";
 import { del, get, keys, set } from "idb-keyval";
 
 /* ---------- node_modules cache: install once, boot in seconds afterwards ---------- */
@@ -80,8 +81,9 @@ export class ProjectRuntime {
   async start(files: Record<string, string>) {
     this.setStatus("booting");
     this.emit("\x1b[38;5;203m◆ NovoCode\x1b[0m runtime işə düşür…\r\n");
-    if (typeof window !== "undefined" && !window.crossOriginIsolated) {
-      this.emit("\x1b[31mBrauzer cross-origin isolation dəstəkləmir. Chrome, Edge və ya Brave istifadə edin.\x1b[0m\r\n");
+    const unsupported = typeof window !== "undefined" ? previewSupport(window) : null;
+    if (unsupported) {
+      this.emit(`\x1b[31m${unsupported.title}: ${unsupported.message}\x1b[0m\r\n`);
       this.setStatus("error");
       this.resolveMounted();
       this.resolveServing();

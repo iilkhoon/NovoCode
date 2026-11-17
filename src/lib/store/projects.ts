@@ -1,6 +1,6 @@
 "use client";
 import { get, set, del, keys } from "idb-keyval";
-import type { Project } from "../types";
+import type { ChatMessage, Project } from "../types";
 import { TEMPLATE_FILES } from "../template";
 import { supabase } from "../supabase";
 
@@ -38,10 +38,10 @@ export async function createProject(prompt: string, images?: string[]): Promise<
 }
 
 /** A project from existing files (GitHub import). Missing template files are filled in. */
-export async function createProjectFromFiles(name: string, files: Record<string, string>): Promise<Project> {
+export async function createProjectFromFiles(name: string, files: Record<string, string>, messages: ChatMessage[] = []): Promise<Project> {
   const now = Date.now();
   const runnable = "package.json" in files;
-  const p: Project = { id: uid(), name: name.slice(0, 40) || "Gətirilmiş layihə", files: runnable ? files : { ...TEMPLATE_FILES, ...files }, messages: [], createdAt: now, updatedAt: now };
+  const p: Project = { id: uid(), name: name.slice(0, 40) || "Gətirilmiş layihə", files: runnable ? files : { ...TEMPLATE_FILES, ...files }, messages, createdAt: now, updatedAt: now };
   await set(K(p.id), p);
   pushRemote(p);
   return p;

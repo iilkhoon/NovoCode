@@ -3,8 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { Check, Loader2, Wrench } from "lucide-react";
 import { LogoMark } from "@/components/Logo";
-import { TemplatePreview } from "./TemplatePreview";
-import { TEMPLATES } from "./data";
 
 const PROMPT = "Dəmlə adlı kofe şopu üçün sayt qur: menyu, qiymətlər və masa rezervasiyası olsun.";
 const FILES = ["src/index.css", "src/components/Header.jsx", "src/components/Hero.jsx", "src/components/Menu.jsx", "src/components/Reservation.jsx", "src/App.jsx"];
@@ -106,7 +104,7 @@ export function DemoWindow() {
           <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#f5ede3] text-[#2b1d14]">
             {/* the site, woven from the bottom up */}
             <div className="h-full transition-[clip-path] duration-300 ease-out" style={{ clipPath: `inset(${100 - (woven / ROWS) * 100}% 0 0 0)` }}>
-              <TemplatePreview t={TEMPLATES[0]} />
+              <img src="/templates/demle.jpg" alt="Dəmlə kofe şopunun saytı" className="size-full object-cover object-top" />
             </div>
             {/* the "shuttle" line */}
             {woven > 0 && woven < ROWS && (

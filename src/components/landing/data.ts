@@ -37,6 +37,8 @@ export type TemplateCategory = "Hamısı" | "Biznes" | "Yemək" | "Sağlamlıq" 
 export const TEMPLATE_CATEGORIES: TemplateCategory[] = ["Hamısı", "Biznes", "Yemək", "Sağlamlıq", "Mağaza", "Şəxsi"];
 
 export interface Template {
+  /** folder in src/lib/templates/sites and thumbnail in public/templates */
+  id: string;
   name: string;
   category: Exclude<TemplateCategory, "Hamısı">;
   tagline: string;
@@ -48,6 +50,7 @@ export interface Template {
 
 export const TEMPLATES: Template[] = [
   {
+    id: "demle",
     name: "Dəmlə Kofe",
     category: "Yemək",
     tagline: "Menyu · Rezervasiya",
@@ -57,6 +60,7 @@ export const TEMPLATES: Template[] = [
     prompt: "Bakıda 'Dəmlə' adlı kofe şopu üçün isti, premium sayt: hero, menyu kateqoriyaları və manatla qiymətlər, masa rezervasiyası, qalereya, əlaqə və xəritə.",
   },
   {
+    id: "gil",
     name: "Gil Keramika",
     category: "Mağaza",
     tagline: "Kataloq · Səbət · Sifariş",
@@ -66,6 +70,7 @@ export const TEMPLATES: Template[] = [
     prompt: "Əl işi keramika mağazası 'Gil': minimal dizayn, kataloq, kateqoriya filtri, məhsul səhifəsi, səbət, sifariş forması və admin panel.",
   },
   {
+    id: "gulus",
     name: "Gülüş Dental",
     category: "Sağlamlıq",
     tagline: "Xidmətlər · Onlayn randevu",
@@ -75,6 +80,7 @@ export const TEMPLATES: Template[] = [
     prompt: "'Gülüş Dental' stomatologiya klinikası: etibarlı mavi dizayn, xidmətlər və qiymətlər, həkimlər, addım-addım onlayn randevu, rəylər və FAQ.",
   },
   {
+    id: "hesabla",
     name: "Hesabla",
     category: "Biznes",
     tagline: "SaaS landing · Qiymətlər",
@@ -84,6 +90,7 @@ export const TEMPLATES: Template[] = [
     prompt: "Kiçik bizneslər üçün mühasibat tətbiqi 'Hesabla': tünd tech dizayn, hero, imkanlar bento grid, inteqrasiyalar, 3 qiymət planı, FAQ və demo müraciət forması.",
   },
   {
+    id: "aysel",
     name: "Aysel Foto",
     category: "Şəxsi",
     tagline: "Portfolio · Paketlər",
@@ -93,6 +100,7 @@ export const TEMPLATES: Template[] = [
     prompt: "Toy fotoqrafı Aysel Məmmədova üçün lüks, minimal portfolio: tam ekran qalereya, foto paketləri manatla, rəylər və əlaqə forması.",
   },
   {
+    id: "satis",
     name: "Satış CRM",
     category: "Biznes",
     tagline: "Giriş · Müştərilər · Statistika",
@@ -102,6 +110,7 @@ export const TEMPLATES: Template[] = [
     prompt: "Kiçik satış komandası üçün CRM: giriş/qeydiyyat, KPI kartları, müştərilər cədvəli (axtarış, filtr), sövdələşmə kanban lövhəsi və statistika qrafiki.",
   },
   {
+    id: "nergiz",
     name: "Nərgiz Salon",
     category: "Sağlamlıq",
     tagline: "Randevu · Ustalar",
@@ -111,6 +120,7 @@ export const TEMPLATES: Template[] = [
     prompt: "'Nərgiz' gözəllik salonu: zərif çəhrayı dizayn, xidmətlər və qiymətlər, ustalar, usta və saat seçimi ilə randevu, Instagram qalereyası.",
   },
   {
+    id: "plov",
     name: "Plov House",
     category: "Yemək",
     tagline: "Milli mətbəx · Çatdırılma",
@@ -120,6 +130,7 @@ export const TEMPLATES: Template[] = [
     prompt: "'Plov House' Azərbaycan milli mətbəxi restoranı: tünd isti dizayn, menyu (plov, dolma, qutab, kabablar), onlayn sifariş səbəti, çatdırılma zonaları və rezervasiya.",
   },
   {
+    id: "lingo",
     name: "Lingo Akademiya",
     category: "Biznes",
     tagline: "Kurslar · Qeydiyyat",

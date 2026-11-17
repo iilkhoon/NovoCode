@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { Container, SectionHead } from "./Section";
-import { TemplatePreview } from "./TemplatePreview";
 import { TEMPLATES, TEMPLATE_CATEGORIES, type TemplateCategory } from "./data";
 import { useStartProject } from "./useStart";
 import { cn } from "@/lib/cn";
@@ -13,7 +12,7 @@ export function Templates() {
   const [cat, setCat] = useState<TemplateCategory>("Hamısı");
   const c = useCopy();
   const copy = c;
-  const { start, starting } = useStartProject();
+  const { startTemplate, starting } = useStartProject();
   const list = TEMPLATES.filter((t) => cat === "Hamısı" || t.category === cat);
 
   return (
@@ -41,12 +40,12 @@ export function Templates() {
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
                 disabled={starting}
-                onClick={() => start(t.prompt)}
+                onClick={() => startTemplate(t)}
                 className="surface group rounded-[22px] border border-ink-100/[0.08] p-2 text-left transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-nar/30"
               >
                 <div className="aspect-[4/3] overflow-hidden rounded-xl">
                   <div className="h-full transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]">
-                    <TemplatePreview t={t} />
+                    <img src={`/templates/${t.id}.jpg`} alt={`${t.name} şablonu`} loading="lazy" className="size-full object-cover object-top" />
                   </div>
                 </div>
                 <div className="flex items-center justify-between px-3 pb-2 pt-4">

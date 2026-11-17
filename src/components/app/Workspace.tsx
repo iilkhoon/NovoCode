@@ -4,7 +4,6 @@ import { AppWindow, ArrowUpRight, Copy, Database, FolderOpen, Globe2, LayoutGrid
 import { PromptBox } from "@/components/PromptBox";
 import { useStartProject } from "@/components/landing/useStart";
 import { EXAMPLES, TEMPLATES, TYPEWRITER } from "@/components/landing/data";
-import { TemplatePreview } from "@/components/landing/TemplatePreview";
 import { LiveFrame } from "@/components/ui/LiveFrame";
 import { Button } from "@/components/ui/button";
 import { EmptyState, Menu, MenuItem, MenuSeparator, Modal, Segmented, Skeleton } from "@/components/ui/kit";
@@ -48,7 +47,7 @@ export function Workspace() {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [confirm, setConfirm] = useState<Project | null>(null);
   const [rename, setRename] = useState<Project | null>(null);
-  const { start, starting } = useStartProject();
+  const { start, startTemplate, starting } = useStartProject();
   const prefs = usePrefs();
   const top = useRef<HTMLDivElement>(null);
   const t = useT();
@@ -219,12 +218,12 @@ export function Workspace() {
                 key={tpl.name}
                 type="button"
                 disabled={starting}
-                onClick={() => start(tpl.prompt)}
+                onClick={() => startTemplate(tpl)}
                 className="group overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000 text-left shadow-[var(--shadow-card)] transition-[transform,box-shadow] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-panel)] disabled:opacity-60"
               >
                 <span className="block aspect-[16/10] overflow-hidden">
                   <span className="block h-full transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.04]">
-                    <TemplatePreview t={tpl} />
+                    <img src={`/templates/${tpl.id}.jpg`} alt={`${tpl.name} şablonu`} loading="lazy" className="size-full object-cover object-top" />
                   </span>
                 </span>
                 <span className="flex items-center justify-between gap-2 p-4">

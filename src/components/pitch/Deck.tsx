@@ -3,8 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Download, Maximize2, Minus, Play } from "lucide-react";
 import { LogoMark } from "@/components/Logo";
 import { GradientBackdrop } from "@/components/ui/GradientBackdrop";
-import { TemplatePreview } from "@/components/landing/TemplatePreview";
-import { TEMPLATES, PLANS } from "@/components/landing/data";
+import { PLANS } from "@/components/landing/data";
 import { DECK, MODEL_DEFAULTS, SOURCES, T, formatAzn, marketSize, tr, unitEconomics, type PitchLang } from "@/lib/pitch";
 import { cn } from "@/lib/cn";
 
@@ -151,7 +150,7 @@ function Solution({ lang }: Ctx) {
             {[0, 1, 2].map((i) => <span key={i} className="size-3 rounded-full bg-black/10" />)}
             <span className="ml-4 font-label text-[13px] text-black/40">demle.novocode.app</span>
           </div>
-          <div className="aspect-[4/3]"><TemplatePreview t={TEMPLATES[0]} /></div>
+          <div className="aspect-[4/3]"><img src="/templates/demle.jpg" alt="Dəmlə kofe şopunun saytı" className="size-full object-cover object-top" /></div>
         </div>
       </div>
     </Frame>

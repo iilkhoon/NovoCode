@@ -74,6 +74,7 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
   if (!res.body) throw new Error(`Server cavab vermədi (${res.status})`);
   const parser = new ActionParser();
   let raw = "";
+  let completed = false;
   for await (const msg of readNdjson(res.body)) {
     switch (msg.t) {
       case "meta":
@@ -91,11 +92,14 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
         parser.feed(v).forEach(req.onEvent);
         break;
       }
+      case "done":
+        completed = true;
+        break;
       case "error":
-        parser.end().forEach(req.onEvent);
         throw new Error(String(msg.v));
     }
   }
+  if (!completed || parser.incomplete) throw new Error("AI cavabı yarımçıq qaldı. Tam sayt yaradılmadı — yenidən cəhd edin.");
   parser.end().forEach(req.onEvent);
   return raw;
 }

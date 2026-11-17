@@ -365,12 +365,18 @@ export default function Studio({ id }: { id: string }) {
     runAgent(history);
   }, [busy, runAgent]);
 
+  // Subscriptions must survive Strict Mode's setup → cleanup → setup cycle.
+  useEffect(() => {
+    const offS = runtime.onStatus(setStatus);
+    const offU = runtime.onUrl(setUrl);
+    setStatus(runtime.status);
+    return () => { offS(); offU(); };
+  }, [runtime]);
+
   // ---------- boot ----------
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const offS = runtime.onStatus(setStatus);
-    const offU = runtime.onUrl(setUrl);
     (async () => {
       const p = await getProject(id);
       if (!p) {
@@ -400,10 +406,6 @@ export default function Studio({ id }: { id: string }) {
         runAgent([msg]);
       }
     })();
-    return () => {
-      offS();
-      offU();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

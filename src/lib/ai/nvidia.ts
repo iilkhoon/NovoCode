@@ -146,15 +146,14 @@ export async function* streamChat(opts: {
       if (!line.startsWith("data:")) continue;
       const payload = line.slice(5).trim();
       if (payload === "[DONE]") return;
-      try {
-        const j = JSON.parse(payload);
-        const d = j.choices?.[0]?.delta ?? {};
-        if (d.content) yield { kind: "delta", text: d.content };
-        else if (d.reasoning_content || d.reasoning) yield { kind: "reasoning" };
-        if (j.usage?.total_tokens) yield { kind: "usage", tokens: j.usage.total_tokens };
-      } catch {
-        /* ignore keep-alive / partial lines */
-      }
+      let j;
+      try { j = JSON.parse(payload); } catch { continue; }
+      if (j.error) throw new Error(j.error.message || "AI stream error");
+      if (j.choices?.[0]?.finish_reason === "length") throw new Error("AI cavabı token limitinə çataraq yarımçıq kəsildi. Tam sayt yaradılmadı; davam etməsini istəyin.");
+      const d = j.choices?.[0]?.delta ?? {};
+      if (d.content) yield { kind: "delta", text: d.content };
+      else if (d.reasoning_content || d.reasoning) yield { kind: "reasoning" };
+      if (j.usage?.total_tokens) yield { kind: "usage", tokens: j.usage.total_tokens };
     }
   }
 }

@@ -53,6 +53,8 @@ export class ActionParser {
   private buf = "";
   private mode: Mode = { kind: "text" };
 
+  get incomplete(): boolean { return this.mode.kind !== "text"; }
+
   feed(chunk: string): ParserEvent[] {
     this.buf += chunk;
     const out: ParserEvent[] = [];

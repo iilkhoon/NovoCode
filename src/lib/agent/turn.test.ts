@@ -27,3 +27,33 @@ describe("compactAssistant", () => {
     expect(c).not.toContain("long code");
   });
 });
+
+// An interrupted response must never commit a partially generated source file.
+describe("streamTurn completion", () => {
+  it("rejects a disconnected stream without closing its partial file", async () => {
+    const { streamTurn } = await import("./turn");
+    const { vi } = await import("vitest");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(streamOf([
+      JSON.stringify({ t: "d", v: '<novo-file path="src/App.jsx">export default' }) + '\n',
+    ])));
+    const events: unknown[] = [];
+    try {
+      await expect(streamTurn({ messages: [], files: {}, onEvent: (e) => events.push(e) })).rejects.toThrow("yarımçıq");
+      expect(events.some((e: any) => e.type === "file-close")).toBe(false);
+    } finally { fetchMock.mockRestore(); }
+  });
+
+  it("accepts completed file actions only after an explicit done event", async () => {
+    const { streamTurn } = await import("./turn");
+    const { vi } = await import("vitest");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(streamOf([
+      JSON.stringify({ t: "d", v: '<novo-file path="src/App.jsx">export default 1;</novo-file>' }) + '\n',
+      '{"t":"done"}\n',
+    ])));
+    const events: any[] = [];
+    try {
+      await streamTurn({ messages: [], files: {}, onEvent: (e) => events.push(e) });
+      expect(events.find((e) => e.type === "file-close")?.content).toBe("export default 1;");
+    } finally { fetchMock.mockRestore(); }
+  });
+});

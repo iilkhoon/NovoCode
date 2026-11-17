@@ -124,12 +124,22 @@ export class ProjectRuntime {
       if (key && snap) {
         this.setStatus("installing");
         this.emit("\r\n\x1b[2m$ paketlər keşdən bərpa olunur…\x1b[0m\r\n");
-        await this.wc.mount(snap, { mountPoint: "node_modules" });
-        this.installedPkgJson = files["package.json"];
-        this.fromCache = key;
+        try {
+          await this.wc.fs.mkdir("node_modules", { recursive: true });
+          await this.wc.mount(snap, { mountPoint: "node_modules" });
+          this.installedPkgJson = files["package.json"];
+          this.fromCache = key;
+        } catch {
+          await del(key).catch(() => {});
+          await this.wc.fs.rm("node_modules", { recursive: true, force: true });
+          const code = await this.install(files["package.json"]);
+          if (code !== 0) { this.resolveServing(); return; }
+          void this.saveCache(key);
+        }
       } else {
         const code = await this.install(files["package.json"]);
-        if (code === 0 && key) void this.saveCache(key);
+        if (code !== 0) { this.resolveServing(); return; }
+        if (key) void this.saveCache(key);
       }
       await this.startDev();
     } catch (e) {

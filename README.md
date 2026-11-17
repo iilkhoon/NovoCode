@@ -54,7 +54,7 @@ Model seçicisində DeepSeek mətn modelləri `Novo Flash`, Pro/reasoning modell
 
 Alternativ: `NOVO_ADMIN_PASSWORD` təyin edib `/admin` → Provayderlər → Provayder əlavə et → DeepSeek seçin, açarı daxil edin və yadda saxlayın. Sonra Modellər bölməsindən standart modeli seçin. Admin açarları serverdə şifrələyərək saxlayır; bu yol üçün yazıla bilən, daimi `.data` qovluğu lazımdır. Eyni provayder üçün admin qeydi `.env.local` açarından üstün tutulur.
 
-Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192 tokendir; yarımçıq cavablar xəta kimi göstərilir.
+Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192, V4 modelləri üçün 16384 tokendir. Sayt qurularkən çıxış limitinə çatıldıqda ən çox iki əlavə avtomatik sorğu ilə davam edilir. Bağlanmış fayllar saxlanılır, yarımçıq fayl isə yaddaşa yazılmadan bütöv şəkildə yenidən istənilir. Bu əlavə sorğular provayderdə token istifadəsinə daxildir; iki davamdan sonra da bitməzsə xəta göstərilir. İstifadəçi prosesi dayandıranda davam sorğusu göndərilmir.
 
 Sənədlər: https://api-docs.deepseek.com/ · Platforma: https://platform.deepseek.com/
 

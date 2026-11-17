@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       ],
       signal: req.signal,
     })) {
+      if (ev.kind === "length") throw new Error("Sorğunun təkmilləşdirilməsi token limitinə çatdı. Yenidən cəhd edin.");
       if (ev.kind === "delta") out += ev.text;
     }
     return NextResponse.json({ prompt: out.trim().replace(/^["“]|["”]$/g, "") });

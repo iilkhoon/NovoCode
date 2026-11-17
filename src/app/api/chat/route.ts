@@ -142,6 +142,7 @@ export async function POST(req: Request) {
             continue;
           }
           const ev = step.event;
+          if (ev.kind === "length") { send({ t: "length" }); break; }
           if (ev.kind === "delta") {
             chars += ev.text.length;
             send({ t: "d", v: ev.text });

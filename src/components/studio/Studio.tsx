@@ -162,6 +162,9 @@ export default function Studio({ id }: { id: string }) {
                 setThinking(false);
                 if (e.type !== "file-delta") patchMessage(aid, (m) => ({ ...m, parts: applyEvent(m.parts ?? [], e) }));
                 switch (e.type) {
+                  case "file-abort":
+                    setStreaming(null);
+                    break;
                   case "file-open":
                     actions++;
                     setStreaming({ path: e.path, content: "" });

@@ -66,3 +66,13 @@ it("prefers V4 Flash when the old configured alias is absent from the live catal
   const models = await listModels();
   expect(pickDefault(models, "deepseek::deepseek-chat")).toBe("deepseek::deepseek-v4-flash");
 });
+
+it("allows a larger V4 output budget while respecting an explicit smaller request", async () => {
+  configure();
+  const fetch = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response('data: [DONE]\n\n'));
+  const { streamChat } = await import("./nvidia");
+  for await (const _ of streamChat({ model: "deepseek::deepseek-v4-flash", messages: [] })) {}
+  expect(JSON.parse(fetch.mock.calls[0][1]!.body as string).max_tokens).toBe(16384);
+  for await (const _ of streamChat({ model: "deepseek::deepseek-v4-pro", messages: [], maxTokens: 600 })) {}
+  expect(JSON.parse(fetch.mock.calls[1][1]!.body as string).max_tokens).toBe(600);
+});

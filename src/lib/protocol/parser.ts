@@ -15,6 +15,7 @@ export type ParserEvent =
   | { type: "text"; text: string }
   | { type: "plan"; text: string }
   | { type: "file-open"; path: string }
+  | { type: "file-abort"; path: string }
   | { type: "file-delta"; path: string; text: string }
   | { type: "file-close"; path: string; content: string }
   | { type: "delete"; path: string }
@@ -52,6 +53,8 @@ export function cleanFileContent(raw: string): string {
 export class ActionParser {
   private buf = "";
   private mode: Mode = { kind: "text" };
+
+  get pendingFile(): string | null { return this.mode.kind === "file" ? this.mode.path : null; }
 
   get incomplete(): boolean { return this.mode.kind !== "text"; }
 

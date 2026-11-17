@@ -56,50 +56,75 @@ export interface TurnRequest {
 
 /** Calls /api/chat and turns the token stream into parser events. Returns the raw reply. */
 export async function streamTurn(req: TurnRequest): Promise<string> {
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: req.messages, files: req.files, model: req.model, intent: req.intent, summary: req.summary, lang: req.lang }),
-    signal: req.signal,
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    let msg = text;
-    try {
-      const j = JSON.parse(text.split("\n")[0]);
-      msg = j.error ?? j.v ?? text;
-    } catch {}
-    throw new Error(msg || `Server cavab vermədi (${res.status})`);
-  }
-  if (!res.body) throw new Error(`Server cavab vermədi (${res.status})`);
-  const parser = new ActionParser();
+  const files = { ...req.files };
+  let model = req.model;
   let raw = "";
-  let completed = false;
-  for await (const msg of readNdjson(res.body)) {
-    switch (msg.t) {
-      case "meta":
-        req.onMeta?.(msg as unknown as { model: string; skills: string[] });
-        break;
-      case "thinking":
-        req.onThinking?.();
-        break;
-      case "usage":
-        req.onUsage?.(Number(msg.v));
-        break;
-      case "d": {
-        const v = String(msg.v);
-        raw += v;
-        parser.feed(v).forEach(req.onEvent);
-        break;
-      }
-      case "done":
-        completed = true;
-        break;
-      case "error":
-        throw new Error(String(msg.v));
+  let usedTokens = 0;
+  const maxContinuations = 2;
+  let messages = req.messages;
+  for (let round = 0; round <= maxContinuations; round++) {
+    req.signal?.throwIfAborted();
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, files, model, intent: req.intent, summary: req.summary, lang: req.lang }),
+      signal: req.signal,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      let msg = text;
+      try { const j = JSON.parse(text.split("\n")[0]); msg = j.error ?? j.v ?? text; } catch {}
+      throw new Error(msg || `Server cavab vermədi (${res.status})`);
     }
+    if (!res.body) throw new Error(`Server cavab vermədi (${res.status})`);
+    const parser = new ActionParser();
+    let completed = false;
+    let limited = false;
+    let roundTokens = 0;
+    const emit = (event: ParserEvent) => {
+      // Keep only closed actions in history: unfinished source is never saved or replayed.
+      switch (event.type) {
+        case "text": raw += event.text; break;
+        case "plan": raw += `<novo-plan>${event.text}</novo-plan>`; break;
+        case "file-close":
+          files[event.path] = event.content;
+          raw += `<novo-file path=${JSON.stringify(event.path)}>${event.content}</novo-file>`;
+          break;
+        case "delete": delete files[event.path]; raw += `<novo-delete path=${JSON.stringify(event.path)}/>`; break;
+        case "shell": raw += `<novo-shell>${event.command}</novo-shell>`; break;
+      }
+      req.onEvent(event);
+    };
+    for await (const msg of readNdjson(res.body)) {
+      switch (msg.t) {
+        case "meta":
+          model = String(msg.model);
+          req.onMeta?.(msg as unknown as { model: string; skills: string[] });
+          break;
+        case "thinking": req.onThinking?.(); break;
+        case "usage": roundTokens = Number(msg.v); req.onUsage?.(usedTokens + roundTokens); break;
+        case "d": parser.feed(String(msg.v)).forEach(emit); break;
+        case "done": completed = true; break;
+        case "length": limited = true; break;
+        case "error": throw new Error(String(msg.v));
+      }
+    }
+    usedTokens += roundTokens;
+    if (!completed) throw new Error("AI cavabı yarımçıq qaldı. Bağlantı kəsildi — yenidən cəhd edin.");
+    if (!limited) {
+      if (parser.incomplete) throw new Error("AI cavabı yarımçıq qaldı. Tam sayt yaradılmadı — yenidən cəhd edin.");
+      parser.end().forEach(emit);
+      return raw;
+    }
+    const unfinished = parser.pendingFile;
+    if (unfinished) req.onEvent({ type: "file-abort", path: unfinished });
+    if (round === maxContinuations) throw new Error("AI cavabı iki avtomatik davamdan sonra da yarımçıq qaldı. Tamamlanan fayllar saxlanıldı; qalan hissəni ayrıca istəyin.");
+    emit({ type: "text", text: "\nQalan faylları tamamlayıram…\n" });
+    messages = [
+      ...req.messages,
+      { role: "assistant", content: compactAssistant(raw) },
+      { role: "user", content: `Continue the ORIGINAL website request; the previous response hit its output token limit. Completed files are in the project context. Do not rewrite completed files or rerun shell commands. ${unfinished ? `The unfinished file ${JSON.stringify(unfinished)} was discarded: write that file again IN FULL using a fresh <novo-file> tag.` : "Write the remaining files."} Finish all remaining components and the entry point. Split large files into smaller components. Use complete action tags, never resume in the middle of source code. Keep prose very short.` },
+    ];
   }
-  if (!completed || parser.incomplete) throw new Error("AI cavabı yarımçıq qaldı. Tam sayt yaradılmadı — yenidən cəhd edin.");
-  parser.end().forEach(req.onEvent);
-  return raw;
+  throw new Error("AI cavabı yarımçıq qaldı.");
 }

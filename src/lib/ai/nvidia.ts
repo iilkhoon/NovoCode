@@ -113,7 +113,7 @@ export interface ChatMessage {
   content: ChatContent;
 }
 
-export type StreamEvent = { kind: "delta"; text: string } | { kind: "reasoning" } | { kind: "usage"; tokens: number };
+export type StreamEvent = { kind: "delta"; text: string } | { kind: "reasoning" } | { kind: "usage"; tokens: number } | { kind: "length" };
 
 /** Streams a chat completion from the model's provider (OpenAI-compatible SSE). */
 export async function* streamChat(opts: {
@@ -132,7 +132,7 @@ export async function* streamChat(opts: {
       stream: true,
       temperature: 0.4,
       top_p: 0.95,
-      max_tokens: isDeepSeek(ep.baseUrl) ? Math.min(opts.maxTokens ?? 8192, 8192) : opts.maxTokens ?? 16384,
+      max_tokens: isDeepSeek(ep.baseUrl) ? Math.min(opts.maxTokens ?? (/v4/i.test(model) ? 16384 : 8192), /v4/i.test(model) ? 16384 : 8192) : opts.maxTokens ?? 16384,
     }),
     signal: opts.signal,
   });
@@ -158,11 +158,11 @@ export async function* streamChat(opts: {
       try { j = JSON.parse(payload); } catch { continue; }
       if (j.error) throw new Error(j.error.message || "AI stream error");
       if (j.base_resp?.status_code) throw new Error(`${ep.name}: ${j.base_resp.status_msg || "API xətası"}`);
-      if (j.choices?.[0]?.finish_reason === "length") throw new Error("AI cavabı token limitinə çataraq yarımçıq kəsildi. Tam sayt yaradılmadı; davam etməsini istəyin.");
       const d = j.choices?.[0]?.delta ?? {};
       if (d.content) yield { kind: "delta", text: d.content };
       else if (d.reasoning_content || d.reasoning || d.reasoning_details?.length) yield { kind: "reasoning" };
       if (j.usage?.total_tokens) yield { kind: "usage", tokens: j.usage.total_tokens };
+      if (j.choices?.[0]?.finish_reason === "length") { yield { kind: "length" }; return; }
     }
   }
 }

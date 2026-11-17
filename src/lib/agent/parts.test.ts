@@ -27,3 +27,7 @@ describe("applyEvent", () => {
     ]);
   });
 });
+
+it("removes an interrupted file action without marking it complete", () => {
+  expect(applyEvent([{ kind: "file", path: "a.jsx", status: "writing" }, { kind: "file", path: "b.jsx", status: "done" }], { type: "file-abort", path: "a.jsx" })).toEqual([{ kind: "file", path: "b.jsx", status: "done" }]);
+});

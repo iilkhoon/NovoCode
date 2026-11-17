@@ -86,6 +86,7 @@ export async function POST(req: Request) {
   let backups: string[] = [];
   try {
     const models = await listModels();
+    if (hasImages && !models.some((m) => m.vision)) return Response.json({ error: "Qoşulmuş modellər şəkil qəbul etmir. Şəkli çıxarın və ya görüntü dəstəyi olan provayder qoşun." }, { status: 400 });
     // only models the account actually offers
     if (model && !models.some((m) => m.id === model)) model = undefined;
     if (hasImages && !models.find((m) => m.id === model)?.vision) {

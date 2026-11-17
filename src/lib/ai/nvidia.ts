@@ -1,4 +1,5 @@
 import "server-only";
+import { isDeepSeek, DEEPSEEK_DEFAULT_MODEL, DEEPSEEK_BASE_URL } from "./deepseek";
 import { isVisionModel, modelListHeaders, rankModels, type ModelInfo } from "./models";
 import { loadConfig } from "./config";
 
@@ -20,12 +21,18 @@ interface Endpoint {
 
 async function providers(): Promise<Endpoint[]> {
   const cfg = await loadConfig().catch(() => ({ providers: [] as Endpoint[] }));
-  return [...(NVIDIA.key ? [NVIDIA] : []), ...cfg.providers.filter((p) => p.enabled && p.key)];
+  const deepseek: Endpoint[] = process.env.DEEPSEEK_API_KEY ? [{
+    id: "deepseek", name: "DeepSeek", baseUrl: DEEPSEEK_BASE_URL,
+    key: process.env.DEEPSEEK_API_KEY, enabled: true,
+  }] : [];
+  // An explicit admin entry takes precedence over the environment provider with the same id.
+  const custom = cfg.providers.filter((p) => p.enabled && p.key);
+  return [...(NVIDIA.key ? [NVIDIA] : []), ...deepseek.filter((p) => !cfg.providers.some((c) => c.id === p.id)), ...custom];
 }
 
 async function resolve(model: string): Promise<{ ep: Endpoint; model: string }> {
   const list = await providers();
-  if (!list.length) throw new Error("NVIDIA_API_KEY təyin edilməyib (.env.local faylına əlavə edin) və ya admin paneldə provayder əlavə edin.");
+  if (!list.length) throw new Error("NVIDIA_API_KEY və ya DEEPSEEK_API_KEY təyin edilməyib (.env.local faylına əlavə edin) və ya admin paneldə provayder əlavə edin.");
   const i = model.indexOf(SEP);
   if (i > 0) {
     const ep = list.find((p) => p.id === model.slice(0, i));
@@ -52,7 +59,7 @@ async function fetchIds(ep: Endpoint): Promise<string[]> {
 /** All models users may pick: ranked NVIDIA models + every model of extra providers, minus hidden ones. */
 export async function listModels(): Promise<ModelInfo[]> {
   const [list, cfg] = await Promise.all([providers(), loadConfig().catch(() => ({ models: [] as { id: string; label?: string; visible?: boolean }[] }))]);
-  if (!list.length) throw new Error("NVIDIA_API_KEY təyin edilməyib (.env.local faylına əlavə edin).");
+  if (!list.length) throw new Error("NVIDIA_API_KEY və ya DEEPSEEK_API_KEY təyin edilməyib (.env.local faylına əlavə edin).");
   const out: ModelInfo[] = [];
   const errors: string[] = [];
   const settings = new Map(cfg.models.map((m) => [m.id, m]));
@@ -65,7 +72,7 @@ export async function listModels(): Promise<ModelInfo[]> {
         else
           for (const id of ids) {
             const q = `${ep.id}${SEP}${id}`;
-            if (settings.get(q)?.visible === true) out.push({ id: q, label: `${id.split("/").pop()} · ${ep.name}`, vision: isVisionModel(id), rank: -1 });
+            if (settings.get(q)?.visible === true || (isDeepSeek(ep.baseUrl) && settings.get(q)?.visible !== false)) out.push({ id: q, label: `${id.split("/").pop()} · ${ep.name}`, vision: isVisionModel(id), rank: -1 });
           }
       } catch (e) {
         errors.push((e as Error).message);
@@ -81,7 +88,8 @@ export async function listModels(): Promise<ModelInfo[]> {
 
 /** Default model: env override, then the admin's choice. */
 export async function preferredModel(): Promise<string | undefined> {
-  return process.env.NOVO_DEFAULT_MODEL || (await loadConfig().catch(() => null))?.defaultModel || undefined;
+  return process.env.NOVO_DEFAULT_MODEL || (await loadConfig().catch(() => null))?.defaultModel ||
+    (process.env.DEEPSEEK_API_KEY ? `deepseek::${process.env.DEEPSEEK_MODEL || DEEPSEEK_DEFAULT_MODEL}` : undefined);
 }
 
 /** Raw model ids per provider, for the admin panel. */
@@ -124,7 +132,7 @@ export async function* streamChat(opts: {
       stream: true,
       temperature: 0.4,
       top_p: 0.95,
-      max_tokens: opts.maxTokens ?? 16384,
+      max_tokens: isDeepSeek(ep.baseUrl) ? Math.min(opts.maxTokens ?? 8192, 8192) : opts.maxTokens ?? 16384,
     }),
     signal: opts.signal,
   });
@@ -149,10 +157,11 @@ export async function* streamChat(opts: {
       let j;
       try { j = JSON.parse(payload); } catch { continue; }
       if (j.error) throw new Error(j.error.message || "AI stream error");
+      if (j.base_resp?.status_code) throw new Error(`${ep.name}: ${j.base_resp.status_msg || "API xətası"}`);
       if (j.choices?.[0]?.finish_reason === "length") throw new Error("AI cavabı token limitinə çataraq yarımçıq kəsildi. Tam sayt yaradılmadı; davam etməsini istəyin.");
       const d = j.choices?.[0]?.delta ?? {};
       if (d.content) yield { kind: "delta", text: d.content };
-      else if (d.reasoning_content || d.reasoning) yield { kind: "reasoning" };
+      else if (d.reasoning_content || d.reasoning || d.reasoning_details?.length) yield { kind: "reasoning" };
       if (j.usage?.total_tokens) yield { kind: "usage", tokens: j.usage.total_tokens };
     }
   }

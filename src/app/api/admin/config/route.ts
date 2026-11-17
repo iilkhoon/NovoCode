@@ -21,6 +21,7 @@ const view = (cfg: AiConfig) => ({
   ...cfg,
   providers: cfg.providers.map((p) => ({ ...p, key: maskKey(p.key), hasKey: !!p.key })),
   nvidia: { configured: !!process.env.NVIDIA_API_KEY },
+  deepseek: { configured: !!process.env.DEEPSEEK_API_KEY },
 });
 
 export async function GET(req: Request) {

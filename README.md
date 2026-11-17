@@ -44,6 +44,16 @@ npm run dev                  # http://localhost:3000
 
 AI modelindən görünən cavab gəlmirsə, yalnız düşünmə siqnalları vaxt limitini söndürmür: 25 saniyədən sonra mövcud ehtiyat model sınanır. İlk cavab mətni gəldikdən sonra model dəyişdirilmir. Provayderin növbəsi və cavab sürəti ayrıca gecikmə yarada bilər.
 
+### DeepSeek qoşmaq
+
+`.env.local` faylında `DEEPSEEK_API_KEY` təyin edin, `DEEPSEEK_MODEL=deepseek-chat` yazın və serveri yenidən başladın. Açarı yalnız serverdə saxlayın. DeepSeek NVIDIA açarı olmadan da işləyir. Model seçicidə `deepseek-chat · DeepSeek` görünəcək; standart seçimi məcbur etmək üçün `NOVO_DEFAULT_MODEL=deepseek::deepseek-chat` istifadə edin. Hesabınız başqa model verirsə, `DEEPSEEK_MODEL` və standart modeldə dəqiq model ID-sini yazın.
+
+Alternativ: `NOVO_ADMIN_PASSWORD` təyin edib `/admin` → Provayderlər → Provayder əlavə et → DeepSeek seçin, açarı daxil edin və yadda saxlayın. Sonra Modellər bölməsindən standart modeli seçin. Admin açarları serverdə şifrələyərək saxlayır; bu yol üçün yazıla bilən, daimi `.data` qovluğu lazımdır. Eyni provayder üçün admin qeydi `.env.local` açarından üstün tutulur.
+
+Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192 tokendir; yarımçıq cavablar xəta kimi göstərilir.
+
+Sənədlər: https://api-docs.deepseek.com/ · Platforma: https://platform.deepseek.com/
+
 ### Pulsuz yayım (Vercel)
 1. Repo-nu Vercel-ə qoşun → *Environment Variables* bölməsinə `NVIDIA_API_KEY` əlavə edin.
 2. Deploy. Server xərci yoxdur: AI çağırışları Vercel funksiyasından, saytların işə salınması isə istifadəçinin brauzerində olur.

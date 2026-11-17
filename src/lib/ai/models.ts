@@ -11,6 +11,7 @@ const EXCLUDE = /embed|rerank|guard|safety|reward|parse|clip|tts|asr|whisper|ocr
 
 const PREFERENCE: RegExp[] = [
   /glm-5/i,
+  /gemma-4/i, // fast, no long hidden reasoning — a good first fallback
   /kimi-k2/i,
   /deepseek-v4|deepseek-v3/i,
   /qwen3-coder/i,
@@ -46,4 +47,13 @@ export function pickDefault(models: ModelInfo[], preferred?: string, needVision 
   const pool = needVision ? models.filter((m) => m.vision) : models;
   if (preferred && pool.some((m) => m.id === preferred)) return preferred;
   return pool[0]?.id ?? models[0]?.id;
+}
+
+/**
+ * Anthropic's model list wants x-api-key + anthropic-version; everyone else uses a Bearer token.
+ * Sending the Anthropic headers to other providers is not harmless: NVIDIA then answers with an
+ * empty list, which made every model disappear.
+ */
+export function modelListHeaders(ep: { baseUrl: string; key: string }): Record<string, string> {
+  return /anthropic\.com/i.test(ep.baseUrl) ? { "x-api-key": ep.key, "anthropic-version": "2023-06-01" } : { Authorization: `Bearer ${ep.key}` };
 }

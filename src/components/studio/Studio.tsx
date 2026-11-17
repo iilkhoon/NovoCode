@@ -16,6 +16,7 @@ import { countMessage, openModal, useDailyUsage } from "@/lib/ui-store";
 import { slug } from "@/components/app/Workspace";
 import { friendlyFile, humanizeError } from "@/lib/humanize";
 import { apiResolver, resolveImages } from "@/lib/images";
+import { sanitizeFile } from "@/lib/agent/sanitize";
 import { COMMANDS, COMPACT_AT, contextOf, contextUsage, parseCommand, stripMeta, type Intent } from "@/lib/chat";
 import { usePrefs } from "@/lib/ui-store";
 import { describePick, ensurePicker, type PickedElement } from "@/lib/runtime/picker";
@@ -168,16 +169,19 @@ export default function Studio({ id }: { id: string }) {
                   case "file-delta":
                     setStreaming((s) => (s && s.path === e.path ? { ...s, content: s.content + e.text } : s));
                     break;
-                  case "file-close":
-                    commitFiles({ ...filesRef.current, [e.path]: e.content });
+                  case "file-close": {
+                    // fix well-known model mistakes (wrong Tailwind import, bare colour tokens…) up front
+                    const written = sanitizeFile(e.path, e.content);
+                    commitFiles({ ...filesRef.current, [e.path]: written });
                     setStreaming(null);
                     queue(async () => {
                       // swap img.novo placeholders for real, on-topic photos before the preview sees them
-                      const content = await resolveImages(e.content, apiResolver);
-                      if (content !== e.content && filesRef.current[e.path] === e.content) commitFiles({ ...filesRef.current, [e.path]: content });
+                      const content = await resolveImages(written, apiResolver);
+                      if (content !== written && filesRef.current[e.path] === written) commitFiles({ ...filesRef.current, [e.path]: content });
                       await runtime.writeFile(e.path, content);
                     });
                     break;
+                  }
                   case "delete": {
                     actions++;
                     const next = { ...filesRef.current };

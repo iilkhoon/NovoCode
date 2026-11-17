@@ -9,12 +9,15 @@ always: true
 ## Stack (fixed — never switch)
 - Vite 6 + React 19, **JavaScript/JSX only** (`.jsx` / `.js`, no TypeScript files).
 - Tailwind CSS v4 via `@tailwindcss/vite`. Configuration lives in `src/index.css` inside `@theme { … }` — there is NO `tailwind.config.js`; never create one.
+- `src/index.css` starts with exactly `@import "tailwindcss";` (never `@tailwindcss/vite`, never `@tailwind base`). Colour tokens in `@theme` are named `--color-*` (e.g. `--color-primary`) so that `bg-primary` works; fonts are `--font-*`.
 - Icons: `lucide-react`. Animation: `motion` (`import { motion } from "motion/react"`). Routing: `react-router-dom` v7 (`BrowserRouter`, `Routes`, `Route`, `Link`).
 - Path alias `@/` → `src/`.
 
 ## Already in the project (reuse, don't rewrite)
 - `src/components/ui/button.jsx` → `<Button variant="primary|secondary|outline|ghost" size="sm|md|lg" as={Link}>`
-- `src/components/ui/card.jsx` → `<Card>`; `src/components/ui/input.jsx` → `<Input>`, `<Textarea>`; `src/components/ui/badge.jsx` → `<Badge>`
+- `src/components/ui/card.jsx` → `<Card>`; `src/components/ui/input.jsx` → `<Input>`, `<Textarea>` (also importable from `ui/textarea.jsx`); `src/components/ui/badge.jsx` → `<Badge>`
+- `src/components/ui/label.jsx` → `<Label>`; `src/components/ui/select.jsx` → `<Select>` (native `<option>` children); `src/components/ui/separator.jsx` → `<Separator>`
+- No other `ui/*` files exist: create one before importing it.
 - `src/lib/utils.js` → `cn(...)`
 - `src/lib/db.js` → `db.collection(name)` with `all/get/where/add/update/remove/seed/subscribe`, and the hook `useCollection(name)` → `[items, collection]`.
 - `src/lib/auth.js` → `useAuth()` → `{ user, signUp, signIn, signOut }` (async, throws Error with Azerbaijani message).

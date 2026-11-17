@@ -5,6 +5,7 @@ import { loadSkills } from "@/lib/skills/load";
 import { selectSkills } from "@/lib/skills/select";
 import { recordUsage, userHash } from "@/lib/usage";
 import { chunks, demoMode, demoReply } from "@/lib/demo/script";
+import { markDown, orderByHealth, withFallback } from "@/lib/ai/fallback";
 import { assertSameOrigin, errorResponse, HttpError, isDataImage, rateLimit, readJson } from "@/lib/api/guard";
 
 export const dynamic = "force-dynamic";
@@ -80,6 +81,7 @@ export async function POST(req: Request) {
   if (mode === "always") return demo();
 
   let model = body.model;
+  let backups: string[] = [];
   try {
     const models = await listModels();
     // only models the account actually offers
@@ -88,6 +90,8 @@ export async function POST(req: Request) {
       model = pickDefault(models, process.env.NOVO_VISION_MODEL || undefined, true);
     }
     model ??= pickDefault(models, await preferredModel());
+    // next-best models to try if this one is down or silent (same vision ability when images are attached)
+    backups = models.filter((m) => m.id !== model && (!hasImages || m.vision)).slice(0, 2).map((m) => m.id);
   } catch (e) {
     if (mode === "fallback") return demo();
     return Response.json({ error: (e as Error).message }, { status: 502 });
@@ -120,7 +124,13 @@ export async function POST(req: Request) {
       let tokens = 0, chars = 0, ok = true;
       try {
         let thinking = 0;
-        for await (const ev of streamChat({ model: model!, messages, signal: req.signal })) {
+        for await (const step of withFallback({ models: orderByHealth([model!, ...backups]), onFail: markDown, signal: req.signal, stream: (m, signal) => streamChat({ model: m, messages, signal }) })) {
+          if (step.kind === "switch") {
+            model = step.model;
+            send({ t: "meta", model, skills: skills.map((s) => s.name) });
+            continue;
+          }
+          const ev = step.event;
           if (ev.kind === "delta") {
             chars += ev.text.length;
             send({ t: "d", v: ev.text });

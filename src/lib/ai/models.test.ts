@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { rankModels, isVisionModel, pickDefault } from "./models";
+import { rankModels, isVisionModel, pickDefault, modelListHeaders } from "./models";
 
 const ids = [
   "nvidia/nv-embedqa-e5-v5",
@@ -38,5 +38,15 @@ describe("rankModels", () => {
     expect(pickDefault(r, "deepseek-ai/deepseek-v4-pro")).toBe("deepseek-ai/deepseek-v4-pro");
     expect(pickDefault(r, "missing/model")).toBe("z-ai/glm-5.2");
     expect(pickDefault(r, undefined, true)).toBe("moonshotai/kimi-k2.6");
+  });
+});
+
+describe("modelListHeaders", () => {
+  it("uses a Bearer token for OpenAI-compatible providers (NVIDIA returns nothing with Anthropic headers)", () => {
+    expect(modelListHeaders({ baseUrl: "https://integrate.api.nvidia.com/v1", key: "k" })).toEqual({ Authorization: "Bearer k" });
+    expect(modelListHeaders({ baseUrl: "https://openrouter.ai/api/v1", key: "k" })).toEqual({ Authorization: "Bearer k" });
+  });
+  it("uses Anthropic's own headers for Anthropic", () => {
+    expect(modelListHeaders({ baseUrl: "https://api.anthropic.com/v1", key: "k" })).toEqual({ "x-api-key": "k", "anthropic-version": "2023-06-01" });
   });
 });

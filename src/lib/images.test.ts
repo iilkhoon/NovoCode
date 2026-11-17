@@ -29,6 +29,7 @@ describe("image placeholders", () => {
     expect(libraryIds("latte-art-coffee-cup")).toBe(libraryIds("espresso"));
     expect(libraryIds("modern-dental-clinic-interior")).toBe(libraryIds("dentist"));
     expect(libraryIds("bride-holding-bouquet")).toBe(libraryIds("wedding"));
+    expect(libraryIds("red-roses-bouquet")).toBe(libraryIds("florist"));
     expect(libraryIds("plov-azerbaijani-pilaf")).toBe(libraryIds("restaurant"));
     expect(libraryIds("zzz-qqq")).toHaveLength(5); // generic set
     expect(fallbackUrl({ w: 10, h: 10, q: "a-b", n: 0 })).not.toBe(fallbackUrl({ w: 10, h: 10, q: "a-b", n: 1 }));

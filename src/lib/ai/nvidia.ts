@@ -1,5 +1,5 @@
 import "server-only";
-import { isVisionModel, rankModels, type ModelInfo } from "./models";
+import { isVisionModel, modelListHeaders, rankModels, type ModelInfo } from "./models";
 import { loadConfig } from "./config";
 
 /**
@@ -37,10 +37,11 @@ async function resolve(model: string): Promise<{ ep: Endpoint; model: string }> 
 
 const modelCache = new Map<string, { at: number; ids: string[] }>();
 
+
 async function fetchIds(ep: Endpoint): Promise<string[]> {
   const c = modelCache.get(ep.id + ep.baseUrl);
   if (c && Date.now() - c.at < 10 * 60_000) return c.ids;
-  const res = await fetch(`${ep.baseUrl.replace(/\/$/, "")}/models`, { headers: { Authorization: `Bearer ${ep.key}`, "x-api-key": ep.key, "anthropic-version": "2023-06-01" }, cache: "no-store", signal: AbortSignal.timeout(10_000) });
+  const res = await fetch(`${ep.baseUrl.replace(/\/$/, "")}/models`, { headers: modelListHeaders(ep), cache: "no-store", signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error(`${ep.name} modelləri alınmadı: ${res.status}`);
   const data = (await res.json()) as { data: { id: string }[] };
   const ids = data.data.map((m) => m.id);

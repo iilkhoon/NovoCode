@@ -1,3 +1,4 @@
+import { libraryIds } from "./photo-library";
 import { describe, expect, it } from "vitest";
 import { fallbackUrl, findImages, resolveImages } from "./images";
 
@@ -18,13 +19,22 @@ describe("image placeholders", () => {
     expect(out.match(/white-sneakers-on-shelf\.jpg/g)).toHaveLength(2);
   });
 
-  it("falls back to a keyword photo when the resolver fails", async () => {
+  it("falls back to a library photo when the resolver fails", async () => {
     const out = await resolveImages(src, async () => Promise.reject(new Error("x")));
-    expect(out).toContain("loremflickr.com/800/600/white,sneakers,shelf");
+    expect(out).not.toContain("img.novo");
+    expect(out).toMatch(/images\.unsplash\.com\/photo-[\w-]+\?w=800&h=600/);
+  });
+
+  it("picks on-topic library photos", () => {
+    expect(libraryIds("latte-art-coffee-cup")).toBe(libraryIds("espresso"));
+    expect(libraryIds("modern-dental-clinic-interior")).toBe(libraryIds("dentist"));
+    expect(libraryIds("bride-holding-bouquet")).toBe(libraryIds("wedding"));
+    expect(libraryIds("plov-azerbaijani-pilaf")).toBe(libraryIds("restaurant"));
+    expect(libraryIds("zzz-qqq")).toHaveLength(5); // generic set
+    expect(fallbackUrl({ w: 10, h: 10, q: "a-b", n: 0 })).not.toBe(fallbackUrl({ w: 10, h: 10, q: "a-b", n: 1 }));
   });
 
   it("leaves other content untouched", async () => {
     expect(await resolveImages("no images here", async () => "x")).toBe("no images here");
-    expect(fallbackUrl({ w: 10, h: 10, q: "a-b", n: 0 })).toContain("/abstract?");
   });
 });

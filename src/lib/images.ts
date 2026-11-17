@@ -6,6 +6,8 @@
  * /api/images (Pexels when a key is configured, a keyword photo service otherwise).
  */
 
+import { libraryIds, unsplashUrl } from "./photo-library";
+
 export const IMG_RE = /https?:\/\/img\.novo\/(\d{2,4})x(\d{2,4})\/([a-z0-9][a-z0-9-]{0,80})(?:\?n=(\d{1,2}))?/gi;
 
 export interface ImgRequest {
@@ -26,10 +28,10 @@ export function findImages(content: string): { token: string; req: ImgRequest }[
   return out;
 }
 
-/** Keyword photo URL that needs no API key — the always-available fallback. */
+/** On-topic photo from our verified library — needs no API key, the always-available fallback. */
 export function fallbackUrl({ w, h, q, n }: ImgRequest): string {
-  const tags = q.split("-").filter((t) => t.length > 2).slice(0, 3).map(encodeURIComponent).join(",") || "abstract";
-  return `https://loremflickr.com/${w}/${h}/${tags}?lock=${hash(q) + n}`;
+  const ids = libraryIds(q);
+  return unsplashUrl(ids[(hash(q) + n) % ids.length], w, h);
 }
 
 export function hash(s: string): number {

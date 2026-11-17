@@ -109,3 +109,10 @@ Bolt-un ayaqqabı saytını təhlil etdik. Onu yaxşı edən: mövzuya uyğun re
 | 2026-11-16 (10) | Studio sürəti: node_modules snapshot keşi (IndexedDB), uğursuz keşdə avtomatik təmiz quraşdırma |
 | 2026-11-16 (11) | Skill-lər: admin yükləməsi və idarəsi; model seçimi sadə rejimdə də |
 | 2026-11-16 (12) | Ana səhifənin bütün bölmələri 4 dildə (addımlar, imkanlar, müqayisə, qiymətlər, FAQ, footer); yayım artıq real olduğu üçün AZ mətnlərdə “tezliklə” götürüldü |
+
+### 2026-11-17
+- Ana səhifə: real görünüşlü sayt önizləmələri (şablonlar və studiya demosu), sakit başlıqlar, nümunələr hero-dan dərhal sonra.
+- `/app`: şablon qalereyası, yayımlanmış layihələr üçün canlı kiçik önizləmə.
+- `/pitch`: 12 slaydlı investor təqdimatı (AZ/EN, slayderli bazar və marja hesablayıcısı, PDF).
+- Demo ehtiyat rejimi: `NOVO_DEMO=fallback|always`.
+- `docs/INVESTOR_QA.md`: çətin suallara hazır cavablar.

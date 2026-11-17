@@ -489,7 +489,7 @@ export function Deck() {
       <header className="flex h-14 shrink-0 items-center gap-3 px-4 sm:px-6 print:hidden">
         <a href="/" className="flex items-center gap-2 font-display text-[17px] font-[650] tracking-[-0.02em] dark:text-white">
           <LogoMark className="size-7" /> <span className="max-sm:hidden">Novocode</span>
-          <span className="rounded-full bg-black/[0.06] px-2.5 py-0.5 font-sans text-[12px] font-medium text-black/60 dark:bg-white/10 dark:text-white/60">{tr(T.nav, lang)}</span>
+          <span className="rounded-full bg-black/[0.06] px-2.5 py-0.5 max-[420px]:hidden font-sans text-[12px] font-medium text-black/60 dark:bg-white/10 dark:text-white/60">{tr(T.nav, lang)}</span>
         </a>
         <span className="ml-auto hidden font-label text-[11.5px] text-black/40 lg:inline dark:text-white/40">{tr(T.ui.keys, lang)}</span>
         <div className="flex rounded-full bg-black/[0.06] p-0.5 text-[12.5px] font-medium dark:bg-white/10">
@@ -505,7 +505,7 @@ export function Deck() {
         <button onClick={toggleFull} className="grid size-9 place-items-center rounded-full text-black/60 hover:bg-black/[0.06] dark:text-white/60 dark:hover:bg-white/10" title={tr(T.ui.full, lang)} aria-label={tr(T.ui.full, lang)}>
           <Maximize2 className="size-[18px]" />
         </button>
-        <a href="/app" className="rounded-full bg-[#0b0b12] px-4 py-2 text-[13px] font-semibold text-white dark:bg-white dark:text-black">{tr(T.ui.demo, lang)} →</a>
+        <a href="/app" className="whitespace-nowrap rounded-full bg-[#0b0b12] px-4 py-2 text-[13px] font-semibold text-white dark:bg-white dark:text-black">{tr(T.ui.demo, lang)} →</a>
       </header>
 
       <div

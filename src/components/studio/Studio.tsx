@@ -1,4 +1,5 @@
 "use client";
+import { modelPresentation } from "@/lib/ai/presentation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
@@ -631,6 +632,7 @@ export default function Studio({ id }: { id: string }) {
                 url={url}
                 status={status}
                 dev={dev}
+                onRetry={() => { void runtime.retry(filesRef.current); }}
                 onPreviewError={onPreviewError}
                 fullscreen={fullscreen}
                 onToggleFullscreen={() => setFullscreen((f) => !f)}
@@ -760,7 +762,7 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
         className={`flex h-8 items-center gap-2 rounded-full px-3 text-xs ring-1 ring-inset transition ${error ? "text-danger ring-danger/30" : "text-ink-300 ring-ink-100/10 hover:ring-ink-100/20"}`}
       >
         <Cpu className="size-3.5" />
-        <span className="max-w-[140px] truncate">{error ? "AI qoşulmayıb" : current?.label ?? "Modellər…"}</span>
+        <span className="max-w-[140px] truncate">{error ? "AI qoşulmayıb" : current ? modelPresentation(current).label : "Modellər…"}</span>
         <ChevronDown className="size-3" />
       </button>
       <AnimatePresence>
@@ -786,8 +788,8 @@ function ModelPicker({ models, value, onChange, error }: { models: ModelInfo[]; 
                   className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] transition hover:bg-ink-100/5"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-ink-100">{m.label}</span>
-                    <span className="block truncate text-[11px] text-ink-500">{m.id.split("/")[0]}</span>
+                    <span className="block truncate text-ink-100">{modelPresentation(m).label}</span>
+                    <span className="block truncate text-[11px] text-ink-500">{modelPresentation(m).description}</span>
                   </span>
                   {i === 0 && <Badge tone="nar">Tövsiyə</Badge>}
                   {m.vision && <Badge>Şəkil</Badge>}

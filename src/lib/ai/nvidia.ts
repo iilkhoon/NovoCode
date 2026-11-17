@@ -72,7 +72,7 @@ export async function listModels(): Promise<ModelInfo[]> {
         else
           for (const id of ids) {
             const q = `${ep.id}${SEP}${id}`;
-            if (settings.get(q)?.visible === true || (isDeepSeek(ep.baseUrl) && settings.get(q)?.visible !== false)) out.push({ id: q, label: `${id.split("/").pop()} · ${ep.name}`, vision: isVisionModel(id), rank: -1 });
+            if (settings.get(q)?.visible === true || (isDeepSeek(ep.baseUrl) && settings.get(q)?.visible !== false)) out.push({ id: q, label: `${id.split("/").pop()} · ${ep.name}`, vision: isVisionModel(id), rank: isDeepSeek(ep.baseUrl) && /flash|chat/i.test(id) ? -2 : -1 });
           }
       } catch (e) {
         errors.push((e as Error).message);

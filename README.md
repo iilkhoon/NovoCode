@@ -42,7 +42,11 @@ npm run dev                  # http://localhost:3000
 - Brauzer konsolunda `window.isSecureContext` və `window.crossOriginIsolated` hər ikisi `true` olmalıdır. Müasir masaüstü Chrome və ya Edge istifadə edin.
 - Layihələr brauzerdə ünvan üzrə saxlanılır: IP ünvanından `localhost`-a keçdikdə köhnə layihə görünməyə bilər. Keçməzdən əvvəl layihənin kodunu ixrac edin.
 
-AI modelindən görünən cavab gəlmirsə, yalnız düşünmə siqnalları vaxt limitini söndürmür: 25 saniyədən sonra mövcud ehtiyat model sınanır. İlk cavab mətni gəldikdən sonra model dəyişdirilmir. Provayderin növbəsi və cavab sürəti ayrıca gecikmə yarada bilər.
+AI modelindən görünən cavab gəlmirsə, yalnız düşünmə siqnalları vaxt limitini söndürmür: NVIDIA üçün 25 saniyə, birbaşa DeepSeek Flash üçün 60 saniyə, Pro üçün 90 saniyə gözlənilir. Flash-dan Pro/reasoning modelinə avtomatik keçilmir. İlk cavab mətni gəldikdən sonra model dəyişdirilmir. Provayderin növbəsi və cavab sürəti ayrıca gecikmə yarada bilər.
+
+Model seçicisində DeepSeek mətn modelləri `Novo Flash`, Pro/reasoning modelləri `Novo V4 Pro` adı ilə göstərilir. Bunlar interfeys adlarıdır; API-yə faktiki model ID-si göndərilir. Köhnə `deepseek-chat` ID-si kataloqda yoxdursa, mövcud Flash modeli Pro-dan əvvəl seçilir.
+
+Önizləmənin yeniləmə düymələri yalnız iframe-i və lazım gəlsə layihənin runtime prosesini yenidən başladır; söhbət səhifəsi yenilənmir.
 
 ### DeepSeek qoşmaq
 

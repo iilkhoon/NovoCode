@@ -44,14 +44,22 @@ export interface HumanError {
 export function humanizeError(raw: string): HumanError {
   const s = raw.toLowerCase();
   if (raw === "Dayandırıldı.") return { title: "Dayandırıldı", hint: "İstədiyiniz vaxt davam edə bilərsiniz.", retryable: true };
-  if (s.includes("nvidia_api_key") || s.includes("api key") || s.includes("açar"))
+  if (/\b402\b|insufficient balance|insufficient_quota/.test(s))
+    return { title: "AI hesabında balans kifayət etmir", hint: "Provayder hesabının balansını artırın. Yenidən cəhd balansı dəyişmir.", retryable: false };
+  if (/\b401\b|invalid api key|authentication/.test(s))
+    return { title: "AI açarı qəbul edilmədi", hint: "Serverdəki API açarını yoxlayın və serveri yenidən başladın.", retryable: false };
+  if (s.includes("nvidia_api_key") || s.includes("deepseek_api_key") || s.includes("api key") || s.includes("açar"))
     return { title: "AI xidməti hələ qoşulmayıb", hint: "Serverdə AI açarı təyin edilməyib. Administratora bildirin.", retryable: false };
-  if (s.includes("429") || s.includes("rate") || s.includes("çox sorğu") || s.includes("limit"))
-    return { title: "Bir az çox sürətli getdik", hint: "Bir dəqiqə gözləyib yenidən cəhd edin.", retryable: true };
+  if (/token limit|yarımçıq/.test(s))
+    return { title: "AI cavabı yarımçıq qaldı", hint: "İstəyi kiçik hissələrə bölün və ya qalan hissəni tamamlamağı istəyin.", retryable: true };
+  if (/\b429\b|rate limit|çox sorğu/.test(s))
+    return { title: "Sorğu limiti dolub", hint: "Bir az gözləyin və eyni vaxtda bir neçə sorğu göndərməyin.", retryable: true };
   if (s.includes("failed to fetch") || s.includes("network") || s.includes("fetch failed") || s.includes("load failed") || s.includes("bağlantı"))
     return { title: "İnternet bağlantısı kəsildi", hint: "Bağlantını yoxlayıb yenidən cəhd edin.", retryable: true };
-  if (s.includes("timeout") || s.includes("timed out") || s.includes("502") || s.includes("503") || s.includes("504") || s.includes("cavab vermədi"))
-    return { title: "AI hazırda çox məşğuldur", hint: "Bir az sonra yenidən cəhd edin.", retryable: true };
+  if (/timeout|timed out|cavab vermədi/.test(s))
+    return { title: "AI cavabı vaxtında gəlmədi", hint: "Gözləmə müddəti bitdi. Yenidən cəhd edin və ya Novo Flash seçin.", retryable: true };
+  if (/\b50[234]\b/.test(s))
+    return { title: "AI xidmətinə qoşulmaq alınmadı", hint: "Provayder və ya server bağlantısında xəta var. Təkrarlanarsa Developer rejimində xəta təfərrüatına baxın.", retryable: true };
   if (s.includes("bir neçə cəhddən sonra"))
     return { title: "Bu problemi özüm həll edə bilmədim", hint: "Nəyin işləmədiyini sözlə təsvir edin — birlikdə düzəldək.", retryable: false };
   return { title: "Nəsə alınmadı", hint: "Yenidən cəhd edin. Təkrarlanarsa, istəyinizi bir az fərqli yazın.", retryable: true };

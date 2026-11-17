@@ -27,6 +27,7 @@ export function PreviewPanel({
   status,
   dev,
   onPreviewError,
+  onRetry,
   fullscreen,
   onToggleFullscreen,
   picking,
@@ -37,6 +38,7 @@ export function PreviewPanel({
   status: RuntimeStatus;
   dev: boolean;
   onPreviewError: (msg: string) => void;
+  onRetry: () => void;
   fullscreen: boolean;
   onToggleFullscreen: () => void;
   picking: boolean;
@@ -74,10 +76,12 @@ export function PreviewPanel({
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center gap-2 border-b border-ink-100/[0.08] bg-ink-1000 px-3 py-2">
         <button
+          type="button"
           aria-label="Yenilə"
           title="Yenilə"
           onClick={() => {
             setNonce((n) => n + 1);
+            if (!url || status === "error") onRetry();
             setSpin(true);
             setTimeout(() => setSpin(false), 600);
           }}
@@ -165,7 +169,7 @@ export function PreviewPanel({
                       ? "Səbəbi Terminal bölməsindədir. Səhifəni yeniləyib yenidən cəhd edin."
                       : "Səhifəni yeniləyib yenidən cəhd edin. Saytınız və söhbətiniz yadda saxlanılıb.")}
                   </p>
-                  <button onClick={() => location.reload()} className="mt-5 inline-flex h-9 items-center gap-1.5 rounded-full bg-pill px-4 text-[13px] font-medium text-wool transition hover:-translate-y-px">
+                  <button type="button" onClick={() => { setNonce((n) => n + 1); onRetry(); }} className="mt-5 inline-flex h-9 items-center gap-1.5 rounded-full bg-pill px-4 text-[13px] font-medium text-wool transition hover:-translate-y-px">
                     <RotateCw className="size-3.5" /> Yenilə
                   </button>
                 </div>

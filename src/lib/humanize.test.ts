@@ -26,3 +26,11 @@ describe("humanizeError", () => {
     expect(humanizeError("Unexpected token < in JSON at position 0").title).toBe("Nəsə alınmadı");
   });
 });
+
+it("distinguishes billing, authentication, timeout and rate limits", () => {
+  expect(humanizeError("DeepSeek API xətası 402: Insufficient Balance").retryable).toBe(false);
+  expect(humanizeError("DeepSeek API xətası 401: Invalid API key").title).toContain("qəbul edilmədi");
+  expect(humanizeError("deepseek 60 saniyədə cavab vermədi").title).toContain("vaxtında");
+  expect(humanizeError("DeepSeek API xətası 429").title).toContain("Sorğu limiti");
+  expect(humanizeError("token limitinə çataraq yarımçıq kəsildi").title).toContain("yarımçıq");
+});

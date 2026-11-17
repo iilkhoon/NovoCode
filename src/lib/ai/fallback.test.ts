@@ -77,7 +77,7 @@ describe("orderByHealth", () => {
 it("switches away from endless reasoning before any answer text", async () => {
   const out = await collect(withFallback({
     models: ["thinking", "answering"],
-    firstEventMs: 30,
+    firstEventMs: (model) => model === "thinking" ? 30 : 100,
     isAnswer: (e: { kind: string }) => e.kind === "delta",
     stream: async function* (model, signal) {
       if (model === "thinking") {

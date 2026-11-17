@@ -1,3 +1,4 @@
+import { compatibleBackup, firstTokenWaitMs } from "@/lib/ai/latency";
 import { isGreeting, greetingPrompt } from "@/lib/ai/request-profile";
 import { streamChat, listModels, preferredModel, type ChatMessage, type StreamEvent } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
@@ -94,7 +95,7 @@ export async function POST(req: Request) {
     }
     model ??= pickDefault(models, await preferredModel());
     // next-best models to try if this one is down or silent (same vision ability when images are attached)
-    backups = models.filter((m) => m.id !== model && (!hasImages || m.vision)).slice(0, 2).map((m) => m.id);
+    backups = models.filter((m) => compatibleBackup(model!, m.id) && (!hasImages || m.vision)).slice(0, 2).map((m) => m.id);
   } catch (e) {
     if (mode === "fallback") return demo();
     return Response.json({ error: (e as Error).message }, { status: 502 });
@@ -128,7 +129,8 @@ export async function POST(req: Request) {
       try {
         let thinking = 0;
         for await (const step of withFallback<StreamEvent>({
-          models: orderByHealth([model!, ...backups]),
+          models: [model!, ...orderByHealth(backups)],
+          firstEventMs: firstTokenWaitMs,
           onFail: markDown,
           signal: req.signal,
           isAnswer: (event) => event.kind === "delta" && event.text.length > 0,

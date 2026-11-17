@@ -12,7 +12,7 @@ export async function* withFallback<E>(opts: {
   onFail?: (model: string) => void;
   stream: (model: string, signal: AbortSignal) => AsyncIterable<E>;
   signal?: AbortSignal;
-  firstEventMs?: number;
+  firstEventMs?: number | ((model: string) => number);
   /** Reasoning/usage do not count as visible output. */
   isAnswer?: (event: E) => boolean;
 }): AsyncGenerator<FallbackEvent<E>> {
@@ -21,6 +21,7 @@ export async function* withFallback<E>(opts: {
   for (const [i, model] of models.entries()) {
     if (signal?.aborted) return;
     if (i > 0) yield { kind: "switch", model, reason: (lastError as Error)?.message ?? "" };
+    const waitMs = typeof firstEventMs === "function" ? firstEventMs(model) : firstEventMs;
     const ac = new AbortController();
     const onAbort = () => ac.abort();
     signal?.addEventListener("abort", onAbort);
@@ -29,7 +30,7 @@ export async function* withFallback<E>(opts: {
     const timer = setTimeout(() => {
       timedOut = true;
       ac.abort();
-    }, firstEventMs);
+    }, waitMs);
     try {
       for await (const event of stream(model, ac.signal)) {
         if (!started && (opts.isAnswer?.(event) ?? true)) {
@@ -43,7 +44,7 @@ export async function* withFallback<E>(opts: {
       onFail?.(model);
     } catch (e) {
       if (started || signal?.aborted) throw e; // never splice two models into one reply
-      lastError = timedOut ? new Error(`${model} ${Math.round(firstEventMs / 1000)} saniyədə cavab vermədi`) : e;
+      lastError = timedOut ? new Error(`${model} ${Math.round(waitMs / 1000)} saniyədə cavab vermədi`) : e;
       onFail?.(model);
     } finally {
       clearTimeout(timer);

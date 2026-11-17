@@ -57,3 +57,12 @@ it("reports authentication failure without returning request credentials", async
   const api = await import("./nvidia");
   await expect((async () => { for await (const _ of api.streamChat({ model: "deepseek::deepseek-chat", messages: [] })) {} })()).rejects.toThrow("DeepSeek API xətası 401");
 });
+
+it("prefers V4 Flash when the old configured alias is absent from the live catalog", async () => {
+  configure();
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ data: [{ id: "deepseek-v4-pro" }, { id: "deepseek-v4-flash" }] }));
+  const { listModels } = await import("./nvidia");
+  const { pickDefault } = await import("./models");
+  const models = await listModels();
+  expect(pickDefault(models, "deepseek::deepseek-chat")).toBe("deepseek::deepseek-v4-flash");
+});

@@ -62,3 +62,17 @@ describe("runtime startup", () => {
     expect(runtime.status).toBe("error");
   });
 });
+
+it("retries installation and startup without reloading the page or remounting the project", async () => {
+  mock.get.mockResolvedValue(undefined);
+  mock.spawn.mockResolvedValueOnce({ output: new ReadableStream({ start(c) { c.close(); } }), exit: Promise.resolve(1) });
+  const runtime = new ProjectRuntime();
+  await runtime.start(files);
+  expect(runtime.status).toBe("error");
+  const mounts = mock.mount.mock.calls.length;
+  await runtime.retry(files);
+  expect(mock.mount).toHaveBeenCalledTimes(mounts);
+  expect(runtime.status).toBe("starting");
+  mock.handlers["server-ready"](5173, "https://preview.example");
+  expect(runtime.status).toBe("ready");
+});

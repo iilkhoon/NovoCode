@@ -26,7 +26,7 @@ type Listener<T> = (v: T) => void;
 
 let bootPromise: Promise<WebContainer> | null = null;
 function boot(): Promise<WebContainer> {
-  bootPromise ??= WebContainer.boot({ workdirName: "project", coep: "credentialless" });
+  bootPromise ??= WebContainer.boot({ workdirName: "project", coep: "credentialless" }).catch((error) => { bootPromise = null; throw error; });
   return bootPromise;
 }
 
@@ -149,6 +149,24 @@ export class ProjectRuntime {
       this.setStatus("error");
       this.resolveServing();
     }
+  }
+
+  private retrying = false;
+  /** Restart only this project's runtime; keep the editor and chat mounted. */
+  async retry(files: Record<string, string>) {
+    if (this.retrying || ["booting", "installing", "starting"].includes(this.status)) return;
+    this.retrying = true;
+    try {
+      if (!this.wc) {
+        await this.start(files);
+      } else {
+        const code = await this.install(files["package.json"]);
+        if (code === 0) { this.devDead = false; await this.startDev(); }
+      }
+    } catch (e) {
+      this.emit(`\r\n${(e as Error).message}\r\n`);
+      this.setStatus("error");
+    } finally { this.retrying = false; }
   }
 
   async install(pkgJson?: string) {

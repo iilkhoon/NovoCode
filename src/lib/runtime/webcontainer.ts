@@ -52,6 +52,8 @@ export class ProjectRuntime {
   private resolveServing!: () => void;
 
   status: RuntimeStatus = "idle";
+  /** Last red line printed to the terminal: the reason shown on the "preview failed" screen. */
+  lastError: string | null = null;
 
   constructor() {
     this.mounted = new Promise((r) => (this.resolveMounted = r));
@@ -67,11 +69,16 @@ export class ProjectRuntime {
   onStatus(fn: Listener<RuntimeStatus>) { this.statusL.add(fn); return () => this.statusL.delete(fn); }
   onUrl(fn: Listener<string>) { this.urlL.add(fn); if (this.url) fn(this.url); return () => this.urlL.delete(fn); }
 
-  private setStatus(s: RuntimeStatus) { this.status = s; this.statusL.forEach((f) => f(s)); }
+  private setStatus(s: RuntimeStatus) {
+    if (s === "booting" || s === "installing" || s === "starting") this.lastError = null;
+    this.status = s; this.statusL.forEach((f) => f(s)); }
   private emit(text: string) {
     this.log = (this.log + text).slice(-60_000);
     this.total += text.length;
     this.lastOutputAt = Date.now();
+    const red = text.match(/\x1b\[31m([^\x1b]+)/) ?? text.match(/(npm (?:ERR!|error)[^\r\n]*)/);
+    // the first error after a (re)start is the cause; later red lines are its consequences
+    if (red && !this.lastError) this.lastError = red[1].trim();
     this.outL.forEach((f) => f(text));
   }
   private pipe(p: WebContainerProcess) {
@@ -220,6 +227,8 @@ export class ProjectRuntime {
           return;
         }
       }
+      // Vite prints its own reason uncoloured just before exiting: show that, not "server stopped"
+      this.lastError ??= this.log.replace(/\x1b\[[0-9;]*m/g, "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(-3).join("\n") || null;
       this.emit(`\r\n\x1b[31mDev server dayandı (kod ${code})\x1b[0m\r\n`);
       this.devDead = true;
       this.setStatus("error");

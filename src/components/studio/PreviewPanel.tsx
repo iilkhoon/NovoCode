@@ -25,6 +25,7 @@ const DEVICES = {
 export function PreviewPanel({
   url,
   status,
+  reason,
   dev,
   onPreviewError,
   onRetry,
@@ -36,6 +37,8 @@ export function PreviewPanel({
 }: {
   url: string | null;
   status: RuntimeStatus;
+  /** why the runtime failed, from the terminal */
+  reason?: string | null;
   dev: boolean;
   onPreviewError: (msg: string) => void;
   onRetry: () => void;
@@ -164,9 +167,12 @@ export function PreviewPanel({
                 <div className="max-w-sm px-6 text-center">
                   <TriangleAlert className="mx-auto size-8 text-danger" />
                   <p className="mt-3 font-display text-xl">{unsupported?.title ?? "Önizləmə işə düşmədi"}</p>
+                  {!unsupported && reason && (
+                    <pre className="mt-3 max-h-32 overflow-auto whitespace-pre-wrap rounded-xl bg-danger/[0.06] px-3 py-2 text-left font-mono text-[11.5px] leading-relaxed text-danger">{reason}</pre>
+                  )}
                   <p className="mt-2 text-sm leading-relaxed text-ink-400">
                     {unsupported?.message ?? (dev
-                      ? "Səbəbi Terminal bölməsindədir. Səhifəni yeniləyib yenidən cəhd edin."
+                      ? `${reason ? "Ətraflı məlumat" : "Səbəbi"} Terminal bölməsindədir. Səhifəni yeniləyib yenidən cəhd edin.`
                       : "Səhifəni yeniləyib yenidən cəhd edin. Saytınız və söhbətiniz yadda saxlanılıb.")}
                   </p>
                   <button type="button" onClick={() => { setNonce((n) => n + 1); onRetry(); }} className="mt-5 inline-flex h-9 items-center gap-1.5 rounded-full bg-pill px-4 text-[13px] font-medium text-wool transition hover:-translate-y-px">

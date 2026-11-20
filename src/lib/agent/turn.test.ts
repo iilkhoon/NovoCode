@@ -87,6 +87,30 @@ describe("automatic output-limit continuation", () => {
       expect(usage.at(-1)).toBe(140);
     } finally { fetchMock.mockRestore(); }
   });
+  it("shows follow-up batches as file actions only, plus the final closing sentence", async () => {
+    const { streamTurn } = await import("./turn");
+    const { vi } = await import("vitest");
+    const fetchMock = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(response([
+        { t: "d", v: 'Mağazanı qururam.<novo-plan>- ana səhifə</novo-plan><novo-file path="src/App.jsx">export default 1;</novo-file><novo-continue>səbət</novo-continue>' },
+        { t: "done" },
+      ]))
+      .mockResolvedValueOnce(response([
+        { t: "d", v: 'Səbəti yazıram.<novo-plan>- səbət</novo-plan><novo-file path="src/Cart.jsx">export default 2;</novo-file>Mağaza hazırdır.' },
+        { t: "done" },
+      ]));
+    const events: any[] = [];
+    try {
+      await streamTurn({ messages: [{ role: "user", content: "Mağaza" }], files: {}, onEvent: (e) => events.push(e) });
+      const text = events.filter((e) => e.type === "text").map((e) => e.text).join("");
+      expect(text).toContain("Mağazanı qururam.");
+      expect(text).toContain("Mağaza hazırdır.");
+      expect(text).not.toContain("Səbəti yazıram");
+      expect(text).not.toContain("Qalan faylları");
+      expect(events.filter((e) => e.type === "plan")).toHaveLength(1);
+      expect(events.filter((e) => e.type === "file-close").map((e) => e.path)).toEqual(["src/App.jsx", "src/Cart.jsx"]);
+    } finally { fetchMock.mockRestore(); }
+  });
   it("bounds continuations when a model keeps hitting the limit", async () => {
     const { streamTurn } = await import("./turn"); const { vi } = await import("vitest");
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => response([{ t: "length" }, { t: "done" }]));

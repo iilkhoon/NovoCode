@@ -634,6 +634,7 @@ export default function Studio({ id }: { id: string }) {
               <PreviewPanel
                 url={url}
                 status={status}
+                reason={status === "error" ? runtime.lastError : null}
                 dev={dev}
                 onRetry={() => { void runtime.retry(filesRef.current); }}
                 onPreviewError={onPreviewError}

@@ -85,6 +85,11 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
     let wantsMore = false;
     let changes = 0;
     let roundTokens = 0;
+    // Follow-up batches are plumbing, not conversation: their prose and plans would repeat
+    // "now I'm writing the rest…" several times in one reply. Show only their file actions, plus
+    // the closing sentence of the very last batch.
+    const quiet = round > 0;
+    let tail = "";
     const emit = (event: ParserEvent) => {
       // Keep only closed actions in history: unfinished source is never saved or replayed.
       switch (event.type) {
@@ -98,6 +103,11 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
           break;
         case "delete": if (event.path in files) changes++; delete files[event.path]; raw += `<novo-delete path=${JSON.stringify(event.path)}/>`; break;
         case "shell": raw += `<novo-shell>${event.command}</novo-shell>`; break;
+      }
+      if (quiet) {
+        if (event.type === "text") return void (tail += event.text);
+        if (event.type === "plan") return;
+        if (event.type !== "continue") tail = "";
       }
       req.onEvent(event);
     };
@@ -120,6 +130,7 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
     if (!limited && !wantsMore) {
       if (parser.incomplete) throw new Error("AI cavabı yarımçıq qaldı. Tam sayt yaradılmadı — yenidən cəhd edin.");
       parser.end().forEach(emit);
+      if (quiet && tail.trim()) req.onEvent({ type: "text", text: `\n\n${tail.trim()}` });
       return raw;
     }
     const unfinished = parser.pendingFile;
@@ -127,7 +138,6 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
     stalledBatches = changes === 0 ? stalledBatches + 1 : 0;
     if (stalledBatches >= 2) throw new Error("AI iki ardıcıl sorğuda tamamlanmış fayl yaratmadı. Yenidən yazdırmaq dayandırıldı; tamamlanmış fayllar saxlanılıb.");
     if (round === maxBatches - 1) throw new Error("Sayt 12 avtomatik mərhələdən sonra hələ tamamlanmayıb. İşlək fayllar saxlanılıb; qalan işi ayrıca istəyin.");
-    emit({ type: "text", text: "\nQalan faylları tamamlayıram…\n" });
     messages = [
       ...req.messages,
       { role: "assistant", content: compactAssistant(raw) },

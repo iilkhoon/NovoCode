@@ -14,7 +14,7 @@ describe("friendlyFile", () => {
 
 describe("humanizeError", () => {
   it("hides the missing key behind a plain message", () => {
-    const e = humanizeError("NVIDIA_API_KEY təyin edilməyib");
+    const e = humanizeError("OPENROUTER_API_KEY təyin edilməyib");
     expect(e.title).toMatch(/qoşulmayıb/);
     expect(e.retryable).toBe(false);
   });
@@ -31,6 +31,6 @@ it("distinguishes billing, authentication, timeout and rate limits", () => {
   expect(humanizeError("DeepSeek API xətası 402: Insufficient Balance").retryable).toBe(false);
   expect(humanizeError("DeepSeek API xətası 401: Invalid API key").title).toContain("qəbul edilmədi");
   expect(humanizeError("deepseek 60 saniyədə cavab vermədi").title).toContain("vaxtında");
-  expect(humanizeError("DeepSeek API xətası 429").title).toContain("Sorğu limiti");
-  expect(humanizeError("token limitinə çataraq yarımçıq kəsildi").title).toContain("yarımçıq");
+  expect(humanizeError("OpenRouter xətası 429: rate-limited upstream").title).toContain("məşğuldur");
+  expect(humanizeError("token limitinə çataraq yarımçıq kəsildi").title).toContain("tam bitmədi");
 });

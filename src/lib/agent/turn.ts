@@ -111,24 +111,37 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
       }
       req.onEvent(event);
     };
-    for await (const msg of readNdjson(res.body)) {
-      switch (msg.t) {
-        case "meta":
-          model = String(msg.model);
-          req.onMeta?.(msg as unknown as { model: string; skills: string[] });
-          break;
-        case "thinking": req.onThinking?.(); break;
-        case "usage": roundTokens = Number(msg.v); req.onUsage?.(usedTokens + roundTokens); break;
-        case "d": parser.feed(String(msg.v)).forEach(emit); break;
-        case "done": completed = true; break;
-        case "length": limited = true; break;
-        case "error": throw new Error(String(msg.v));
+    // A batch can break off: the connection drops, the model errors mid-reply or stops inside a
+    // file. Finished files are kept and the next batch carries on from there, so the user never
+    // sees "the reply was cut off" while there is progress to build on.
+    let interrupted: Error | null = null;
+    try {
+      for await (const msg of readNdjson(res.body)) {
+        switch (msg.t) {
+          case "meta":
+            model = String(msg.model);
+            req.onMeta?.(msg as unknown as { model: string; skills: string[] });
+            break;
+          case "thinking": req.onThinking?.(); break;
+          case "usage": roundTokens = Number(msg.v); req.onUsage?.(usedTokens + roundTokens); break;
+          case "d": parser.feed(String(msg.v)).forEach(emit); break;
+          case "done": completed = true; break;
+          case "length": limited = true; break;
+          case "error": throw new Error(String(msg.v));
+        }
       }
+    } catch (e) {
+      if (req.signal?.aborted) throw e;
+      interrupted = e as Error;
     }
     usedTokens += roundTokens;
-    if (!completed) throw new Error("AI cavabı yarımçıq qaldı. Bağlantı kəsildi — yenidən cəhd edin.");
+    if (interrupted || !completed) {
+      // nothing usable came back: report the real reason (rate limit, key, network…)
+      if (changes === 0 && round === 0) throw interrupted ?? new Error("AI cavabı yarımçıq qaldı. Bağlantı kəsildi — yenidən cəhd edin.");
+      limited = true;
+    }
+    if (!limited && !wantsMore && parser.incomplete) limited = true; // stopped inside a file
     if (!limited && !wantsMore) {
-      if (parser.incomplete) throw new Error("AI cavabı yarımçıq qaldı. Tam sayt yaradılmadı — yenidən cəhd edin.");
       parser.end().forEach(emit);
       if (quiet && tail.trim()) req.onEvent({ type: "text", text: `\n\n${tail.trim()}` });
       return raw;
@@ -136,12 +149,12 @@ export async function streamTurn(req: TurnRequest): Promise<string> {
     const unfinished = parser.pendingFile;
     if (unfinished) req.onEvent({ type: "file-abort", path: unfinished });
     stalledBatches = changes === 0 ? stalledBatches + 1 : 0;
-    if (stalledBatches >= 2) throw new Error("AI iki ardıcıl sorğuda tamamlanmış fayl yaratmadı. Yenidən yazdırmaq dayandırıldı; tamamlanmış fayllar saxlanılıb.");
-    if (round === maxBatches - 1) throw new Error("Sayt 12 avtomatik mərhələdən sonra hələ tamamlanmayıb. İşlək fayllar saxlanılıb; qalan işi ayrıca istəyin.");
+    if (stalledBatches >= 2) throw new Error("AI cavabı yarımçıq qaldı: iki ardıcıl cəhddə yeni fayl gəlmədi. Tamamlanmış fayllar saxlanılıb.");
+    if (round === maxBatches - 1) throw new Error("AI cavabı yarımçıq qaldı: sayt 12 mərhələdən sonra da bitmədi. Tamamlanmış fayllar saxlanılıb.");
     messages = [
       ...req.messages,
       { role: "assistant", content: compactAssistant(raw) },
-      { role: "user", content: `Continue the ORIGINAL website request; the previous batch ended. Produce at most FOUR small complete files in this response and use <novo-continue> if more work remains. Completed files are in the project context. Do not rewrite completed files or rerun shell commands. ${unfinished ? `The unfinished file ${JSON.stringify(unfinished)} was discarded: write that file again IN FULL using a fresh <novo-file> tag.` : "Write the remaining files."} Finish the remaining work over small runnable batches. FIRST ensure App.jsx renders a working page using only existing files. Split large files into smaller components. ${remaining ? `Remaining work from the previous batch: ${remaining}` : ""} Use complete action tags, never resume in the middle of source code. Keep prose very short.` },
+      { role: "user", content: `Continue the ORIGINAL website request; the previous batch ended. Produce at most TEN complete files in this response and use <novo-continue> if more work remains. Completed files are in the project context. Do not rewrite completed files or rerun shell commands. ${unfinished ? `The unfinished file ${JSON.stringify(unfinished)} was discarded: write that file again IN FULL using a fresh <novo-file> tag.` : "Write the remaining files."} Finish the remaining work over small runnable batches. FIRST ensure App.jsx renders a working page using only existing files. Split large files into smaller components. ${remaining ? `Remaining work from the previous batch: ${remaining}` : ""} Use complete action tags, never resume in the middle of source code. Keep prose very short.` },
     ];
   }
   throw new Error("AI cavabı yarımçıq qaldı.");

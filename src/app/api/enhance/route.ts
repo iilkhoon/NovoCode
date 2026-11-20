@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { listModels, streamChat } from "@/lib/ai/nvidia";
-import { pickDefault } from "@/lib/ai/models";
+import { listModels, streamChat, type StreamEvent } from "@/lib/ai/openrouter";
+import { withFallback } from "@/lib/ai/fallback";
 import { assertSameOrigin, errorResponse, rateLimit, readJson } from "@/lib/api/guard";
 
 export const dynamic = "force-dynamic";
@@ -22,21 +22,30 @@ export async function POST(req: Request) {
   if (typeof prompt !== "string" || !prompt.trim()) return NextResponse.json({ error: "Boş sorğu" }, { status: 400 });
   try {
     const models = await listModels();
-    // the top-ranked model is also the quickest to start writing (see PREFERENCE in models.ts)
-    const fast = pickDefault(models)!;
+    const order = [...new Set([process.env.NOVO_FAST_MODEL, ...models.map((m) => m.id)].filter(Boolean) as string[])];
     let out = "";
-    for await (const ev of streamChat({
-      model: process.env.NOVO_FAST_MODEL || fast,
-      maxTokens: 600,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: prompt.slice(0, 2000) },
-      ],
+    for await (const step of withFallback<StreamEvent>({
+      models: order.slice(0, 3),
       signal: req.signal,
+      firstEventMs: 45_000,
+      isAnswer: (ev) => ev.kind === "delta",
+      stream: (model, signal) =>
+        streamChat({
+          model,
+          maxTokens: 2000, // thinking models spend part of the budget before writing
+          messages: [
+            { role: "system", content: SYSTEM },
+            { role: "user", content: prompt.slice(0, 2000) },
+          ],
+          signal,
+        }),
     })) {
-      if (ev.kind === "length") throw new Error("Sorğunun təkmilləşdirilməsi token limitinə çatdı. Yenidən cəhd edin.");
+      if (step.kind !== "event") continue;
+      const ev = step.event;
+      if (ev.kind === "length") break; // keep what was written
       if (ev.kind === "delta") out += ev.text;
     }
+    if (!out.trim()) throw new Error("Sorğunu təkmilləşdirmək alınmadı. Yenidən cəhd edin.");
     return NextResponse.json({ prompt: out.trim().replace(/^["“]|["”]$/g, "") });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 502 });

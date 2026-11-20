@@ -8,7 +8,7 @@
 - 🖼️ Şəkildən sayt: ekran görüntüsünü və ya əl eskizini atın, AI dizaynı təkrarlasın
 - 🧠 Skill sistemi: `skills/` qovluğundakı peşəkar qaydalar sorğuya uyğun seçilir
 - 🧑‍💻 Kod redaktoru, fayl ağacı, interaktiv terminal, cihaz ölçüləri (desktop/tablet/mobil), ZIP yükləmə
-- 🤖 AI: [build.nvidia.com](https://build.nvidia.com) (GLM, Kimi, DeepSeek, Qwen… — model siyahısı canlı gəlir)
+- 🤖 AI: yalnız [OpenRouter](https://openrouter.ai) — bir açar bütün model ailələrinə (Claude, GPT, Gemini, DeepSeek, Qwen…)
 
 ## Dizayn sistemi — "Şəfəq"
 İsti kağız fon, mürəkkəb rəngli mətn və tək terrakota "alov" vurğusu. Gündüz və gecə rejimi. Canlı sənəd: **`/dizayn`** səhifəsi.
@@ -29,7 +29,7 @@
 
 ```bash
 npm install
-cp .env.example .env.local   # NVIDIA_API_KEY=nvapi-... yazın
+cp .env.example .env.local   # OPENROUTER_API_KEY=sk-or-... yazın
 npm run dev                  # http://localhost:3000
 ```
 
@@ -42,40 +42,30 @@ npm run dev                  # http://localhost:3000
 - Brauzer konsolunda `window.isSecureContext` və `window.crossOriginIsolated` hər ikisi `true` olmalıdır. Müasir masaüstü Chrome və ya Edge istifadə edin.
 - Layihələr brauzerdə ünvan üzrə saxlanılır: IP ünvanından `localhost`-a keçdikdə köhnə layihə görünməyə bilər. Keçməzdən əvvəl layihənin kodunu ixrac edin.
 
-AI modelindən görünən cavab gəlmirsə, yalnız düşünmə siqnalları vaxt limitini söndürmür: NVIDIA üçün 25 saniyə, birbaşa DeepSeek Flash üçün 60 saniyə, Pro üçün 90 saniyə gözlənilir. Flash-dan Pro/reasoning modelinə avtomatik keçilmir. İlk cavab mətni gəldikdən sonra model dəyişdirilmir. Provayderin növbəsi və cavab sürəti ayrıca gecikmə yarada bilər.
+### AI: OpenRouter
 
-Model seçicisində DeepSeek mətn modelləri `Novo Flash`, Pro/reasoning modelləri `Novo V4 Pro` adı ilə göstərilir. Bunlar interfeys adlarıdır; API-yə faktiki model ID-si göndərilir. Köhnə `deepseek-chat` ID-si kataloqda yoxdursa, mövcud Flash modeli Pro-dan əvvəl seçilir.
+Bütün sorğular serverdən `https://openrouter.ai/api/v1/chat/completions` ünvanına gedir; açar yalnız `.env.local`-dadır. Modellər `NOVO_MODELS`-də sadalanır (boşdursa pulsuz modellər: ERNIE 5.5 Flash → Nemotron Super VL → Nemotron Ultra → Gemma 4). Seçicidə `Novo Flash`, `Novo Vision`, `Novo Ultra`, `Novo Lite` adları görünür. Model limitlənsə (429) və ya 75 saniyədə yazmağa başlamasa, növbəti modelə səssizcə keçilir; ilk mətn gəldikdən sonra model dəyişdirilmir. Admin panelin Modellər bölməsindən OpenRouter-in istənilən modelini açmaq olar.
 
-Önizləmənin yeniləmə düymələri yalnız iframe-i və lazım gəlsə layihənin runtime prosesini yenidən başladır; söhbət səhifəsi yenilənmir.
-
-### DeepSeek qoşmaq
-
-`.env.local` faylında `DEEPSEEK_API_KEY` təyin edin, `DEEPSEEK_MODEL=deepseek-chat` yazın və serveri yenidən başladın. Açarı yalnız serverdə saxlayın. DeepSeek NVIDIA açarı olmadan da işləyir. Model seçicidə `deepseek-chat · DeepSeek` görünəcək; standart seçimi məcbur etmək üçün `NOVO_DEFAULT_MODEL=deepseek::deepseek-chat` istifadə edin. Hesabınız başqa model verirsə, `DEEPSEEK_MODEL` və standart modeldə dəqiq model ID-sini yazın.
-
-Alternativ: `NOVO_ADMIN_PASSWORD` təyin edib `/admin` → Provayderlər → Provayder əlavə et → DeepSeek seçin, açarı daxil edin və yadda saxlayın. Sonra Modellər bölməsindən standart modeli seçin. Admin açarları serverdə şifrələyərək saxlayır; bu yol üçün yazıla bilən, daimi `.data` qovluğu lazımdır. Eyni provayder üçün admin qeydi `.env.local` açarından üstün tutulur.
-
-Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192, V4 modelləri üçün 16384 tokendir. V4 sorğularında düşünmə rejimi açıq şəkildə söndürülür (`thinking.type=disabled`), çıxış büdcəsi kod üçün saxlanılır. Sayt kiçik, tamamlanmış fayl paketləri ilə qurulur; `<novo-continue>` qalan işləri növbəti sorğuya ötürür. İlk paket işlək səhifə yaratmalıdır. Ən çox 12 paket işlənir; iki ardıcıl paketdə heç bir fayl dəyişikliyi yoxdursa proses dayandırılır. Bağlanmış fayllar saxlanılır, token limitində yarımçıq qalan fayl isə yaddaşa yazılmadan bütöv şəkildə yenidən istənilir. Paketlər provayderdə ayrıca sorğu və token istifadəsi yaradır. İstifadəçi prosesi dayandıranda davam sorğusu göndərilmir.
-
-Sənədlər: https://api-docs.deepseek.com/ · Platforma: https://platform.deepseek.com/
+Sayt böyük paketlərlə (bir cavabda 10 fayla qədər) yazılır. Paket qırılsa (bağlantı kəsilməsi, model xətası, faylın ortasında dayanma), hazır fayllar saxlanılır, yarımçıq fayl yenidən istənilir və proses avtomatik davam edir — istifadəçiyə xəta göstərilmir. Pulsuz OpenRouter açarı gündə 50 sorğu verir; hər paket bir sorğudur.
 
 ### Pulsuz yayım (Vercel)
-1. Repo-nu Vercel-ə qoşun → *Environment Variables* bölməsinə `NVIDIA_API_KEY` əlavə edin.
+1. Repo-nu Vercel-ə qoşun → *Environment Variables* bölməsinə `OPENROUTER_API_KEY` əlavə edin.
 2. Deploy. Server xərci yoxdur: AI çağırışları Vercel funksiyasından, saytların işə salınması isə istifadəçinin brauzerində olur.
 
 ### Mühit dəyişənləri
 | Dəyişən | Təsvir |
 |---|---|
-| `NVIDIA_API_KEY` | build.nvidia.com API açarı (məcburi) |
+| `OPENROUTER_API_KEY` | openrouter.ai API açarı (məcburi) |
+| `NOVO_MODELS` | Vergüllə OpenRouter model ID-ləri (birincisi standart) |
 | `NOVO_DEFAULT_MODEL` | Standart model ID (boş — avtomatik ən yaxşısı seçilir) |
 | `NOVO_VISION_MODEL` | Şəkil analizi üçün model (boş — avtomatik) |
-| `NVIDIA_BASE_URL` | Default `https://integrate.api.nvidia.com/v1` |
 
 ## Arxitektura
 
 ```
 Brauzer ─ Studio (çat · önizləmə · kod · terminal)
    │  /api/chat (NDJSON stream)            ┌──────────────┐
-   ├──────────────────────────────────────▶│ Next.js API  │──▶ build.nvidia.com
+   ├──────────────────────────────────────▶│ Next.js API  │──▶ openrouter.ai
    │                                        │ skills + prompt│
    │  <novo-file>/<novo-shell> axını        └──────────────┘
    ▼
@@ -87,7 +77,7 @@ ActionParser ─▶ WebContainer (npm install · vite dev · xətalar) ─▶ ö
 | Qovluq | Məzmun |
 |---|---|
 | `src/lib/protocol/parser.ts` | AI cavabındakı `<novo-file>`, `<novo-shell>`, `<novo-delete>`, `<novo-plan>` teqlərinin axın parseri |
-| `src/lib/ai/` | NVIDIA klienti, model reytinqi, sistem prompt |
+| `src/lib/ai/` | OpenRouter klienti, model kataloqu, sistem prompt |
 | `src/lib/skills/` + `skills/*.md` | Skill kitabxanası və seçim məntiqi |
 | `src/lib/runtime/` | WebContainer idarəsi və xəta aşkarlanması |
 | `src/lib/agent/` | Bir AI addımının axını, mesaj hissələri |

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listModels, preferredModel } from "@/lib/ai/nvidia";
+import { listModels, preferredModel } from "@/lib/ai/openrouter";
 import { pickDefault } from "@/lib/ai/models";
 import { DEMO_MODEL, demoMode } from "@/lib/demo/script";
 

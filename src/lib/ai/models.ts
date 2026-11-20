@@ -1,66 +1,35 @@
-/** Ranks build.nvidia.com models for website generation. IDs come live from /v1/models. */
+/** Model catalog shared by the server gateway and the model picker. */
 
 export interface ModelInfo {
-  id: string;
+  id: string; // OpenRouter model id, e.g. "baidu/ernie-5.5-flash-preview:free"
   label: string;
   vision: boolean;
   rank: number;
 }
 
-const EXCLUDE = /embed|rerank|guard|safety|reward|parse|clip|tts|asr|whisper|ocr|retriever|nemoretriever|detector|translate|riva|cosmos|flux|sdxl|stable-diffusion|bge|arctic-embed|nv-embed|pii|topic-control|jailbreak|deplot|kosmos|fuyu|neva|paligemma|vila|starcoder|codegemma|gemma-2b|-1b|-3b|-8b|-7b/i;
-
-// Order measured on build.nvidia.com (Nov 2026) with hidden reasoning switched off: models that
-// start writing within ~1s and stream fast come first; ones that hang or think for minutes go last.
-const PREFERENCE: RegExp[] = [
-  /nemotron-3\.5-super/i, // ~0.5s to first text, fast, reads screenshots
-  /nemotron-3-ultra/i,
-  /gemma-4/i,
-  /laguna/i, // very fast coder
-  /kimi-k[23]/i,
-  /deepseek-v4|deepseek-v3/i,
-  /qwen3-coder/i,
-  /qwen3/i,
-  /minimax/i,
-  /nemotron-3\.5-lightning/i,
-  /nemotron.*(ultra|super)/i,
-  /gpt-oss-120b/i,
-  /llama-4-maverick/i,
-  /glm-5/i, // often silent for 60s+
-  /mistral-(large|medium)|devstral|codestral/i, // keeps reasoning even when asked not to
-  /glm|deepseek/i,
+/**
+ * Models used when NOVO_MODELS is not set, in order of preference. The first is the default;
+ * the rest are silent backups when it is rate-limited, down or slow to answer.
+ */
+export const DEFAULT_MODELS = [
+  "baidu/ernie-5.5-flash-preview:free",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "google/gemma-4-31b-it:free",
 ];
 
-const VISION = /vision|-vl|vl-|kimi-k2\.[5-9]|kimi-k2-vision|llama-4|gemma-3|phi-4-multimodal|nemotron.*vl|mistral-medium-3|qwen.*vl|glm-.*v\b|glm-4\.\dv|multimodal/i;
+/** Brand names shown in the picker, by position in the configured list. */
+const BRANDS = ["Novo Flash", "Novo Vision", "Novo Ultra", "Novo Lite"];
 
-export const isVisionModel = (id: string) => VISION.test(id);
-
-export function rankModels(ids: string[]): ModelInfo[] {
-  return ids
-    .filter((id) => !EXCLUDE.test(id))
-    .map((id) => {
-      const i = PREFERENCE.findIndex((r) => r.test(id));
-      return {
-        id,
-        label: id.split("/").pop() ?? id,
-        vision: isVisionModel(id),
-        rank: i === -1 ? PREFERENCE.length : i,
-      };
-    })
-    .filter((m) => m.rank < PREFERENCE.length || m.vision)
-    .sort((a, b) => a.rank - b.rank || b.id.localeCompare(a.id, undefined, { numeric: true }));
+export function configuredModels(env = process.env.NOVO_MODELS): string[] {
+  const list = (env ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  return list.length ? [...new Set(list)] : DEFAULT_MODELS;
 }
+
+export const brandName = (rank: number) => BRANDS[rank];
 
 export function pickDefault(models: ModelInfo[], preferred?: string, needVision = false): string | undefined {
   const pool = needVision ? models.filter((m) => m.vision) : models;
   if (preferred && pool.some((m) => m.id === preferred)) return preferred;
-  return pool[0]?.id ?? models[0]?.id;
-}
-
-/**
- * Anthropic's model list wants x-api-key + anthropic-version; everyone else uses a Bearer token.
- * Sending the Anthropic headers to other providers is not harmless: NVIDIA then answers with an
- * empty list, which made every model disappear.
- */
-export function modelListHeaders(ep: { baseUrl: string; key: string }): Record<string, string> {
-  return /anthropic\.com/i.test(ep.baseUrl) ? { "x-api-key": ep.key, "anthropic-version": "2023-06-01" } : { Authorization: `Bearer ${ep.key}` };
+  return pool[0]?.id ?? (needVision ? undefined : models[0]?.id);
 }

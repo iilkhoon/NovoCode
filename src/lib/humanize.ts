@@ -48,12 +48,12 @@ export function humanizeError(raw: string): HumanError {
     return { title: "AI hesabında balans kifayət etmir", hint: "Provayder hesabının balansını artırın. Yenidən cəhd balansı dəyişmir.", retryable: false };
   if (/\b401\b|invalid api key|authentication/.test(s))
     return { title: "AI açarı qəbul edilmədi", hint: "Serverdəki API açarını yoxlayın və serveri yenidən başladın.", retryable: false };
-  if (s.includes("nvidia_api_key") || s.includes("deepseek_api_key") || s.includes("api key") || s.includes("açar"))
+  if (s.includes("openrouter_api_key") || s.includes("api key") || s.includes("açar"))
     return { title: "AI xidməti hələ qoşulmayıb", hint: "Serverdə AI açarı təyin edilməyib. Administratora bildirin.", retryable: false };
   if (/token limit|yarımçıq/.test(s))
-    return { title: "AI cavabı yarımçıq qaldı", hint: "İstəyi kiçik hissələrə bölün və ya qalan hissəni tamamlamağı istəyin.", retryable: true };
-  if (/\b429\b|rate limit|çox sorğu/.test(s))
-    return { title: "Sorğu limiti dolub", hint: "Bir az gözləyin və eyni vaxtda bir neçə sorğu göndərməyin.", retryable: true };
+    return { title: "Sayt tam bitmədi", hint: "Hazır hissələr saxlanılıb. \"Davam et\" yazın, qalanını tamamlayım.", retryable: true };
+  if (/\b429\b|rate.?limit|çox sorğu/.test(s))
+    return { title: "AI modelləri hazırda məşğuldur", hint: "Pulsuz modellər qısa müddətə limitlənib. Bir dəqiqə sonra yenidən cəhd edin.", retryable: true };
   if (s.includes("failed to fetch") || s.includes("network") || s.includes("fetch failed") || s.includes("load failed") || s.includes("bağlantı"))
     return { title: "İnternet bağlantısı kəsildi", hint: "Bağlantını yoxlayıb yenidən cəhd edin.", retryable: true };
   if (/timeout|timed out|cavab vermədi/.test(s))

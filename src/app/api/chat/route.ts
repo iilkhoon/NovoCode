@@ -1,6 +1,5 @@
-import { compatibleBackup, firstTokenWaitMs } from "@/lib/ai/latency";
 import { isGreeting, greetingPrompt } from "@/lib/ai/request-profile";
-import { streamChat, listModels, preferredModel, type ChatMessage, type StreamEvent } from "@/lib/ai/nvidia";
+import { streamChat, listModels, preferredModel, type ChatMessage, type StreamEvent } from "@/lib/ai/openrouter";
 import { pickDefault } from "@/lib/ai/models";
 import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
@@ -95,7 +94,7 @@ export async function POST(req: Request) {
     }
     model ??= pickDefault(models, await preferredModel());
     // next-best models to try if this one is down or silent (same vision ability when images are attached)
-    backups = models.filter((m) => compatibleBackup(model!, m.id) && (!hasImages || m.vision)).slice(0, 2).map((m) => m.id);
+    backups = models.filter((m) => m.id !== model && (!hasImages || m.vision)).slice(0, 3).map((m) => m.id);
   } catch (e) {
     if (mode === "fallback") return demo();
     return Response.json({ error: (e as Error).message }, { status: 502 });
@@ -130,7 +129,8 @@ export async function POST(req: Request) {
         let thinking = 0;
         for await (const step of withFallback<StreamEvent>({
           models: [model!, ...orderByHealth(backups)],
-          firstEventMs: firstTokenWaitMs,
+          // rate-limited free models fail instantly; a live one may think briefly before writing
+          firstEventMs: 75_000,
           onFail: markDown,
           signal: req.signal,
           isAnswer: (event) => event.kind === "delta" && event.text.length > 0,

@@ -1,26 +1,18 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, BookOpen, Cpu, KeyRound, Loader2, Lock, Plus, Save, Search, Server, Trash2, Upload, Users } from "lucide-react";
+import { Activity, BookOpen, Cpu, KeyRound, Loader2, Lock, Save, Search, Server, Trash2, Upload, Users } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { Alert, EmptyState, Field, Input, Modal, Select, Tabs } from "@/components/ui/kit";
+import { Alert, EmptyState, Field, Input, Tabs } from "@/components/ui/kit";
 import { toast } from "@/components/ui/toast";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/cn";
 
 /**
- * Admin panel. Providers, keys and model settings live on the server (/api/admin/config,
- * keys encrypted at rest) and are protected by NOVO_ADMIN_PASSWORD.
+ * Admin panel. AI runs only through OpenRouter (OPENROUTER_API_KEY in the server env); model
+ * settings live on the server (/api/admin/config) and are protected by NOVO_ADMIN_PASSWORD.
  */
 
-interface Provider {
-  id: string;
-  name: string;
-  baseUrl: string;
-  key: string; // masked when it comes from the server
-  hasKey?: boolean;
-  enabled: boolean;
-}
 interface ModelSetting {
   id: string;
   label?: string;
@@ -28,21 +20,13 @@ interface ModelSetting {
   visible?: boolean;
 }
 interface Config {
-  providers: Provider[];
   models: ModelSetting[];
   defaultModel?: string;
-  nvidia: { configured: boolean };
-  deepseek?: { configured: boolean };
+  openrouter: { configured: boolean };
+  /** NOVO_MODELS (or the free defaults): visible unless switched off */
+  builtIn: string[];
   catalog: { provider: string; ids: string[]; error?: string }[];
 }
-
-const KINDS = [
-  { id: "deepseek", name: "DeepSeek", url: "https://api.deepseek.com/v1" },
-  { id: "openrouter", name: "OpenRouter", url: "https://openrouter.ai/api/v1" },
-  { id: "anthropic", name: "Anthropic", url: "https://api.anthropic.com/v1" },
-  { id: "openai", name: "OpenAI", url: "https://api.openai.com/v1" },
-  { id: "own", name: "Öz serverim (OpenAI uyğun)", url: "http://" },
-];
 
 const PASS_KEY = "novo-admin-pass";
 
@@ -84,7 +68,6 @@ export function AdminPanel() {
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState<"providers" | "models" | "skills" | "users" | "usage">("providers");
-  const [adding, setAdding] = useState(false);
 
   const load = useCallback(
     async (p?: string) => {
@@ -115,7 +98,7 @@ export function AdminPanel() {
     if (!cfg) return;
     setSaving(true);
     try {
-      await api.call("PUT", { providers: cfg.providers, models: cfg.models, defaultModel: cfg.defaultModel });
+      await api.call("PUT", { models: cfg.models, defaultModel: cfg.defaultModel });
       await load();
       toast.success("Yadda saxlanıldı", "Dəyişikliklər dərhal qüvvəyə minir.");
     } catch (e) {
@@ -127,8 +110,8 @@ export function AdminPanel() {
 
   if (!api.pass || !cfg) return <Gate error={error} onLogin={(p) => load(p)} loading={!!api.pass && !cfg && !error} />;
 
-  const activeProviders = cfg.providers.filter((p) => p.enabled).length + (cfg.nvidia.configured ? 1 : 0) + (cfg.deepseek?.configured && !cfg.providers.some((p) => p.id === "deepseek") ? 1 : 0);
-  const visibleModels = cfg.catalog.reduce((n, c) => n + c.ids.filter((id) => isVisible(cfg, c.provider, id)).length, 0);
+  const activeProviders = cfg.openrouter.configured ? 1 : 0;
+  const visibleModels = cfg.catalog.reduce((n, c) => n + c.ids.filter((id) => isVisible(cfg, id)).length, 0);
 
   return (
     <div className="min-h-dvh bg-wool">
@@ -155,7 +138,7 @@ export function AdminPanel() {
 
       <main className="mx-auto max-w-[1180px] px-4 py-10 sm:px-8">
         <h1 className="font-display text-[36px] tracking-[-0.025em] text-ink-100">İdarəetmə</h1>
-        <p className="mt-1 text-[14px] text-ink-400">AI provayderləri, modellər, skill-lər və xərclər.</p>
+        <p className="mt-1 text-[14px] text-ink-400">AI (OpenRouter), modellər, skill-lər və xərclər.</p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat icon={<Server />} label="Aktiv provayder" value={String(activeProviders)} />
@@ -181,29 +164,15 @@ export function AdminPanel() {
           {tab === "providers" && (
             <div className="flex flex-col gap-4">
               <div className="overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000">
-                <Row icon={<KeyRound />} title="NVIDIA" sub={`integrate.api.nvidia.com · ${cfg.nvidia.configured ? "açar serverin .env faylındadır" : "NVIDIA_API_KEY təyin edilməyib"}`} on={cfg.nvidia.configured} />
-                {cfg.deepseek?.configured && !cfg.providers.some((p) => p.id === "deepseek") && (
-                  <Row icon={<KeyRound />} title="DeepSeek" sub="api.deepseek.com · açar serverin .env faylındadır" on />
-                )}
-                {cfg.providers.map((p) => (
-                  <Row
-                    key={p.id}
-                    icon={<KeyRound />}
-                    title={p.name}
-                    sub={`${p.baseUrl} · ${p.hasKey ? p.key : "açar yoxdur"}`}
-                    on={p.enabled}
-                    onToggle={(v) => update({ providers: cfg.providers.map((x) => (x.id === p.id ? { ...x, enabled: v } : x)) })}
-                    onDelete={() => update({ providers: cfg.providers.filter((x) => x.id !== p.id), models: cfg.models.filter((m) => !m.id.startsWith(p.id + "::")) })}
-                    error={cfg.catalog.find((c) => c.provider === p.id)?.error}
-                  />
-                ))}
+                <Row
+                  icon={<KeyRound />}
+                  title="OpenRouter"
+                  sub={`openrouter.ai · ${cfg.openrouter.configured ? "açar serverin .env faylındadır" : "OPENROUTER_API_KEY təyin edilməyib"}`}
+                  on={cfg.openrouter.configured}
+                  error={cfg.catalog[0]?.error}
+                />
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button variant="primary" onClick={() => setAdding(true)}>
-                  <Plus className="size-4" /> Provayder əlavə et
-                </Button>
-                <p className="text-[12.5px] text-ink-500">Açarlar serverdə şifrələnmiş saxlanılır və heç vaxt brauzerə qaytarılmır.</p>
-              </div>
+              <p className="text-[12.5px] text-ink-500">Bir açar bütün model ailələrinə çıxış verir (Claude, GPT, Gemini, DeepSeek, Qwen…). Modelləri Modellər bölməsində açın.</p>
             </div>
           )}
 
@@ -216,16 +185,6 @@ export function AdminPanel() {
         </div>
       </main>
 
-      <AddProvider
-        open={adding}
-        taken={cfg.providers.map((p) => p.id)}
-        onClose={() => setAdding(false)}
-        onAdd={(p) => {
-          update({ providers: [...cfg.providers, p] });
-          setAdding(false);
-          toast.info(`${p.name} əlavə olundu`, "Yadda saxlayın, sonra Modellər bölməsində istədiyiniz modelləri açın.");
-        }}
-      />
     </div>
   );
 }
@@ -393,10 +352,9 @@ function UsageTab({ pass }: { pass: string }) {
   );
 }
 
-function isVisible(cfg: Config, provider: string, id: string) {
+function isVisible(cfg: Config, id: string) {
   const s = cfg.models.find((m) => m.id === id);
-  const deepSeek = provider === "deepseek" || cfg.providers.some((p) => p.id === provider && /^https:\/\/api\.deepseek\.com(?:\/|$)/.test(p.baseUrl));
-  return provider === "nvidia" || deepSeek ? s?.visible !== false : s?.visible === true;
+  return cfg.builtIn.includes(id) ? s?.visible !== false : s?.visible === true;
 }
 
 function ModelsTab({ cfg, update }: { cfg: Config; update: (p: Partial<Config>) => void }) {
@@ -411,16 +369,19 @@ function ModelsTab({ cfg, update }: { cfg: Config; update: (p: Partial<Config>) 
       cfg.catalog.flatMap((c) =>
         c.ids
           .filter((id) => id.toLowerCase().includes(q.trim().toLowerCase()))
-          .slice(0, q ? 200 : c.provider === "nvidia" ? 60 : 40)
+          // built-in and switched-on models first, so the useful rows are visible without searching
+          .sort((a, b) => Number(isVisible(cfg, b)) - Number(isVisible(cfg, a)))
+          .slice(0, q ? 200 : 60)
           .map((id) => ({ id, provider: c.provider }))
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [cfg.catalog, q]
   );
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <Input icon={<Search />} placeholder="Model axtar (məs. claude, gpt, qwen)" value={q} onChange={(e) => setQ(e.target.value)} className="w-full max-w-sm" aria-label="Model axtar" />
-        <p className="text-[12.5px] text-ink-500">NVIDIA modelləri standart olaraq görünür; digər provayderlərin modellərini özünüz açın.</p>
+        <p className="text-[12.5px] text-ink-500">Əsas modellər (NOVO_MODELS) standart olaraq görünür; OpenRouter-in digər modellərini özünüz açın.</p>
       </div>
       <div className="overflow-x-auto rounded-3xl border border-ink-100/8 bg-ink-1000">
         <table className="w-full min-w-[760px] text-left text-[13.5px]">
@@ -434,14 +395,14 @@ function ModelsTab({ cfg, update }: { cfg: Config; update: (p: Partial<Config>) 
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ id, provider }) => {
+            {rows.map(({ id }) => {
               const s = setting(id);
-              const visible = isVisible(cfg, provider, id);
+              const visible = isVisible(cfg, id);
               return (
                 <tr key={id} className="border-t border-ink-100/8 first:border-t-0">
                   <td className="px-5 py-2.5">
-                    <span className="font-mono text-[12px] text-ink-200">{id.replace(/^[a-z0-9-]+::/, "")}</span>
-                    <span className="ml-2 rounded-full bg-ink-100/[0.06] px-2 py-0.5 text-[11px] text-ink-400">{provider}</span>
+                    <span className="font-mono text-[12px] text-ink-200">{id}</span>
+                    {cfg.builtIn.includes(id) && <span className="ml-2 rounded-full bg-ink-100/[0.06] px-2 py-0.5 text-[11px] text-ink-400">əsas</span>}
                   </td>
                   <td className="px-3 py-2.5">
                     <input aria-label="Görünən ad" placeholder="avtomatik" value={s?.label ?? ""} onChange={(e) => patch(id, { label: e.target.value || undefined })} className="w-full rounded-lg bg-transparent px-2 py-1 text-ink-100 placeholder:text-ink-500 hover:bg-ink-100/[0.04] focus:bg-ink-100/[0.06] focus:outline-none" />
@@ -461,7 +422,7 @@ function ModelsTab({ cfg, update }: { cfg: Config; update: (p: Partial<Config>) 
             {!rows.length && (
               <tr>
                 <td colSpan={5} className="px-5 py-10 text-center text-ink-500">
-                  {q ? "Heç nə tapılmadı" : "Model siyahısı alınmadı — provayder açarlarını yoxlayın."}
+                  {q ? "Heç nə tapılmadı" : "Model siyahısı alınmadı — OPENROUTER_API_KEY-i yoxlayın."}
                 </td>
               </tr>
             )}
@@ -536,67 +497,3 @@ function Stat({ icon, label, value, note }: { icon: React.ReactNode; label: stri
   );
 }
 
-function AddProvider({ open, taken, onClose, onAdd }: { open: boolean; taken: string[]; onClose: () => void; onAdd: (p: Provider) => void }) {
-  const [kind, setKind] = useState(KINDS[0].id);
-  const [url, setUrl] = useState(KINDS[0].url);
-  const [key, setKey] = useState("");
-  const k = KINDS.find((x) => x.id === kind)!;
-  let id = kind;
-  for (let i = 2; taken.includes(id); i++) id = `${kind}-${i}`;
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title="Provayder əlavə et"
-      description="OpenAI ilə uyğun API olan istənilən xidməti və ya öz serverinizi qoşun."
-      icon={<KeyRound />}
-      footer={
-        <>
-          <Button variant="ghost" onClick={onClose}>
-            Ləğv et
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!key.trim() || !/^https?:\/\/.+/.test(url)}
-            onClick={() => {
-              onAdd({ id, name: k.name, baseUrl: url, key: key.trim(), enabled: true });
-              setKey("");
-            }}
-          >
-            Əlavə et
-          </Button>
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        <Field label="Provayder">
-          {(fid) => (
-            <Select
-              id={fid}
-              value={kind}
-              onChange={(e) => {
-                setKind(e.target.value);
-                setUrl(KINDS.find((x) => x.id === e.target.value)!.url);
-              }}
-            >
-              {KINDS.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.name}
-                </option>
-              ))}
-            </Select>
-          )}
-        </Field>
-        <Field label="API ünvanı" hint="OpenAI uyğun /v1 ünvanı. Model siyahısı serverdən alınır.">
-          {(fid, d) => <Input id={fid} aria-describedby={d} value={url} onChange={(e) => setUrl(e.target.value)} className="font-mono" />}
-        </Field>
-        <Field label="API açarı" hint="Serverdə şifrələnmiş saxlanılır, istifadəçilərə heç vaxt göstərilmir.">
-          {(fid, d) => <Input id={fid} aria-describedby={d} type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-…" icon={<KeyRound />} />}
-        </Field>
-        <Alert tone="info" title="Model id-si">
-          Bu provayderin modelləri “{id}::model-adı” kimi görünəcək.
-        </Alert>
-      </div>
-    </Modal>
-  );
-}

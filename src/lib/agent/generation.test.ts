@@ -46,6 +46,6 @@ it.each(["deepseek-v4-flash", "deepseek-v4-pro"])("finishes a visible multi-batc
 it("bounds productive batches as well as stalled batches", async () => {
   let n = 0;
   const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => response(file(`src/f${n++}.js`, 'export default 1;') + '<novo-continue>More sections</novo-continue>'));
-  await expect(streamTurn({ messages: [], files: {}, onEvent: () => {} })).rejects.toThrow('12 avtomatik');
+  await expect(streamTurn({ messages: [], files: {}, onEvent: () => {} })).rejects.toThrow('12 mərhələ');
   expect(fetch).toHaveBeenCalledTimes(12);
 });

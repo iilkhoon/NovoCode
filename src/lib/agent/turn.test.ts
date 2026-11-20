@@ -132,3 +132,40 @@ describe("automatic output-limit continuation", () => {
     } finally { fetchMock.mockRestore(); }
   });
 });
+
+describe("streamTurn recovery", () => {
+  it("keeps finished files and continues when a batch breaks off mid-file", async () => {
+    const { streamTurn } = await import("./turn");
+    const { vi } = await import("vitest");
+    const replies = [
+      // batch 1: one finished file, then the connection drops inside the next one
+      [JSON.stringify({ t: "d", v: '<novo-file path="src/App.jsx">export default 1;</novo-file><novo-file path="src/Hero.jsx">export' }) + "\n"],
+      // batch 2: the model rewrites the broken file and finishes
+      [JSON.stringify({ t: "d", v: '<novo-file path="src/Hero.jsx">export default 2;</novo-file>Hazırdır.' }) + "\n", '{"t":"done"}\n'],
+    ];
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(streamOf(replies.shift()!)));
+    const events: any[] = [];
+    try {
+      await streamTurn({ messages: [{ role: "user", content: "sayt" }], files: {}, onEvent: (e) => events.push(e) });
+      const closed = events.filter((e) => e.type === "file-close").map((e) => [e.path, e.content]);
+      expect(closed).toEqual([["src/App.jsx", "export default 1;"], ["src/Hero.jsx", "export default 2;"]]);
+      expect(events.some((e) => e.type === "file-abort" && e.path === "src/Hero.jsx")).toBe(true);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally { fetchMock.mockRestore(); }
+  });
+
+  it("continues after a provider error once some files are done", async () => {
+    const { streamTurn } = await import("./turn");
+    const { vi } = await import("vitest");
+    const replies = [
+      [JSON.stringify({ t: "d", v: '<novo-file path="src/App.jsx">a</novo-file>' }) + "\n", JSON.stringify({ t: "error", v: "OpenRouter: model cavabı yarıda kəsdi" }) + "\n"],
+      [JSON.stringify({ t: "d", v: '<novo-file path="src/B.jsx">b</novo-file>' }) + "\n", '{"t":"done"}\n'],
+    ];
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(streamOf(replies.shift()!)));
+    const events: any[] = [];
+    try {
+      await streamTurn({ messages: [{ role: "user", content: "sayt" }], files: {}, onEvent: (e) => events.push(e) });
+      expect(events.filter((e) => e.type === "file-close").map((e) => e.path)).toEqual(["src/App.jsx", "src/B.jsx"]);
+    } finally { fetchMock.mockRestore(); }
+  });
+});

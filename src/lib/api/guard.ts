@@ -1,5 +1,5 @@
 /**
- * Lightweight protection for the AI routes. The NVIDIA key lives on the
+ * Lightweight protection for the AI routes. The OpenRouter key lives on the
  * server, so without this anyone could use /api/chat as a free proxy.
  */
 

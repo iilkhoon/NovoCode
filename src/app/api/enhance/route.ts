@@ -22,7 +22,8 @@ export async function POST(req: Request) {
   if (typeof prompt !== "string" || !prompt.trim()) return NextResponse.json({ error: "Boş sorğu" }, { status: 400 });
   try {
     const models = await listModels();
-    const fast = models.find((m) => /flash/i.test(m.id))?.id ?? pickDefault(models)!;
+    // the top-ranked model is also the quickest to start writing (see PREFERENCE in models.ts)
+    const fast = pickDefault(models)!;
     let out = "";
     for await (const ev of streamChat({
       model: process.env.NOVO_FAST_MODEL || fast,

@@ -1,3 +1,5 @@
+import { compatibleBackup, firstTokenWaitMs } from "@/lib/ai/latency";
+import { isGreeting, greetingPrompt } from "@/lib/ai/request-profile";
 import { streamChat, listModels, preferredModel, type ChatMessage, type StreamEvent } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
 import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
@@ -68,6 +70,7 @@ export async function POST(req: Request) {
   const last = history[history.length - 1];
   if (!last || last.role !== "user") return Response.json({ error: "Son mesaj istifadəçidən olmalıdır" }, { status: 400 });
 
+  const greeting = body.intent !== "compact" && !last.images?.length && isGreeting(last.content);
   const hasImages = history.some((m) => m.images?.length);
   const userText = history.filter((m) => m.role === "user").map((m) => m.content).join("\n");
   const skills = selectSkills(loadSkills(), userText + (hasImages ? " screenshot" : ""));
@@ -84,6 +87,7 @@ export async function POST(req: Request) {
   let backups: string[] = [];
   try {
     const models = await listModels();
+    if (hasImages && !models.some((m) => m.vision)) return Response.json({ error: "Qoşulmuş modellər şəkil qəbul etmir. Şəkli çıxarın və ya görüntü dəstəyi olan provayder qoşun." }, { status: 400 });
     // only models the account actually offers
     if (model && !models.some((m) => m.id === model)) model = undefined;
     if (hasImages && !models.find((m) => m.id === model)?.vision) {
@@ -91,13 +95,13 @@ export async function POST(req: Request) {
     }
     model ??= pickDefault(models, await preferredModel());
     // next-best models to try if this one is down or silent (same vision ability when images are attached)
-    backups = models.filter((m) => m.id !== model && (!hasImages || m.vision)).slice(0, 2).map((m) => m.id);
+    backups = models.filter((m) => compatibleBackup(model!, m.id) && (!hasImages || m.vision)).slice(0, 2).map((m) => m.id);
   } catch (e) {
     if (mode === "fallback") return demo();
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 
-  const system =
+  const system = greeting ? greetingPrompt() :
     body.intent === "compact"
       ? `${COMPACT_PROMPT}${body.summary ? `\n\nEarlier summary:\n${body.summary}` : ""}`
       : buildSystemPrompt({ skills, files: body.files ?? {}, intent: body.intent, summary: body.summary, lang: body.lang });
@@ -124,13 +128,21 @@ export async function POST(req: Request) {
       let tokens = 0, chars = 0, ok = true;
       try {
         let thinking = 0;
-        for await (const step of withFallback<StreamEvent>({ models: orderByHealth([model!, ...backups]), onFail: markDown, signal: req.signal, isContent: (ev) => ev.kind === "delta", stream: (m, signal) => streamChat({ model: m, messages, signal }) })) {
+        for await (const step of withFallback<StreamEvent>({
+          models: [model!, ...orderByHealth(backups)],
+          firstEventMs: firstTokenWaitMs,
+          onFail: markDown,
+          signal: req.signal,
+          isAnswer: (event) => event.kind === "delta" && event.text.length > 0,
+          stream: (m, signal) => streamChat({ model: m, messages, signal }),
+        })) {
           if (step.kind === "switch") {
             model = step.model;
             send({ t: "meta", model, skills: skills.map((s) => s.name) });
             continue;
           }
           const ev = step.event;
+          if (ev.kind === "length") { send({ t: "length" }); break; }
           if (ev.kind === "delta") {
             chars += ev.text.length;
             send({ t: "d", v: ev.text });

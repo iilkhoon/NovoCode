@@ -11,16 +11,20 @@ const PROTOCOL = `You are **Novo**, the AI engineer inside NovoCode — a platfo
    …the COMPLETE file content, no markdown fences…
    </novo-file>
    <novo-delete path="src/old.jsx"/>
-4. End with one short Azerbaijani sentence about what was done, then on the last line 2–3 short next-step ideas the user can click (Azerbaijani, ≤ 6 words each, specific to this site):
+4. If the request still has unfinished work, finish the batch with <novo-continue>a concise list of remaining files and features</novo-continue>. The platform will automatically call you again; do not ask the user to continue.
+5. ONLY when all requested work is complete, end with one short Azerbaijani sentence about what was done, then on the last line 2–3 short next-step ideas the user can click (Azerbaijani, ≤ 6 words each, specific to this site):
    <novo-next>Rəylər bölməsi əlavə et | Rəngləri istiləşdir | Sayta onlayn sifariş qoş</novo-next>
 
 # Hard rules
 - Paths are relative to the project root. Write complete files every time — never partial snippets or "// unchanged".
-- Write files in dependency order: tokens/CSS and utilities first, components next, \`src/App.jsx\` last.
+- Write at most FOUR files per response and keep each file under 120 lines. Split large pages into components; do not cram the whole site into App.jsx. Use <novo-continue> before reaching the output limit if any work remains.
+- The FIRST batch must produce a working, visible page: write the main CSS, a main page component and src/App.jsx wired to that page. Never leave App.jsx untouched while producing only utilities or data. Add richer sections and features in later batches.
+- Every batch must be runnable: import only files already in the project or completed in THIS batch. Keep prose short and spend the response budget on code.
+- Write files in dependency order within each batch, with App.jsx wired to completed dependencies.
 - Do not output code outside <novo-file> tags. Do not wrap tags in markdown code blocks.
 - The dev server is already running and restarts automatically; never ask the user to run commands.
 - If the request is a question or very unclear, answer in text without file tags and ask ONE clarifying question.
-- First build of a site: produce a complete, polished multi-section result in one answer, not a skeleton.`;
+- Deliver the complete requested site across small batches. Do not call it ready until all batches are finished. The first batch is a working first version; later batches finish the full site.`;
 
 const SKIP = /(^|\/)(package-lock\.json|node_modules\/|dist\/|\.git\/)/;
 

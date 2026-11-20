@@ -2,6 +2,7 @@
 import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
 import { toFileSystemTree } from "./tree";
 import { extractErrors } from "./errors";
+import { previewSupport } from "./support";
 import { del, get, keys, set } from "idb-keyval";
 
 /* ---------- node_modules cache: install once, boot in seconds afterwards ---------- */
@@ -25,7 +26,7 @@ type Listener<T> = (v: T) => void;
 
 let bootPromise: Promise<WebContainer> | null = null;
 function boot(): Promise<WebContainer> {
-  bootPromise ??= WebContainer.boot({ workdirName: "project", coep: "credentialless" });
+  bootPromise ??= WebContainer.boot({ workdirName: "project", coep: "credentialless" }).catch((error) => { bootPromise = null; throw error; });
   return bootPromise;
 }
 
@@ -80,8 +81,9 @@ export class ProjectRuntime {
   async start(files: Record<string, string>) {
     this.setStatus("booting");
     this.emit("\x1b[38;5;203m◆ NovoCode\x1b[0m runtime işə düşür…\r\n");
-    if (typeof window !== "undefined" && !window.crossOriginIsolated) {
-      this.emit("\x1b[31mBrauzer cross-origin isolation dəstəkləmir. Chrome, Edge və ya Brave istifadə edin.\x1b[0m\r\n");
+    const unsupported = typeof window !== "undefined" ? previewSupport(window) : null;
+    if (unsupported) {
+      this.emit(`\x1b[31m${unsupported.title}: ${unsupported.message}\x1b[0m\r\n`);
       this.setStatus("error");
       this.resolveMounted();
       this.resolveServing();
@@ -124,12 +126,22 @@ export class ProjectRuntime {
       if (key && snap) {
         this.setStatus("installing");
         this.emit("\r\n\x1b[2m$ paketlər keşdən bərpa olunur…\x1b[0m\r\n");
-        await this.wc.mount(snap, { mountPoint: "node_modules" });
-        this.installedPkgJson = files["package.json"];
-        this.fromCache = key;
+        try {
+          await this.wc.fs.mkdir("node_modules", { recursive: true });
+          await this.wc.mount(snap, { mountPoint: "node_modules" });
+          this.installedPkgJson = files["package.json"];
+          this.fromCache = key;
+        } catch {
+          await del(key).catch(() => {});
+          await this.wc.fs.rm("node_modules", { recursive: true, force: true });
+          const code = await this.install(files["package.json"]);
+          if (code !== 0) { this.resolveServing(); return; }
+          void this.saveCache(key);
+        }
       } else {
         const code = await this.install(files["package.json"]);
-        if (code === 0 && key) void this.saveCache(key);
+        if (code !== 0) { this.resolveServing(); return; }
+        if (key) void this.saveCache(key);
       }
       await this.startDev();
     } catch (e) {
@@ -137,6 +149,24 @@ export class ProjectRuntime {
       this.setStatus("error");
       this.resolveServing();
     }
+  }
+
+  private retrying = false;
+  /** Restart only this project's runtime; keep the editor and chat mounted. */
+  async retry(files: Record<string, string>) {
+    if (this.retrying || ["booting", "installing", "starting"].includes(this.status)) return;
+    this.retrying = true;
+    try {
+      if (!this.wc) {
+        await this.start(files);
+      } else {
+        const code = await this.install(files["package.json"]);
+        if (code === 0) { this.devDead = false; await this.startDev(); }
+      }
+    } catch (e) {
+      this.emit(`\r\n${(e as Error).message}\r\n`);
+      this.setStatus("error");
+    } finally { this.retrying = false; }
   }
 
   async install(pkgJson?: string) {

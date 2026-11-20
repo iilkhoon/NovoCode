@@ -14,7 +14,9 @@
 export type ParserEvent =
   | { type: "text"; text: string }
   | { type: "plan"; text: string }
+  | { type: "continue"; text: string }
   | { type: "file-open"; path: string }
+  | { type: "file-abort"; path: string }
   | { type: "file-delta"; path: string; text: string }
   | { type: "file-close"; path: string; content: string }
   | { type: "delete"; path: string }
@@ -23,10 +25,10 @@ export type ParserEvent =
 type Mode =
   | { kind: "text" }
   | { kind: "file"; path: string; content: string; started: boolean }
-  | { kind: "block"; tag: "shell" | "plan"; content: string };
+  | { kind: "block"; tag: "shell" | "plan" | "continue"; content: string };
 
-const OPENERS = ["<novo-file", "<novo-shell", "<novo-delete", "<novo-plan"];
-const CLOSERS = { file: "</novo-file>", shell: "</novo-shell>", plan: "</novo-plan>" } as const;
+const OPENERS = ["<novo-file", "<novo-shell", "<novo-delete", "<novo-plan", "<novo-continue"];
+const CLOSERS = { file: "</novo-file>", shell: "</novo-shell>", plan: "</novo-plan>", continue: "</novo-continue>" } as const;
 
 function attr(tag: string, name: string): string | null {
   const m = tag.match(new RegExp(`${name}\\s*=\\s*["']([^"']+)["']`));
@@ -53,6 +55,10 @@ export class ActionParser {
   private buf = "";
   private mode: Mode = { kind: "text" };
 
+  get pendingFile(): string | null { return this.mode.kind === "file" ? this.mode.path : null; }
+
+  get incomplete(): boolean { return this.mode.kind !== "text"; }
+
   feed(chunk: string): ParserEvent[] {
     this.buf += chunk;
     const out: ParserEvent[] = [];
@@ -72,7 +78,7 @@ export class ActionParser {
       out.push({ type: "file-close", path: m.path, content: cleanFileContent(m.content) });
     } else {
       const text = (m.content + this.buf).trim();
-      out.push(m.tag === "shell" ? { type: "shell", command: text } : { type: "plan", text });
+      out.push(m.tag === "shell" ? { type: "shell", command: text } : { type: m.tag === "continue" ? "continue" : "plan", text });
     }
     this.buf = "";
     this.mode = { kind: "text" };
@@ -131,7 +137,7 @@ export class ActionParser {
           if (this.buf.startsWith("</novo-delete>")) this.buf = this.buf.slice("</novo-delete>".length);
         }
       } else {
-        this.mode = { kind: "block", tag: opener === "<novo-shell" ? "shell" : "plan", content: "" };
+        this.mode = { kind: "block", tag: opener === "<novo-shell" ? "shell" : opener === "<novo-continue" ? "continue" : "plan", content: "" };
       }
       return true;
     }
@@ -155,7 +161,7 @@ export class ActionParser {
       out.push({ type: "file-close", path: m.path, content: cleanFileContent(m.content) });
     } else {
       const text = (m.content + body).trim();
-      out.push(m.tag === "shell" ? { type: "shell", command: text } : { type: "plan", text });
+      out.push(m.tag === "shell" ? { type: "shell", command: text } : { type: m.tag === "continue" ? "continue" : "plan", text });
     }
     this.mode = { kind: "text" };
     return true;

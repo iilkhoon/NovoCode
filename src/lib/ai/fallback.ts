@@ -12,35 +12,30 @@ export async function* withFallback<E>(opts: {
   onFail?: (model: string) => void;
   stream: (model: string, signal: AbortSignal) => AsyncIterable<E>;
   signal?: AbortSignal;
-  /** silence allowed before the first event of any kind */
-  firstEventMs?: number;
-  /** which events are real reply text (others, like hidden reasoning, only prove the model is alive) */
-  isContent?: (event: E) => boolean;
-  /** time allowed until the first content event, even while the model keeps thinking */
-  contentMs?: number;
+  firstEventMs?: number | ((model: string) => number);
+  /** Reasoning/usage do not count as visible output. */
+  isAnswer?: (event: E) => boolean;
 }): AsyncGenerator<FallbackEvent<E>> {
-  const { models, stream, signal, onFail, firstEventMs = 12_000, isContent = () => true, contentMs = 45_000 } = opts;
+  const { models, stream, signal, onFail, firstEventMs = 25_000 } = opts;
   let lastError: unknown = new Error("Heç bir model mövcud deyil");
   for (const [i, model] of models.entries()) {
     if (signal?.aborted) return;
     if (i > 0) yield { kind: "switch", model, reason: (lastError as Error)?.message ?? "" };
+    const waitMs = typeof firstEventMs === "function" ? firstEventMs(model) : firstEventMs;
     const ac = new AbortController();
     const onAbort = () => ac.abort();
     signal?.addEventListener("abort", onAbort);
-    let alive = false; // any event seen
-    let started = false; // reply text seen — from here on we never switch
-    let timedOut = "";
-    const timer = setTimeout(() => ((timedOut = `${Math.round(firstEventMs / 1000)} saniyədə cavab vermədi`), ac.abort()), firstEventMs);
-    const contentTimer = setTimeout(() => ((timedOut = `${Math.round(contentMs / 1000)} saniyədə mətn yazmadı`), ac.abort()), contentMs);
+    let started = false;
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      ac.abort();
+    }, waitMs);
     try {
       for await (const event of stream(model, ac.signal)) {
-        if (!alive) {
-          alive = true;
-          clearTimeout(timer);
-        }
-        if (!started && isContent(event)) {
+        if (!started && (opts.isAnswer?.(event) ?? true)) {
           started = true;
-          clearTimeout(contentTimer);
+          clearTimeout(timer);
         }
         yield { kind: "event", event };
       }
@@ -49,11 +44,10 @@ export async function* withFallback<E>(opts: {
       onFail?.(model);
     } catch (e) {
       if (started || signal?.aborted) throw e; // never splice two models into one reply
-      lastError = timedOut ? new Error(`${model} ${timedOut}`) : e;
+      lastError = timedOut ? new Error(`${model} ${Math.round(waitMs / 1000)} saniyədə cavab vermədi`) : e;
       onFail?.(model);
     } finally {
       clearTimeout(timer);
-      clearTimeout(contentTimer);
       signal?.removeEventListener("abort", onAbort);
     }
   }

@@ -32,14 +32,15 @@ interface Config {
   models: ModelSetting[];
   defaultModel?: string;
   nvidia: { configured: boolean };
+  deepseek?: { configured: boolean };
   catalog: { provider: string; ids: string[]; error?: string }[];
 }
 
 const KINDS = [
+  { id: "deepseek", name: "DeepSeek", url: "https://api.deepseek.com/v1" },
   { id: "openrouter", name: "OpenRouter", url: "https://openrouter.ai/api/v1" },
   { id: "anthropic", name: "Anthropic", url: "https://api.anthropic.com/v1" },
   { id: "openai", name: "OpenAI", url: "https://api.openai.com/v1" },
-  { id: "deepseek", name: "DeepSeek", url: "https://api.deepseek.com/v1" },
   { id: "own", name: "Öz serverim (OpenAI uyğun)", url: "http://" },
 ];
 
@@ -126,7 +127,7 @@ export function AdminPanel() {
 
   if (!api.pass || !cfg) return <Gate error={error} onLogin={(p) => load(p)} loading={!!api.pass && !cfg && !error} />;
 
-  const activeProviders = cfg.providers.filter((p) => p.enabled).length + (cfg.nvidia.configured ? 1 : 0);
+  const activeProviders = cfg.providers.filter((p) => p.enabled).length + (cfg.nvidia.configured ? 1 : 0) + (cfg.deepseek?.configured && !cfg.providers.some((p) => p.id === "deepseek") ? 1 : 0);
   const visibleModels = cfg.catalog.reduce((n, c) => n + c.ids.filter((id) => isVisible(cfg, c.provider, id)).length, 0);
 
   return (
@@ -181,6 +182,9 @@ export function AdminPanel() {
             <div className="flex flex-col gap-4">
               <div className="overflow-hidden rounded-3xl border border-ink-100/8 bg-ink-1000">
                 <Row icon={<KeyRound />} title="NVIDIA" sub={`integrate.api.nvidia.com · ${cfg.nvidia.configured ? "açar serverin .env faylındadır" : "NVIDIA_API_KEY təyin edilməyib"}`} on={cfg.nvidia.configured} />
+                {cfg.deepseek?.configured && !cfg.providers.some((p) => p.id === "deepseek") && (
+                  <Row icon={<KeyRound />} title="DeepSeek" sub="api.deepseek.com · açar serverin .env faylındadır" on />
+                )}
                 {cfg.providers.map((p) => (
                   <Row
                     key={p.id}
@@ -391,7 +395,8 @@ function UsageTab({ pass }: { pass: string }) {
 
 function isVisible(cfg: Config, provider: string, id: string) {
   const s = cfg.models.find((m) => m.id === id);
-  return provider === "nvidia" ? s?.visible !== false : s?.visible === true;
+  const deepSeek = provider === "deepseek" || cfg.providers.some((p) => p.id === provider && /^https:\/\/api\.deepseek\.com(?:\/|$)/.test(p.baseUrl));
+  return provider === "nvidia" || deepSeek ? s?.visible !== false : s?.visible === true;
 }
 
 function ModelsTab({ cfg, update }: { cfg: Config; update: (p: Partial<Config>) => void }) {
@@ -532,7 +537,7 @@ function Stat({ icon, label, value, note }: { icon: React.ReactNode; label: stri
 }
 
 function AddProvider({ open, taken, onClose, onAdd }: { open: boolean; taken: string[]; onClose: () => void; onAdd: (p: Provider) => void }) {
-  const [kind, setKind] = useState("openrouter");
+  const [kind, setKind] = useState(KINDS[0].id);
   const [url, setUrl] = useState(KINDS[0].url);
   const [key, setKey] = useState("");
   const k = KINDS.find((x) => x.id === kind)!;
@@ -582,7 +587,7 @@ function AddProvider({ open, taken, onClose, onAdd }: { open: boolean; taken: st
             </Select>
           )}
         </Field>
-        <Field label="API ünvanı" hint="OpenAI uyğun /v1 ünvanı (…/chat/completions və …/models olmalıdır).">
+        <Field label="API ünvanı" hint="OpenAI uyğun /v1 ünvanı. Model siyahısı serverdən alınır.">
           {(fid, d) => <Input id={fid} aria-describedby={d} value={url} onChange={(e) => setUrl(e.target.value)} className="font-mono" />}
         </Field>
         <Field label="API açarı" hint="Serverdə şifrələnmiş saxlanılır, istifadəçilərə heç vaxt göstərilmir.">

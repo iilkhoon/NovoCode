@@ -10,6 +10,8 @@ export function applyEvent(parts: Part[], e: ParserEvent): Part[] {
       return [...parts, { kind: "text", text: e.text }];
     case "plan":
       return [...parts, { kind: "plan", text: e.text }];
+    case "file-abort":
+      return parts.filter((p) => !(p.kind === "file" && p.path === e.path && p.status === "writing"));
     case "file-open":
       return [...parts, { kind: "file", path: e.path, status: "writing" }];
     case "file-close": {

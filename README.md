@@ -35,6 +35,29 @@ npm run dev                  # http://localhost:3000
 
 > Studiya **Chrome, Edge və ya Brave** brauzerində ən yaxşı işləyir (WebContainers üçün cross-origin isolation lazımdır).
 
+### Önizləmə açılmırsa
+
+- Lokal kompüterdə brauzerin ünvan sətrində `http://localhost:3000` açın. `http://192.168.x.x:3000` kimi HTTP şəbəkə ünvanları təhlükəsiz kontekst sayılmır; başqa cihazdan giriş üçün HTTPS lazımdır.
+- `next.config.ts` COOP (`same-origin`) və COEP (`credentialless`) başlıqlarını verir. Proksi bu başlıqları silməməlidir. Konfiqurasiya dəyişdikdə dev serveri yenidən başladın və səhifəni tam yeniləyin.
+- Brauzer konsolunda `window.isSecureContext` və `window.crossOriginIsolated` hər ikisi `true` olmalıdır. Müasir masaüstü Chrome və ya Edge istifadə edin.
+- Layihələr brauzerdə ünvan üzrə saxlanılır: IP ünvanından `localhost`-a keçdikdə köhnə layihə görünməyə bilər. Keçməzdən əvvəl layihənin kodunu ixrac edin.
+
+AI modelindən görünən cavab gəlmirsə, yalnız düşünmə siqnalları vaxt limitini söndürmür: NVIDIA üçün 25 saniyə, birbaşa DeepSeek Flash üçün 60 saniyə, Pro üçün 90 saniyə gözlənilir. Flash-dan Pro/reasoning modelinə avtomatik keçilmir. İlk cavab mətni gəldikdən sonra model dəyişdirilmir. Provayderin növbəsi və cavab sürəti ayrıca gecikmə yarada bilər.
+
+Model seçicisində DeepSeek mətn modelləri `Novo Flash`, Pro/reasoning modelləri `Novo V4 Pro` adı ilə göstərilir. Bunlar interfeys adlarıdır; API-yə faktiki model ID-si göndərilir. Köhnə `deepseek-chat` ID-si kataloqda yoxdursa, mövcud Flash modeli Pro-dan əvvəl seçilir.
+
+Önizləmənin yeniləmə düymələri yalnız iframe-i və lazım gəlsə layihənin runtime prosesini yenidən başladır; söhbət səhifəsi yenilənmir.
+
+### DeepSeek qoşmaq
+
+`.env.local` faylında `DEEPSEEK_API_KEY` təyin edin, `DEEPSEEK_MODEL=deepseek-chat` yazın və serveri yenidən başladın. Açarı yalnız serverdə saxlayın. DeepSeek NVIDIA açarı olmadan da işləyir. Model seçicidə `deepseek-chat · DeepSeek` görünəcək; standart seçimi məcbur etmək üçün `NOVO_DEFAULT_MODEL=deepseek::deepseek-chat` istifadə edin. Hesabınız başqa model verirsə, `DEEPSEEK_MODEL` və standart modeldə dəqiq model ID-sini yazın.
+
+Alternativ: `NOVO_ADMIN_PASSWORD` təyin edib `/admin` → Provayderlər → Provayder əlavə et → DeepSeek seçin, açarı daxil edin və yadda saxlayın. Sonra Modellər bölməsindən standart modeli seçin. Admin açarları serverdə şifrələyərək saxlayır; bu yol üçün yazıla bilən, daimi `.data` qovluğu lazımdır. Eyni provayder üçün admin qeydi `.env.local` açarından üstün tutulur.
+
+Sorğular serverdən `https://api.deepseek.com/v1/chat/completions` ünvanına OpenAI uyğun formatda göndərilir. Model siyahısı DeepSeek `/models` endpoint-indən alınır. Mətn modeli seçildikdə şəkilli sorğular üçün ayrıca görüntü modeli lazımdır. `deepseek-chat` üçün cavab limiti 8192, V4 modelləri üçün 16384 tokendir. V4 sorğularında düşünmə rejimi açıq şəkildə söndürülür (`thinking.type=disabled`), çıxış büdcəsi kod üçün saxlanılır. Sayt kiçik, tamamlanmış fayl paketləri ilə qurulur; `<novo-continue>` qalan işləri növbəti sorğuya ötürür. İlk paket işlək səhifə yaratmalıdır. Ən çox 12 paket işlənir; iki ardıcıl paketdə heç bir fayl dəyişikliyi yoxdursa proses dayandırılır. Bağlanmış fayllar saxlanılır, token limitində yarımçıq qalan fayl isə yaddaşa yazılmadan bütöv şəkildə yenidən istənilir. Paketlər provayderdə ayrıca sorğu və token istifadəsi yaradır. İstifadəçi prosesi dayandıranda davam sorğusu göndərilmir.
+
+Sənədlər: https://api-docs.deepseek.com/ · Platforma: https://platform.deepseek.com/
+
 ### Pulsuz yayım (Vercel)
 1. Repo-nu Vercel-ə qoşun → *Environment Variables* bölməsinə `NVIDIA_API_KEY` əlavə edin.
 2. Deploy. Server xərci yoxdur: AI çağırışları Vercel funksiyasından, saytların işə salınması isə istifadəçinin brauzerində olur.
@@ -88,6 +111,13 @@ always: false
 ```bash
 npm test        # parser, skill seçimi, xəta aşkarlama, prompt, model reytinqi
 npm run build
+```
+
+Generasiya axınının deterministik sınaqları hər iki V4 model ID-si üçün paketlərdən sayt qurur (canlı provayder testi deyil). Lokal Chromium və Node axtarış yolunda `playwright` varsa, brauzer smoke testi:
+
+```bash
+NOVO_GENERATION_OUT=/tmp/novo-generation-smoke npm test
+node scripts/check-generation.mjs
 ```
 
 ## Yol xəritəsi

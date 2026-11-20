@@ -70,3 +70,8 @@ describe("ActionParser", () => {
     expect(merged(runChunks(["a < b ", "<b>bold</b>"]))).toBe("a < b <b>bold</b>");
   });
 });
+
+it("recognizes a planned batch boundary across single-character chunks", () => {
+  const events = runChunks('<novo-continue>Pricing and contact sections</novo-continue>'.split(''));
+  expect(events).toEqual([{ type: "continue", text: "Pricing and contact sections" }]);
+});

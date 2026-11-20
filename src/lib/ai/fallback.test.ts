@@ -51,8 +51,8 @@ describe("withFallback", () => {
     const out = await collect(
       withFallback({
         models: ["thinker", "writer"],
-        contentMs: 40,
-        isContent: (e: string) => e !== "thinking",
+        firstEventMs: 40,
+        isAnswer: (e: string) => e !== "thinking",
         stream: async function* (m, signal) {
           if (m === "thinker") {
             for (;;) {
@@ -93,4 +93,21 @@ describe("orderByHealth", () => {
     expect(orderByHealth(["x", "y", "z"], 2_000)).toEqual(["y", "z", "x"]);
     expect(orderByHealth(["x", "y", "z"], 1_000 + 11 * 60_000)).toEqual(["x", "y", "z"]);
   });
+});
+
+it("switches away from endless reasoning before any answer text", async () => {
+  const out = await collect(withFallback({
+    models: ["thinking", "answering"],
+    firstEventMs: (model) => model === "thinking" ? 30 : 100,
+    isAnswer: (e: { kind: string }) => e.kind === "delta",
+    stream: async function* (model, signal) {
+      if (model === "thinking") {
+        yield { kind: "reasoning" };
+        await sleep(5_000, signal);
+      }
+      yield { kind: "delta" };
+    },
+  }));
+  expect(out).toContainEqual(expect.objectContaining({ kind: "switch", model: "answering" }));
+  expect(out.at(-1)).toEqual({ kind: "event", event: { kind: "delta" } });
 });

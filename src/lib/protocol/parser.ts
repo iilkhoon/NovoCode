@@ -24,7 +24,7 @@ export type ParserEvent =
 
 type Mode =
   | { kind: "text" }
-  | { kind: "file"; path: string; content: string; started: boolean }
+  | { kind: "file"; path: string; content: string; started: boolean; closer?: string }
   | { kind: "block"; tag: "shell" | "plan" | "continue"; content: string };
 
 const OPENERS = ["<novo-file", "<novo-shell", "<novo-delete", "<novo-plan", "<novo-continue"];
@@ -132,6 +132,23 @@ export class ActionParser {
         }
         if (close === -1 && !KNOWN.has(name)) return false;
       }
+      // Some models answer in a generic <files><file path="…">…</file></files> format:
+      // read <file path> as <novo-file> and drop the <files> wrapper instead of printing code.
+      const alias = this.buf.match(/^<(\/?)files\s*>/);
+      if (alias) {
+        this.buf = this.buf.slice(alias[0].length);
+        return true;
+      }
+      if (/^<file\s+path\s*=/.test(this.buf)) {
+        const gt = this.buf.indexOf(">");
+        if (gt === -1) return false;
+        const path = attr(this.buf.slice(0, gt + 1), "path") ?? "untitled.txt";
+        this.buf = this.buf.slice(gt + 1);
+        this.mode = { kind: "file", path, content: "", started: false, closer: "</file>" };
+        out.push({ type: "file-open", path });
+        return true;
+      }
+      if (this.buf.length < 12 && ["<files>", "</files>", "<file path="].some((a) => a.startsWith(this.buf) || (this.buf.startsWith("<file") && /^<files?\s*$/.test(this.buf)))) return false;
       const rest = this.buf;
       const opener = OPENERS.find((o) => rest.startsWith(o));
       if (!opener) {
@@ -162,7 +179,7 @@ export class ActionParser {
       return true;
     }
 
-    let closer: string = m.kind === "file" ? CLOSERS.file : CLOSERS[m.tag];
+    let closer: string = m.kind === "file" ? (m.closer ?? CLOSERS.file) : CLOSERS[m.tag];
     let idx = this.buf.indexOf(closer);
     if (m.kind === "block" && m.tag === "continue") {
       const typo = this.buf.match(/<\/novo-contin[a-z]*>/);

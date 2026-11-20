@@ -39,13 +39,13 @@ export function filesContext(files: Record<string, string>, budget = 60_000): st
   for (const p of paths) {
     const c = files[p];
     if (used + c.length > budget) {
-      bodies.push(`<file path="${p}">(content omitted — over context budget; rewrite fully only if you must change it)</file>`);
+      bodies.push(`===== ${p} =====\n(content omitted — over context budget; rewrite fully only if you must change it)`);
       continue;
     }
     used += c.length;
-    bodies.push(`<file path="${p}">\n${c}\n</file>`);
+    bodies.push(`===== ${p} =====\n${c}`);
   }
-  return `## Project files\n${tree}\n\n## Current contents\n${bodies.join("\n\n")}`;
+  return `## Project files\n${tree}\n\n## Current contents (read-only reference — to change a file, output it again in full inside <novo-file path="…">…</novo-file>; never use <files> or <file> tags)\n${bodies.join("\n\n")}\n===== end of project files =====`;
 }
 
 export type PromptIntent = "build" | "plan" | "chat";

@@ -91,3 +91,15 @@ describe("misspelled and stray tags", () => {
     expect(ev.filter((e) => e.type === "text").map((e: any) => e.text).join("")).toBe("abc<novo-next>X | Y</novo-next>");
   });
 });
+
+describe("generic <files><file path> format", () => {
+  it("writes the files instead of printing the code in chat", () => {
+    const p = new ActionParser();
+    const chunks = ["Premium edirəm.\n\n<fi", 'les>\n<file path="src/a.css">body{}', "</fi", 'le>\n\n<file path="src/App.jsx">\nexport default 1;\n</file>\n</files>\n\nHazırdır.'];
+    const ev = [...chunks.flatMap((c) => p.feed(c)), ...p.end()];
+    expect(ev.filter((e) => e.type === "file-close").map((e: any) => [e.path, e.content])).toEqual([["src/a.css", "body{}"], ["src/App.jsx", "export default 1;\n"]]);
+    const text = ev.filter((e) => e.type === "text").map((e: any) => e.text).join("");
+    expect(text).not.toContain("<file");
+    expect(text).toContain("Hazırdır.");
+  });
+});

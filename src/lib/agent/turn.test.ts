@@ -169,3 +169,30 @@ describe("streamTurn recovery", () => {
     } finally { fetchMock.mockRestore(); }
   });
 });
+
+describe("streamTurn fake file notes", () => {
+  it("asks again when a follow-up batch only claims to have written files", async () => {
+    const { streamTurn } = await import("./turn");
+    const { vi } = await import("vitest");
+    const bodies: any[] = [];
+    const replies = [
+      [JSON.stringify({ t: "d", v: '<novo-file path="src/App.jsx">a</novo-file><novo-continue>pages</novo-continue>' }) + "\n", '{"t":"done"}\n'],
+      [JSON.stringify({ t: "d", v: "Səhifələr yazıldı.\n[wrote files: src/pages/Cart.jsx]" }) + "\n", '{"t":"done"}\n'],
+      [JSON.stringify({ t: "d", v: '<novo-file path="src/pages/Cart.jsx">c</novo-file>Hazırdır.' }) + "\n", '{"t":"done"}\n'],
+    ];
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (_u, init) => {
+      bodies.push(JSON.parse(String(init!.body)));
+      return new Response(streamOf(replies.shift()!));
+    });
+    const events: any[] = [];
+    try {
+      const raw = await streamTurn({ messages: [{ role: "user", content: "sayt" }], files: {}, onEvent: (e) => events.push(e) });
+      expect(events.filter((e) => e.type === "file-close").map((e) => e.path)).toEqual(["src/App.jsx", "src/pages/Cart.jsx"]);
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+      expect(bodies[2].messages.at(-1).content).toContain("only CLAIMED");
+      expect(bodies[1].messages.some((m: any) => m.role === "assistant")).toBe(false);
+      expect(raw).not.toContain("[wrote files");
+      expect(events.filter((e) => e.type === "text").map((e) => e.text).join("")).not.toContain("[wrote files");
+    } finally { fetchMock.mockRestore(); }
+  });
+});

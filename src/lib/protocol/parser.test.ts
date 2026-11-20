@@ -75,3 +75,19 @@ it("recognizes a planned batch boundary across single-character chunks", () => {
   const events = runChunks('<novo-continue>Pricing and contact sections</novo-continue>'.split(''));
   expect(events).toEqual([{ type: "continue", text: "Pricing and contact sections" }]);
 });
+
+describe("misspelled and stray tags", () => {
+  const run = (chunks: string[]) => {
+    const p = new ActionParser();
+    return [...chunks.flatMap((c) => p.feed(c)), ...p.end()];
+  };
+  it("reads <novo-continure> as a continue block and hides it from the text", () => {
+    const ev = run(["Hazır.<novo-contin", "ure>qalan səhifələr</novo-contin", "ure> son"]);
+    expect(ev.filter((e) => e.type === "continue")).toEqual([{ type: "continue", text: "qalan səhifələr" }]);
+    expect(ev.filter((e) => e.type === "text").map((e: any) => e.text).join("")).toBe("Hazır. son");
+  });
+  it("drops unknown novo tags but keeps <novo-next>", () => {
+    const ev = run(["a<novo-foo>b</novo-file>c<novo-next>X | Y</novo-next>"]);
+    expect(ev.filter((e) => e.type === "text").map((e: any) => e.text).join("")).toBe("abc<novo-next>X | Y</novo-next>");
+  });
+});

@@ -28,6 +28,10 @@ type Mode =
   | { kind: "block"; tag: "shell" | "plan" | "continue"; content: string };
 
 const OPENERS = ["<novo-file", "<novo-shell", "<novo-delete", "<novo-plan", "<novo-continue"];
+/** Tag names the UI understands; <novo-next> stays in the text and is read by the chat view. */
+const KNOWN = new Set(["file", "shell", "delete", "plan", "continue", "next"]);
+/** Free models misspell tags (<novo-continure>, <novo-contine>): read them as the real one. */
+const CONTINUE_LIKE = /^contin[a-z]*$/;
 const CLOSERS = { file: "</novo-file>", shell: "</novo-shell>", plan: "</novo-plan>", continue: "</novo-continue>" } as const;
 
 function attr(tag: string, name: string): string | null {
@@ -112,6 +116,22 @@ export class ActionParser {
         out.push({ type: "text", text: this.buf.slice(0, lt) });
         this.buf = this.buf.slice(lt);
       }
+      // misspelled or stray <novo-…> tags must never show up as chat text
+      const nt = this.buf.match(/^<(\/?)novo-([a-z-]*)([\s/>])?/);
+      if (nt && !nt[3] && this.buf.length < 40) return false; // tag name still arriving
+      if (nt && nt[3]) {
+        const [whole, slash, name] = nt;
+        if (CONTINUE_LIKE.test(name) && name !== "continue") {
+          this.buf = `<${slash}novo-continue` + this.buf.slice(whole.length - 1);
+          return true;
+        }
+        const close = this.buf.indexOf(">");
+        if (close !== -1 && (!KNOWN.has(name) || (slash && name !== "next"))) {
+          this.buf = this.buf.slice(close + 1); // unknown tag, or a closer with nothing open
+          return true;
+        }
+        if (close === -1 && !KNOWN.has(name)) return false;
+      }
       const rest = this.buf;
       const opener = OPENERS.find((o) => rest.startsWith(o));
       if (!opener) {
@@ -142,10 +162,15 @@ export class ActionParser {
       return true;
     }
 
-    const closer = m.kind === "file" ? CLOSERS.file : CLOSERS[m.tag];
-    const idx = this.buf.indexOf(closer);
+    let closer: string = m.kind === "file" ? CLOSERS.file : CLOSERS[m.tag];
+    let idx = this.buf.indexOf(closer);
+    if (m.kind === "block" && m.tag === "continue") {
+      const typo = this.buf.match(/<\/novo-contin[a-z]*>/);
+      if (typo && (idx === -1 || typo.index! < idx)) [idx, closer] = [typo.index!, typo[0]];
+    }
     if (idx === -1) {
-      const keep = partialSuffix(this.buf, closer);
+      let keep = partialSuffix(this.buf, closer);
+      if (m.kind === "block" && m.tag === "continue") keep = Math.max(keep, this.buf.match(/<\/novo-contin[a-z]*$/)?.[0].length ?? 0);
       const emit = this.buf.slice(0, this.buf.length - keep);
       this.buf = this.buf.slice(this.buf.length - keep);
       if (emit) {

@@ -209,7 +209,8 @@ export class ProjectRuntime {
     this.dev?.kill();
     this.setStatus("starting");
     this.emit("\r\n\x1b[2m$ npm run dev\x1b[0m\r\n");
-    const dev = await this.wc.spawn("npm", ["run", "dev"]);
+    const [cmd, args] = devCommand(this.installedPkgJson);
+    const dev = await this.wc.spawn(cmd, args);
     this.dev = dev;
     this.pipe(dev);
     dev.exit.then(async (code) => {
@@ -328,4 +329,19 @@ export class ProjectRuntime {
     const all = [fromLog, fromPreview && `Browser runtime errors:\n${fromPreview}`].filter(Boolean).join("\n\n");
     return all || null;
   }
+}
+
+/**
+ * `npm run dev` runs node_modules/.bin/vite, which loses its executable bit when node_modules is
+ * restored from the IndexedDB snapshot ("spawn vite EACCES"). Vite is a plain JS file, so run it
+ * through node directly; anything other than a plain `vite …` script still goes through npm.
+ */
+export function devCommand(pkgJson?: string): [string, string[]] {
+  let script = "";
+  try {
+    script = String(JSON.parse(pkgJson ?? "{}").scripts?.dev ?? "");
+  } catch {}
+  const m = script.trim().match(/^vite((?:\s+[\w=:./-]+)*)$/);
+  if (m) return ["node", ["node_modules/vite/bin/vite.js", ...m[1].trim().split(/\s+/).filter(Boolean)]];
+  return ["npm", ["run", "dev"]];
 }

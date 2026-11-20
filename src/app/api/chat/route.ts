@@ -1,4 +1,4 @@
-import { streamChat, listModels, preferredModel, type ChatMessage } from "@/lib/ai/nvidia";
+import { streamChat, listModels, preferredModel, type ChatMessage, type StreamEvent } from "@/lib/ai/nvidia";
 import { pickDefault } from "@/lib/ai/models";
 import { buildSystemPrompt, COMPACT_PROMPT } from "@/lib/ai/prompt";
 import { loadSkills } from "@/lib/skills/load";
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
       let tokens = 0, chars = 0, ok = true;
       try {
         let thinking = 0;
-        for await (const step of withFallback({ models: orderByHealth([model!, ...backups]), onFail: markDown, signal: req.signal, stream: (m, signal) => streamChat({ model: m, messages, signal }) })) {
+        for await (const step of withFallback<StreamEvent>({ models: orderByHealth([model!, ...backups]), onFail: markDown, signal: req.signal, isContent: (ev) => ev.kind === "delta", stream: (m, signal) => streamChat({ model: m, messages, signal }) })) {
           if (step.kind === "switch") {
             model = step.model;
             send({ t: "meta", model, skills: skills.map((s) => s.name) });

@@ -47,6 +47,27 @@ describe("withFallback", () => {
     expect(out[0]).toMatchObject({ kind: "switch", model: "fast" });
   });
 
+  it("moves on when a model only thinks and never writes", async () => {
+    const out = await collect(
+      withFallback({
+        models: ["thinker", "writer"],
+        contentMs: 40,
+        isContent: (e: string) => e !== "thinking",
+        stream: async function* (m, signal) {
+          if (m === "thinker") {
+            for (;;) {
+              yield "thinking";
+              await sleep(10, signal);
+            }
+          }
+          yield "text";
+        },
+      })
+    );
+    expect(out.at(-1)).toEqual({ kind: "event", event: "text" });
+    expect(out.find((e) => e.kind === "switch")).toMatchObject({ model: "writer" });
+  });
+
   it("never switches once a model has started answering", async () => {
     const run = collect(
       withFallback({

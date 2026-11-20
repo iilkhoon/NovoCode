@@ -7,7 +7,29 @@ const COLOR_TOKENS = ["background", "foreground", "muted", "muted-foreground", "
 
 export function sanitizeFile(path: string, content: string): string {
   if (/\.css$/.test(path)) return sanitizeCss(content);
+  if (/\.(jsx?|tsx?)$/.test(path)) return sanitizeImports(content);
   return content;
+}
+
+/** Misspelt package names in imports ("lucide.react", "framer_motion", "react-router") that break the build. */
+const PACKAGE_FIXES: [RegExp, string][] = [
+  [/^lucide[._ ]?react$|^lucide$|^lucide-icons$/i, "lucide-react"],
+  [/^framer[._ ]motion$/i, "framer-motion"],
+  [/^motion[._ ]react$/i, "motion/react"],
+  [/^react[._ ]router[._ ]dom$/i, "react-router-dom"],
+];
+
+export function sanitizeImports(code: string): string {
+  const out = code.replace(/(\bfrom\s*|\bimport\s*\(?\s*)(["'])([^"'\n]+)\2/g, (all, pre: string, q: string, spec: string) => {
+    const fix = PACKAGE_FIXES.find(([re, to]) => spec !== to && re.test(spec));
+    return fix ? `${pre}${q}${fix[1]}${q}` : all;
+  });
+  // React.useState(...) with no React import: works in old JSX setups, "React is not defined" here
+  const missing: string[] = [];
+  if (/\bReact\.\w/.test(out) && !/import\s+(\*\s+as\s+)?React\b/.test(out)) missing.push(`import React from "react";`);
+  // the kit's class-name helper, used everywhere and often forgotten
+  if (/(^|[^.\w])cn\(/.test(out) && !/\bcn\b[^\n]*from|(function|const|let)\s+cn\b/.test(out)) missing.push(`import { cn } from "@/lib/utils";`);
+  return missing.length ? `${missing.join("\n")}\n${out}` : out;
 }
 
 export function sanitizeCss(css: string): string {

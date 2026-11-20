@@ -9,18 +9,25 @@ export interface ModelInfo {
 
 const EXCLUDE = /embed|rerank|guard|safety|reward|parse|clip|tts|asr|whisper|ocr|retriever|nemoretriever|detector|translate|riva|cosmos|flux|sdxl|stable-diffusion|bge|arctic-embed|nv-embed|pii|topic-control|jailbreak|deplot|kosmos|fuyu|neva|paligemma|vila|starcoder|codegemma|gemma-2b|-1b|-3b|-8b|-7b/i;
 
+// Order measured on build.nvidia.com (Nov 2026) with hidden reasoning switched off: models that
+// start writing within ~1s and stream fast come first; ones that hang or think for minutes go last.
 const PREFERENCE: RegExp[] = [
-  /glm-5/i,
-  /gemma-4/i, // fast, no long hidden reasoning — a good first fallback
-  /kimi-k2/i,
+  /nemotron-3\.5-super/i, // ~0.5s to first text, fast, reads screenshots
+  /nemotron-3-ultra/i,
+  /gemma-4/i,
+  /laguna/i, // very fast coder
+  /kimi-k[23]/i,
   /deepseek-v4|deepseek-v3/i,
   /qwen3-coder/i,
   /qwen3/i,
+  /minimax/i,
+  /nemotron-3\.5-lightning/i,
   /nemotron.*(ultra|super)/i,
   /gpt-oss-120b/i,
   /llama-4-maverick/i,
-  /mistral-(large|medium)|devstral|codestral/i,
-  /glm|minimax|deepseek/i,
+  /glm-5/i, // often silent for 60s+
+  /mistral-(large|medium)|devstral|codestral/i, // keeps reasoning even when asked not to
+  /glm|deepseek/i,
 ];
 
 const VISION = /vision|-vl|vl-|kimi-k2\.[5-9]|kimi-k2-vision|llama-4|gemma-3|phi-4-multimodal|nemotron.*vl|mistral-medium-3|qwen.*vl|glm-.*v\b|glm-4\.\dv|multimodal/i;

@@ -17,10 +17,10 @@ describe("rankModels", () => {
   it("drops non-chat models and orders by coding preference", () => {
     const r = rankModels(ids).map((m) => m.id);
     expect(r.slice(0, 4)).toEqual([
-      "z-ai/glm-5.2",
       "moonshotai/kimi-k2.6",
       "deepseek-ai/deepseek-v4-pro",
       "qwen/qwen3-coder-480b-a35b-instruct",
+      "z-ai/glm-5.2",
     ]);
     expect(r).not.toContain("nvidia/nv-embedqa-e5-v5");
     expect(r).not.toContain("nvidia/nv-rerankqa-mistral-4b-v3");
@@ -36,8 +36,14 @@ describe("rankModels", () => {
   it("pickDefault honours env override when available", () => {
     const r = rankModels(ids);
     expect(pickDefault(r, "deepseek-ai/deepseek-v4-pro")).toBe("deepseek-ai/deepseek-v4-pro");
-    expect(pickDefault(r, "missing/model")).toBe("z-ai/glm-5.2");
+    expect(pickDefault(r, "missing/model")).toBe("moonshotai/kimi-k2.6");
     expect(pickDefault(r, undefined, true)).toBe("moonshotai/kimi-k2.6");
+  });
+
+  it("puts fast-starting NVIDIA models ahead of ones that hang", () => {
+    const r = rankModels(["z-ai/glm-5.3-flash", "google/gemma-4-31b-it", "nvidia/nemotron-3.5-super-vl-120b-a12b", "mistralai/mistral-large-4-1t-a52b"]);
+    expect(r.map((m) => m.id)).toEqual(["nvidia/nemotron-3.5-super-vl-120b-a12b", "google/gemma-4-31b-it", "z-ai/glm-5.3-flash", "mistralai/mistral-large-4-1t-a52b"]);
+    expect(r[0].vision).toBe(true);
   });
 });
 

@@ -19,7 +19,7 @@ export async function* withFallback<E>(opts: {
   /** time allowed until the first content event, even while the model keeps thinking */
   contentMs?: number;
 }): AsyncGenerator<FallbackEvent<E>> {
-  const { models, stream, signal, onFail, firstEventMs = 25_000, isContent = () => true, contentMs = 120_000 } = opts;
+  const { models, stream, signal, onFail, firstEventMs = 12_000, isContent = () => true, contentMs = 45_000 } = opts;
   let lastError: unknown = new Error("Heç bir model mövcud deyil");
   for (const [i, model] of models.entries()) {
     if (signal?.aborted) return;

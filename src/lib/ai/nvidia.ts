@@ -125,6 +125,9 @@ export async function* streamChat(opts: {
       temperature: 0.4,
       top_p: 0.95,
       max_tokens: opts.maxTokens ?? 16384,
+      // NVIDIA's reasoning models otherwise think silently for 30s–minutes before the first word;
+      // for site building, starting to write at once matters more (other providers may reject the field)
+      ...(ep.id === "nvidia" ? { chat_template_kwargs: { enable_thinking: false } } : {}),
     }),
     signal: opts.signal,
   });
